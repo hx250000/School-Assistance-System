@@ -267,3 +267,8 @@ stock
 本项目通过构建一个校园互助平台，实现了任务发布、任务撮合、积分系统与信用评价等核心功能。  
 该系统不仅能够提升校园生活便利性，也为学习移动应用开发和后端系统设计提供了实践平台。
 
+---
+
+## 前端设计figma
+
+figma链接：https://www.figma.com/make/PXZVzo1M60FPqofg27rXuK/campusTask?t=fIeBEZ06svHOHP5D-1
