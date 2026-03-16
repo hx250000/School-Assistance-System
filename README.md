@@ -23,13 +23,21 @@ CampusTask 是一个面向大学校园场景的互助任务平台。
 
 ## 技术架构
 Android App
+
 │
+
 │ HTTP / Retrofit
+
 ▼
+
 SpringBoot 后端
+
 │
+
 ├── MySQL 数据库
+
 ├── Redis（缓存 / 并发控制）
+
 └── WebSocket（实时聊天）
 
 
