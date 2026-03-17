@@ -280,3 +280,4 @@ stock
 ## 前端设计figma
 
 figma链接：https://www.figma.com/make/PXZVzo1M60FPqofg27rXuK/campusTask?t=fIeBEZ06svHOHP5D-1
+https://www.figma.com/make/PXZVzo1M60FPqofg27rXuK/campusTask?p=f&t=Cc1GF2AmtXYo4YUW-0&preview-route=%2Fprofile
