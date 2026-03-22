@@ -12,9 +12,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var adapter: TaskAdapter
     private val allTasks = listOf(
-        Task("王者荣耀开黑", "1/3人", "20积分", "今晚8点", "游戏"),
-        Task("英雄联盟组队", "2/4人", "25积分", "今晚9点", "游戏"),
-        Task("帮忙带饭", "0/1人", "15积分", "中午", "生活")
+        Task("王者荣耀开黑", "1/3人", "20积分", "今晚8点", "游戏", "publish"),
+        Task("英雄联盟组队", "2/4人", "25积分", "今晚9点", "游戏","publish"),
+        Task("帮忙带饭", "0/1人", "15积分", "中午", "生活","publish")
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

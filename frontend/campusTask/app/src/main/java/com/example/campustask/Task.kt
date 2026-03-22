@@ -5,5 +5,6 @@ data class Task(
     val people: String,
     val score: String,
     val time: String,
-    val category: String
+    val category: String,
+    val status: String
 )

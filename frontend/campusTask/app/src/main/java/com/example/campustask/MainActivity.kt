@@ -28,8 +28,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_home -> loadFragment(HomeFragment())
 
                 R.id.nav_publish -> loadFragment(PublishFragment())
-//
-//                R.id.nav_task -> loadFragment(TaskFragment())
+
+                R.id.nav_task -> loadFragment(MyTaskFragment())
 //
 //                R.id.nav_shop -> loadFragment(ShopFragment())
 //

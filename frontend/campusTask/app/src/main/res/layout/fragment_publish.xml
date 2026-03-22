@@ -39,10 +39,9 @@
                 android:text="让小伙伴来帮你吧"
                 android:textColor="#FFFFFF"
                 android:layout_marginTop="4dp"/>
-
         </LinearLayout>
 
-        <!-- 内容区 -->
+        <!-- 内容 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,6 +64,7 @@
                     android:textStyle="bold"/>
 
                 <EditText
+                    android:id="@+id/et_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="给你的任务起个吸引人的标题吧~"
@@ -93,18 +93,21 @@
                     android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/btn_life"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="生活"
                         android:background="@drawable/bg_type_selected"/>
 
                     <Button
+                        android:id="@+id/btn_game"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="游戏"
                         android:layout_marginStart="10dp"/>
 
                     <Button
+                        android:id="@+id/btn_study"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="学习"
@@ -128,6 +131,7 @@
                     android:textStyle="bold"/>
 
                 <EditText
+                    android:id="@+id/et_desc"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:hint="详细描述任务内容和要求"
@@ -135,76 +139,9 @@
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
-            <!-- 人数 + 积分 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_card"
-                    android:padding="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="需要人数"/>
-
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="1"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_card"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginStart="10dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="积分奖励"/>
-
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="10"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 截止时间 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_card"
-                android:padding="16dp"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="截止时间 *"/>
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="yyyy/mm/dd"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
-
             <!-- 发布按钮 -->
             <Button
+                android:id="@+id/btn_publish"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:text="✨ 发布任务"
