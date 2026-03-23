@@ -30,10 +30,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_publish -> loadFragment(PublishFragment())
 
                 R.id.nav_task -> loadFragment(MyTaskFragment())
-//
-//                R.id.nav_shop -> loadFragment(ShopFragment())
-//
-//                R.id.nav_profile -> loadFragment(ProfileFragment())
+
+                R.id.nav_shop -> loadFragment(ShopFragment())
+
+                R.id.nav_profile -> loadFragment(ProfileFragment())
             }
             true
         }
