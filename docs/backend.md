@@ -197,6 +197,7 @@ Authorization: Bearer {token}
 | points       | int      | 积分   |
 | credit_score | int      | 信用值  |
 | created_at   | datetime | 创建时间 |
+| avatar_url   | varchar  | 用户头像 |
 
 ---
 
@@ -212,6 +213,7 @@ Authorization: Bearer {token}
 | current_people | int     | 当前人数 |
 | reward_points  | int     | 奖励积分 |
 | status         | varchar | 任务状态 |
+| type           | enum    | 任务类型 |
 
 ---
 
@@ -224,6 +226,36 @@ Authorization: Bearer {token}
 | user_id | bigint | 用户ID |
 
 ---
+
+## 积分明细表 points_history
+| 字段名 | 	类型 | 	描述 |
+| id | 	bigint | 	主键 ID |
+| user_id |	bigint | 	关联用户 ID |
+| type | 	varchar | 	类型：TASK_REWARD (任务奖励), SHOP_EXCHANGE (商城兑换), SIGN_IN (签到) |
+| amount | 	int | 	变动数值（正数为增加，负数为减少） |
+| balance | 	int | 	变动后的账户余额（方便前端直接显示） |
+| description | 	varchar | 	简短描述，如“完成任务：帮带饭” |
+| created_at | 	datetime | 	记录时间 |
+
+---
+
+## 成就表 achievement
+字段名,类型,描述
+id,int,成就 ID
+name,varchar,成就名称，如“初露锋芒”、“校园活雷锋”
+description,varchar,达成条件描述
+icon_url,varchar,成就图标的图片链接
+points_bonus,int,达成成就额外奖励的积分（可选）
+
+---
+
+## 用户成就关联表 user_achievement
+字段名,类型,描述
+id,bigint,主键 ID
+user_id,bigint,关联用户 ID
+achievement_id,int,关联成就 ID
+achieved_at,datetime,获得成就的时间
+
 
 # 7. API 接口说明
 
@@ -247,11 +279,17 @@ Authorization: Bearer {token}
 积分模块：
 
 * GET /api/points/info
+* GET /api/points/history
 
 商城模块：
 
 * GET /api/shop/items
 * POST /api/shop/exchange
+* GET /api/shop/exchange/records
+
+成就模块：
+
+* GET /api/user/achievements
 
 ---
 
@@ -260,10 +298,6 @@ Authorization: Bearer {token}
 ```
 backend
  ├── controller
- │    ├── UserController
- │    ├── TaskController
- │    ├── PointsController
- │    └── ShopController
  │
  ├── service
  │
