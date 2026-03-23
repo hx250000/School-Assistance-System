@@ -281,3 +281,14 @@ stock
 
 figma链接：https://www.figma.com/make/PXZVzo1M60FPqofg27rXuK/campusTask?t=fIeBEZ06svHOHP5D-1
 https://www.figma.com/make/PXZVzo1M60FPqofg27rXuK/campusTask?p=f&t=Cc1GF2AmtXYo4YUW-0&preview-route=%2Fprofile
+
+---
+
+## 团队分工
+
+| 成员   | 职责                          |
+|--------|-------------------------------|
+| 姚益多 | 前端页面编写+部分前后端联调   |
+| 何兴   | 前后端联调加部分api编写       |
+| 茹意翔 | 后端框架+大部分api编写       |
+
