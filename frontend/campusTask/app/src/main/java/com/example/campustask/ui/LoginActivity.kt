@@ -1,10 +1,13 @@
-package com.example.campustask
+package com.example.campustask.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.example.campustask.MainActivity
+import com.example.campustask.R
+import com.example.campustask.repository.UserRepository
 
 class LoginActivity : AppCompatActivity() {
 
@@ -18,12 +21,16 @@ class LoginActivity : AppCompatActivity() {
         val tabRegister = findViewById<TextView>(R.id.tab_register)
 
         val etUsername = findViewById<EditText>(R.id.et_username)
+        val etPhone = findViewById<EditText>(R.id.et_phone)
+        val etPassword = findViewById<EditText>(R.id.et_password)
         val btnSubmit = findViewById<Button>(R.id.btn_submit)
 
         val tvTitle = findViewById<TextView>(R.id.tv_title)
         val tvSub = findViewById<TextView>(R.id.tv_sub)
 
-        // 👉 登录
+        val repo = UserRepository()
+
+        // 登录tab
         tabLogin.setOnClickListener {
             isLogin = true
             etUsername.visibility = View.GONE
@@ -36,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
             btnSubmit.text = "登录"
         }
 
-        // 👉 注册
+        // 注册tab
         tabRegister.setOnClickListener {
             isLogin = false
             etUsername.visibility = View.VISIBLE
@@ -49,10 +56,32 @@ class LoginActivity : AppCompatActivity() {
             btnSubmit.text = "注册"
         }
 
-        // 👉 点击按钮
         btnSubmit.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            val username = etUsername.text.toString()
+            val phone = etPhone.text.toString()
+            val password = etPassword.text.toString()
+
+            if (isLogin) {
+                repo.mockLogin(phone, password) { success, token ->
+                    if (success) {
+                        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    } else {
+                        Toast.makeText(this, "登录失败: $token", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                repo.mockRegister(username, phone, password) { success, msg ->
+                    if (success) {
+                        Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show()
+                        isLogin = true
+                        tabLogin.performClick()
+                    } else {
+                        Toast.makeText(this, "注册失败: $msg", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 }
