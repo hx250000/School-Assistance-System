@@ -44,4 +44,15 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    // 测试依赖
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    // Retrofit & Gson Converter (Kotlin DSL 用双引号)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // 可选：OkHttp 日志打印
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }
