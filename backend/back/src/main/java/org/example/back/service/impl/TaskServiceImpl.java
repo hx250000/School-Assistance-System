@@ -1,53 +1,71 @@
 package org.example.back.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
-import org.example.back.entity.TaskParticipant;
-import org.example.back.mapper.TaskMapper;
-import org.example.back.mapper.TaskParticipantMapper;
+import org.example.back.repository.TaskRepository;
 import org.example.back.service.TaskService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService {
 
     @Autowired
-    private TaskMapper taskMapper;
-
-    @Autowired
-    private TaskParticipantMapper participantMapper;
+    private TaskRepository taskRepository;
 
     @Override
+    @Transactional
     public Long createTask(TaskCreateRequest request) {
 
         Task task = new Task();
         BeanUtils.copyProperties(request, task);
 
-        task.setStatus("OPEN");
-        task.setCurrentPeople(0);
+//        // BeanUtils 不会自动把 String -> LocalDateTime 做可靠转换
+//        // 同时 TaskCreateRequest 目前没有 getter，因此用反射读取 deadline 字段再解析。
+//        String deadlineStr = extractDeadlineStr(request);
+//        task.setDeadline(parseDeadline(deadlineStr));
+        String deadlinestr = request.getDeadline();
+        task.setDeadline(parseDeadline(deadlinestr));
 
-        taskMapper.insert(task);
-        return task.getId();
+        task.setCurrentPeople(0);
+        task.setStatus("OPEN");
+
+        // TODO: 从 JWT 中获取真实发布人 ID
+        task.setPublisherId(1L);
+
+        Task saved = taskRepository.save(task);
+        return saved.getId();
     }
 
     @Override
     public List<TaskVO> list(int page, int size) {
-        return taskMapper.selectList();
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return taskRepository.findAll(pageable)
+                .getContent()
+                .stream()
+                .map(this::toVO)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public void grabTask(Long taskId) {
 
-        Task task = taskMapper.selectById(taskId);
-
-        if (task == null) {
-            throw new RuntimeException("任务不存在");
-        }
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("任务不存在"));
 
         if (!"OPEN".equals(task.getStatus())) {
             throw new RuntimeException("任务不可抢");
@@ -64,23 +82,63 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus("IN_PROGRESS");
         }
 
-        taskMapper.update(task);
+        taskRepository.save(task);
 
-        // 插入参与记录
-        TaskParticipant tp = new TaskParticipant();
-        tp.setTaskId(taskId);
-        tp.setUserId(1L); // TODO 从JWT获取
-
-        participantMapper.insert(tp);
+        // 参与记录、积分发放等逻辑可后续基于 JPA 单独实现
     }
 
     @Override
+    @Transactional
     public void finishTask(Long taskId) {
 
-        // 直接用已有方法
-        taskMapper.finishTask(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("任务不存在"));
 
-        // ⚠️这里没有 participant 查询方法，所以先不发积分
-        // 如果你要发积分，必须补一个Mapper方法（我下面会给）
+        task.setStatus("FINISHED");
+        taskRepository.save(task);
     }
+
+    private TaskVO toVO(Task task) {
+        TaskVO vo = new TaskVO();
+        vo.setId(task.getId());
+        vo.setTitle(task.getTitle());
+        vo.setDescription(task.getDescription());
+        vo.setNeedPeople(task.getNeedPeople());
+        vo.setCurrentPeople(task.getCurrentPeople());
+        vo.setStatus(task.getStatus());
+        vo.setPublisherId(task.getPublisherId());
+        vo.setCreateTime(task.getCreatedAt() == null ? null : task.getCreatedAt().toString());
+        return vo;
+    }
+
+    private LocalDateTime parseDeadline(String deadlineStr) {
+        if (deadlineStr == null || deadlineStr.trim().isEmpty()) {
+            return null;
+        }
+
+        String s = deadlineStr.trim();
+        DateTimeFormatter[] formatters = new DateTimeFormatter[] {
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        };
+
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                return LocalDateTime.parse(s, formatter);
+            } catch (DateTimeParseException ignored) {
+                // try next
+            }
+        }
+
+        // 兜底：只传日期时，默认时间为 00:00:00
+        try {
+            LocalDate date = LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
+            return date.atStartOfDay();
+        } catch (DateTimeParseException ignored) {
+            throw new RuntimeException("deadline 格式错误: " + deadlineStr);
+        }
+    }
+
+
 }

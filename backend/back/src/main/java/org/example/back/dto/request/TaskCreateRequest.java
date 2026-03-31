@@ -1,5 +1,8 @@
 package org.example.back.dto.request;
 
+import lombok.Data;
+
+@Data
 public class TaskCreateRequest {
     private String title;
     private String description;
