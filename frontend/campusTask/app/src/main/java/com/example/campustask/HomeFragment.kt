@@ -17,33 +17,51 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         Task("帮忙带饭", "0/1人", "15积分", "中午", "生活","publish")
     )
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//
+//        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
+//        val tabContainer = view.findViewById<LinearLayout>(R.id.tab_container)
+//
+//        adapter = TaskAdapter(allTasks)
+//        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+//        recyclerView.adapter = adapter
+//
+//        val tabs = listOf("全部", "游戏", "生活", "学习")
+//
+//        tabs.forEachIndexed { index, text ->
+//            val tv = TextView(requireContext())
+//            tv.text = text
+//            tv.setPadding(30, 15, 30, 15)
+//            tv.setBackgroundResource(R.drawable.bg_tag)
+//
+//            if (index == 0) tv.setBackgroundResource(R.drawable.bg_tag_selected)
+//
+//            tv.setOnClickListener {
+//                updateTab(tabContainer, tv)
+//                filter(text)
+//            }
+//
+//            tabContainer.addView(tv)
+//        }
+//    }
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        val tabContainer = view.findViewById<LinearLayout>(R.id.tab_container)
+    val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
 
-        adapter = TaskAdapter(allTasks)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
+    adapter = TaskAdapter(allTasks) { task ->
 
-        val tabs = listOf("全部", "游戏", "生活", "学习")
+        // 👉 跳转到详情 Fragment
+        val fragment = TaskDetailFragment.newInstance(task)
 
-        tabs.forEachIndexed { index, text ->
-            val tv = TextView(requireContext())
-            tv.text = text
-            tv.setPadding(30, 15, 30, 15)
-            tv.setBackgroundResource(R.drawable.bg_tag)
-
-            if (index == 0) tv.setBackgroundResource(R.drawable.bg_tag_selected)
-
-            tv.setOnClickListener {
-                updateTab(tabContainer, tv)
-                filter(text)
-            }
-
-            tabContainer.addView(tv)
-        }
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)   // 👉 可以返回
+            .commit()
     }
+
+    recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    recyclerView.adapter = adapter
+}
 
     private fun filter(category: String) {
         if (category == "全部") {

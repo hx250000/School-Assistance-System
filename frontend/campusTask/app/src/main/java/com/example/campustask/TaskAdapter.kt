@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter(private var list: List<Task>) :
-    RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
+class TaskAdapter(
+    private var list: List<Task>,
+    private val onItemClick: (Task) -> Unit   // 👉 回调
+) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.title)
@@ -26,10 +28,16 @@ class TaskAdapter(private var list: List<Task>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val task = list[position]
+
         holder.title.text = task.title
         holder.people.text = task.people
         holder.score.text = task.score
         holder.time.text = task.time
+
+        // 👉 点击事件
+        holder.itemView.setOnClickListener {
+            onItemClick(task)
+        }
     }
 
     fun update(newList: List<Task>) {

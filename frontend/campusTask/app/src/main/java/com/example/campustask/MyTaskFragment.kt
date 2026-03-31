@@ -16,7 +16,6 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_task)
-
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         // 👉 模拟数据
@@ -26,7 +25,17 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
             Task("买早餐", "2人已接", "3积分", "已结束", "生活", "done")
         )
 
-        adapter = TaskAdapter(allList)
+        // ✅ 这里是关键修改（加点击事件）
+        adapter = TaskAdapter(allList) { task ->
+
+            val fragment = TaskDetailFragment.newInstance(task)
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
         recycler.adapter = adapter
 
         initTab(view)

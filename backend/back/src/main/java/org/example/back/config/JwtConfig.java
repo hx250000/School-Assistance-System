@@ -4,5 +4,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JwtConfig {
-    public static final String SECRET = "bigzuoye-secret";
+    public static final String SECRET = "yourverylongsecretkeyshouldbeatleast32bytes";
 }
