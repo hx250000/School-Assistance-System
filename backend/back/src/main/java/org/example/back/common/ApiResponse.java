@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 public class ApiResponse<T> {
     private int code;
     
-    @JsonProperty("msg")
     private String message;
     
     private T data;

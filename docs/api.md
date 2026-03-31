@@ -30,7 +30,7 @@ POST
 
 返回：
 {
- "code":0,
+ "code":200,
  "data":{
    "userId":1
  }
@@ -48,7 +48,7 @@ POST
 
 返回：
 {
- "code":0,
+ "code":200,
  "data":{
    "token":"xxxxx",
    "userId":1,
@@ -115,7 +115,7 @@ POST
 
 返回：
 {
- "code":0,
+ "code":200,
  "message":"抢单成功"
 }
 

@@ -1,6 +1,6 @@
 package org.example.back.controller;
 
-import org.example.back.common.Result;
+import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.entity.User;
 import org.example.back.service.UserService;
@@ -22,19 +22,19 @@ public class UserController {
 
     @Operation(summary = "用户注册", description = "注册新用户账号")
     @PostMapping("/register")
-    public Result register(@RequestBody User user) {
-        return Result.success(userService.register(user));
+    public ApiResponse register(@RequestBody User user) {
+        return ApiResponse.success(userService.register(user));
     }
 
     @Operation(summary = "用户登录", description = "登录并返回 token")
     @PostMapping("/login")
-    public Result login(@RequestBody LoginRequest request) {
-        return Result.success(userService.login(request));
+    public ApiResponse login(@RequestBody LoginRequest request) {
+        return ApiResponse.success(userService.login(request));
     }
 
     @Operation(summary = "获取当前用户信息", description = "需要登录后访问")
     @GetMapping("/info")
-    public Result getUserInfo() {
-        return Result.success(userService.getCurrentUser());
+    public ApiResponse getUserInfo() {
+        return ApiResponse.success(userService.getCurrentUser());
     }
 }
