@@ -4,5 +4,5 @@ import org.example.back.entity.Review;
 
 public interface ReviewService {
 
-    void createReview(Review review);
+    String createReview(Review review);
 }

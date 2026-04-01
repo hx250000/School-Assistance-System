@@ -2,8 +2,8 @@ package org.example.back.service.impl;
 
 import org.example.back.entity.Review;
 import org.example.back.entity.User;
-import org.example.back.mapper.ReviewMapper;
 import org.example.back.mapper.UserMapper;
+import org.example.back.repository.ReviewRepository;
 import org.example.back.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service;
 public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
-    private ReviewMapper reviewMapper;
+    private ReviewRepository reviewRepository;
 
     @Autowired
     private UserMapper userMapper;
 
     @Override
-    public void createReview(Review review) {
+    public String createReview(Review review) {
 
-        reviewMapper.insert(review);
+        reviewRepository.save(review);
 
         // 更新被评价用户信用分
         User user = userMapper.selectById(review.getToUserId());
@@ -29,5 +29,6 @@ public class ReviewServiceImpl implements ReviewService {
         user.setCreditScore(newScore);
 
         userMapper.update(user);
+        return review.toString();
     }
 }
