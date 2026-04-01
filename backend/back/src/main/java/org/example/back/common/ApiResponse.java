@@ -13,17 +13,17 @@ public class ApiResponse<T> {
     private String message;
     
     private T data;
-    private LocalDateTime timestamp;
+//    private LocalDateTime timestamp;
 
     public ApiResponse() {
-        this.timestamp = LocalDateTime.now();
+
     }
 
     public ApiResponse(int code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;
-        this.timestamp = LocalDateTime.now();
+//        this.timestamp = LocalDateTime.now();
     }
 
     // 成功响应 - 带数据
@@ -96,12 +96,6 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
 
 }
