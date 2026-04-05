@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
-    private lateinit var adapter: TaskAdapter
+    private lateinit var adapter: MyTaskAdapter
     private lateinit var allList: List<Task>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -26,9 +26,9 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         )
 
         // ✅ 这里是关键修改（加点击事件）
-        adapter = TaskAdapter(allList) { task ->
+        adapter = MyTaskAdapter(allList) { task ->
 
-            val fragment = TaskDetailFragment.newInstance(task)
+            val fragment = MyTaskDetailFragment.newInstance(task)
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)

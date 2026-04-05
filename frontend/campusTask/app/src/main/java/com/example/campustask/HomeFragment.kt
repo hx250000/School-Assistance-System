@@ -44,23 +44,59 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 //            tabContainer.addView(tv)
 //        }
 //    }
+
+    private fun selectTab(selected: TextView, tabs: List<TextView>) {
+        for (tv in tabs) {
+            tv.setBackgroundResource(R.drawable.bg_tag)
+        }
+        selected.setBackgroundResource(R.drawable.bg_tag_selected)
+    }
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
     val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
 
+    val tabAll = view.findViewById<TextView>(R.id.tab_all)
+    val tabGame = view.findViewById<TextView>(R.id.tab_game)
+    val tabLife = view.findViewById<TextView>(R.id.tab_life)
+    val tabStudy = view.findViewById<TextView>(R.id.tab_study)
+
+    val tabs = listOf(tabAll, tabGame, tabLife, tabStudy)
+
     adapter = TaskAdapter(allTasks) { task ->
-
-        // 👉 跳转到详情 Fragment
         val fragment = TaskDetailFragment.newInstance(task)
-
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)   // 👉 可以返回
+            .addToBackStack(null)
             .commit()
     }
 
     recyclerView.layoutManager = LinearLayoutManager(requireContext())
     recyclerView.adapter = adapter
+
+    // ===== 默认选中 =====
+    selectTab(tabAll, tabs)
+    filter("全部")
+
+    // ===== 点击事件 =====
+    tabAll.setOnClickListener {
+        selectTab(tabAll, tabs)
+        filter("全部")
+    }
+
+    tabGame.setOnClickListener {
+        selectTab(tabGame, tabs)
+        filter("游戏")
+    }
+
+    tabLife.setOnClickListener {
+        selectTab(tabLife, tabs)
+        filter("生活")
+    }
+
+    tabStudy.setOnClickListener {
+        selectTab(tabStudy, tabs)
+        filter("学习")
+    }
 }
 
     private fun filter(category: String) {
