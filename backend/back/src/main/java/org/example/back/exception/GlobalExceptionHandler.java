@@ -43,6 +43,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.badRequest(ex.getMessage()));
     }
+
+    /** 
+     * 处理认证异常
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthException(AuthenticationException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(401, "Authentication error: " + ex.getMessage()));
+    }
 //    /**
 //     * 处理资源冲突异常
 //     */
