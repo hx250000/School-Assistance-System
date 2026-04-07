@@ -23,34 +23,61 @@ class PublishFragment : Fragment() {
         val desc = view.findViewById<EditText>(R.id.et_desc)
         val btnPublish = view.findViewById<Button>(R.id.btn_publish)
 
-        val btnLife = view.findViewById<Button>(R.id.btn_life)
-        val btnGame = view.findViewById<Button>(R.id.btn_game)
-        val btnStudy = view.findViewById<Button>(R.id.btn_study)
+        // 👉 类型（TextView）
+        val type1 = view.findViewById<TextView>(R.id.type1)
+        val type2 = view.findViewById<TextView>(R.id.type2)
+        val type3 = view.findViewById<TextView>(R.id.type3)
 
-        // 👉 类型选择逻辑
-        val buttons = listOf(btnLife, btnGame, btnStudy)
+        val types = listOf(type1, type2, type3)
 
-        fun select(btn: Button, type: String) {
+        fun selectType(selected: TextView, type: String) {
             selectedType = type
-            buttons.forEach { it.setBackgroundResource(android.R.drawable.btn_default) }
-            btn.setBackgroundResource(R.drawable.bg_type_selected)
+
+            types.forEach {
+                it.setBackgroundResource(R.drawable.bg_tag)
+                it.setTextColor(resources.getColor(android.R.color.black))
+            }
+
+            selected.setBackgroundResource(R.drawable.bg_tag_selected)
+            selected.setTextColor(resources.getColor(android.R.color.white))
         }
 
-        btnLife.setOnClickListener { select(btnLife, "生活") }
-        btnGame.setOnClickListener { select(btnGame, "游戏") }
-        btnStudy.setOnClickListener { select(btnStudy, "学习") }
+        type1.setOnClickListener { selectType(type1, "生活") }
+        type2.setOnClickListener { selectType(type2, "学习") }
+        type3.setOnClickListener { selectType(type3, "游戏") }
+
+        // 👉 默认选中
+        selectType(type1, "生活")
+
+        // 👉 人数选择
+        val etPeople = view.findViewById<EditText>(R.id.et_people)
+        val btnAdd = view.findViewById<Button>(R.id.btn_add)
+        val btnMinus = view.findViewById<Button>(R.id.btn_minus)
+
+        btnAdd.setOnClickListener {
+            val num = etPeople.text.toString().toIntOrNull() ?: 1
+            etPeople.setText((num + 1).toString())
+        }
+
+        btnMinus.setOnClickListener {
+            val num = etPeople.text.toString().toIntOrNull() ?: 1
+            if (num > 1) {
+                etPeople.setText((num - 1).toString())
+            }
+        }
 
         // 👉 发布按钮
         btnPublish.setOnClickListener {
             val t = title.text.toString()
             val d = desc.text.toString()
+            val people = etPeople.text.toString()
 
             if (t.isEmpty() || d.isEmpty()) {
                 Toast.makeText(context, "请填写完整信息", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(
                     context,
-                    "发布成功：$selectedType - $t",
+                    "发布成功：$selectedType - $t（$people 人）",
                     Toast.LENGTH_SHORT
                 ).show()
             }

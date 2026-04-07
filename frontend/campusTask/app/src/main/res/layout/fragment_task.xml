@@ -3,102 +3,191 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F5F6FA">
 
-    <!-- 顶部渐变 -->
+    <!-- 顶部渐变区 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="260dp"
         android:orientation="vertical"
         android:padding="16dp"
         android:background="@drawable/bg_gradient">
 
+        <!-- 标题 -->
         <TextView
-            android:text="我的任务"
-            android:textSize="22sp"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="我的任务"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <!-- 搜索栏（重点） -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_search"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#999999"/>
+
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="搜索任务 / 发起人"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingStart="8dp"/>
+        </LinearLayout>
 
         <!-- 统计卡片 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card"
+            android:layout_marginTop="18dp"
             android:padding="16dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_card_glass">
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="已发布"
+                    android:textSize="12sp"
+                    android:textColor="#E0E0E0"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="进行中"
+                    android:textSize="12sp"
+                    android:textColor="#E0E0E0"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="已完成"
+                    android:textSize="12sp"
+                    android:textColor="#E0E0E0"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 白色内容区（核心层次） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="-30dp"
+        android:background="@drawable/bg_content"
+        android:paddingTop="16dp">
+
+        <!-- Tab -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/bg_tab_container"
+            android:padding="4dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="1\n已发布"
-                android:textColor="#FFFFFF"
+                android:id="@+id/tab_publish"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="已发布"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/bg_tab_selected"/>
 
             <TextView
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="1\n进行中"
-                android:textColor="#FFFFFF"
+                android:id="@+id/tab_ing"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="进行中"
+                android:gravity="center"
+                android:textColor="#666666"
+                android:background="@drawable/bg_tab"/>
 
             <TextView
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="1\n已完成"
-                android:textColor="#FFFFFF"
+                android:id="@+id/tab_done"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"/>
-
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="已完成"
+                android:gravity="center"
+                android:textColor="#666666"
+                android:background="@drawable/bg_tab"/>
         </LinearLayout>
+
+        <!-- 列表 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_task"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"/>
+
     </LinearLayout>
-
-    <!-- 分类 -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/tab_publish"
-            android:text="已发布"
-            android:background="@drawable/bg_tab_selected"
-            android:padding="10dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/tab_ing"
-            android:text="进行中"
-            android:background="@drawable/bg_tab"
-            android:padding="10dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/tab_done"
-            android:text="已完成"
-            android:background="@drawable/bg_tab"
-            android:padding="10dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_task"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
 </LinearLayout>
