@@ -4,6 +4,8 @@ import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.User;
+import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.UserService;
 import org.example.back.util.JwtUtil;
@@ -11,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.security.auth.message.AuthException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -44,7 +47,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsernameOrPhone(request.getUsername(), request.getUsername());
 
         if (user == null || !user.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new AuthenticationException("用户名或密码错误");
         }
 
         // 生成JWT
@@ -67,7 +70,7 @@ public class UserServiceImpl implements UserService {
         Long userId = 1L; // TODO: 从JWT解析获取实际用户ID
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
 
         UserInfoVO vo = new UserInfoVO();
         // 复制属性
