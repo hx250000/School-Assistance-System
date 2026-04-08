@@ -1,6 +1,11 @@
 package org.example.back.service.impl;
 
 import jakarta.transaction.Transactional;
+import org.example.back.dto.request.TaskCreateRequest;
+import org.example.back.dto.response.TaskVO;
+import org.example.back.entity.Task;
+import org.example.back.entity.TaskParticipant;
+import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
@@ -27,6 +32,8 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private TaskParticipantRepository taskParticipantRepository;
     @Override
     @Transactional
     public Long createTask(TaskCreateRequest request) {
@@ -47,7 +54,7 @@ public class TaskServiceImpl implements TaskService {
         // 从JWT中获取真实发布人ID
         Long publisherId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (publisherId == null) {
-            throw new IllegalArgumentException("用户未登录，无法发布任务");
+            throw new AuthenticationException("用户未登录，无法发布任务");
         }
         task.setPublisherId(publisherId);
 
@@ -81,7 +88,33 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("人数已满");
         }
 
-        // 更新人数
+        // 🚨 关键：防止重复抢单（强烈建议加）
+        boolean exists = taskParticipantRepository
+                .existsByTaskIdAndUserId(taskId, userId);
+
+        if (exists) {
+            throw new IllegalArgumentException("你已经抢过该任务");
+        }
+      
+        Long participantId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (participantId == null) {
+            throw new AuthenticationException("用户未登录，无法发布任务");
+        }
+
+        // =========================
+        // ✅ 1. 插入参与者记录（新增核心逻辑）
+        // =========================
+        TaskParticipant participant = TaskParticipant.builder()
+                .taskId(taskId)
+                .userId(participantId)
+                .status("JOINED")
+                .build();
+
+        taskParticipantRepository.save(participant);
+
+        // =========================
+        // ✅ 2. 更新任务人数
+        // =========================
         task.setCurrentPeople(task.getCurrentPeople() + 1);
 
         if (task.getCurrentPeople().equals(task.getNeedPeople())) {
