@@ -1,5 +1,6 @@
 package org.example.back.service.impl;
 
+import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.UserInfoVO;
@@ -13,7 +14,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.security.auth.message.AuthException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -67,7 +67,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserInfoVO getCurrentUser() {
-        Long userId = 1L; // TODO: 从JWT解析获取实际用户ID
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("用户"+userId+"不存在"));

@@ -1,6 +1,7 @@
 package org.example.back.service.impl;
 
 import jakarta.transaction.Transactional;
+import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
@@ -43,8 +44,12 @@ public class TaskServiceImpl implements TaskService {
         task.setCurrentPeople(0);
         task.setStatus("OPEN");
 
-        // TODO: 从 JWT 中获取真实发布人 ID
-        task.setPublisherId(1L);
+        // 从JWT中获取真实发布人ID
+        Long publisherId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (publisherId == null) {
+            throw new IllegalArgumentException("用户未登录，无法发布任务");
+        }
+        task.setPublisherId(publisherId);
 
         Task saved = taskRepository.save(task);
         return saved.getId();
