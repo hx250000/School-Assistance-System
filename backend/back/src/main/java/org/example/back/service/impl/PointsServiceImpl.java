@@ -1,7 +1,9 @@
 package org.example.back.service.impl;
 
+import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.User;
+import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.UserRepository;
@@ -22,7 +24,10 @@ public class PointsServiceImpl implements PointsService {
     @Override
     public Integer getUserPoints() {
 
-        Long userId = 1L;
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(

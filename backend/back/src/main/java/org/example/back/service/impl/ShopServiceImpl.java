@@ -1,10 +1,12 @@
 package org.example.back.service.impl;
 
+import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
+import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
@@ -41,7 +43,10 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     public Long exchange(Long itemId) {
 
-        Long userId = 1L;
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录，无法兑换商品");
+        }
 
         ShopItem item = shopItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("商品不存在"));
