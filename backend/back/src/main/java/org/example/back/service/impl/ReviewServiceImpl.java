@@ -29,7 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
         //User user = userMapper.selectById(review.getToUserId());
         User user = userRepository.findById(review.getToUserId()).
                     orElseThrow(() -> new ResourceNotFoundException(
-                        format("User %d not found", review.getToUserId())
+                        format("用户 %d 未找到", review.getToUserId())
                         ));
 
         int newScore = user.getCreditScore() + review.getScore();
