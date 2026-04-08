@@ -1,10 +1,13 @@
 package org.example.back.service.impl;
 
+import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
+import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
 import org.example.back.repository.ShopRepository;
@@ -40,15 +43,22 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     public Long exchange(Long itemId) {
 
-        Long userId = 1L;
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录，无法兑换商品");
+        }
 
         ShopItem item = shopItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("商品不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("商品不存在"));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
 
         if (user.getPoints() < item.getPrice()) {
-            throw new RuntimeException("积分不足");
+            throw new IllegalArgumentException("积分不足");
+        }
+
+        if (item.getStock() == null || item.getStock() <= 0) {
+            throw new IllegalArgumentException("库存不足");
         }
 
         if (item.getStock() == null || item.getStock() <= 0) {

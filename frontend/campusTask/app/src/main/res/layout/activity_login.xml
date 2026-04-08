@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F6FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:orientation="vertical">
+
+        <!-- LOGO -->
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="✨"
+            android:textSize="30sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_logo"/>
+
+        <!-- 标题 -->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="欢迎回来"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#9C5BFF"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="登录你的账号继续探索"
+            android:textColor="#888888"
+            android:layout_gravity="center"/>
+
+        <!-- 切换 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_tab_login"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tab_login"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="登录"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_tab_selected"/>
+
+            <TextView
+                android:id="@+id/tab_register"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="注册"/>
+        </LinearLayout>
+
+        <!-- 用户名（注册才显示） -->
+        <EditText
+            android:id="@+id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="选择一个酷炫的名字"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:visibility="gone"/>
+
+        <!-- 手机 -->
+        <EditText
+            android:id="@+id/et_phone"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="请输入11位手机号"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:inputType="phone"/>
+
+        <!-- 密码 -->
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="请输入密码"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:inputType="textPassword"/>
+
+        <!-- 按钮 -->
+        <Button
+            android:id="@+id/btn_submit"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="登录"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_btn_main"/>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -6,6 +6,11 @@ import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.entity.TaskParticipant;
 import org.example.back.repository.TaskParticipantRepository;
+import org.example.back.config.JwtAuthenticationInterceptor;
+import org.example.back.dto.request.TaskCreateRequest;
+import org.example.back.dto.response.TaskVO;
+import org.example.back.entity.Task;
+import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.TaskRepository;
 import org.example.back.service.TaskService;
 import org.springframework.beans.BeanUtils;
@@ -46,8 +51,12 @@ public class TaskServiceImpl implements TaskService {
         task.setCurrentPeople(0);
         task.setStatus("OPEN");
 
-        // TODO: 从 JWT 中获取真实发布人 ID
-        task.setPublisherId(1L);
+        // 从JWT中获取真实发布人ID
+        Long publisherId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (publisherId == null) {
+            throw new AuthenticationException("用户未登录，无法发布任务");
+        }
+        task.setPublisherId(publisherId);
 
         Task saved = taskRepository.save(task);
         return saved.getId();
@@ -66,17 +75,17 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void grabTask(Long taskId, Long userId) {
+    public void grabTask(Long taskId) {
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("任务不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务"+taskId+"不存在"));
 
         if (!"OPEN".equals(task.getStatus())) {
-            throw new RuntimeException("任务不可抢");
+            throw new IllegalArgumentException("任务不可抢");
         }
 
         if (task.getCurrentPeople() >= task.getNeedPeople()) {
-            throw new RuntimeException("人数已满");
+            throw new IllegalArgumentException("人数已满");
         }
 
         // 🚨 关键：防止重复抢单（强烈建议加）
@@ -84,7 +93,12 @@ public class TaskServiceImpl implements TaskService {
                 .existsByTaskIdAndUserId(taskId, userId);
 
         if (exists) {
-            throw new RuntimeException("你已经抢过该任务");
+            throw new IllegalArgumentException("你已经抢过该任务");
+        }
+      
+        Long participantId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (participantId == null) {
+            throw new AuthenticationException("用户未登录，无法发布任务");
         }
 
         // =========================
@@ -92,7 +106,7 @@ public class TaskServiceImpl implements TaskService {
         // =========================
         TaskParticipant participant = TaskParticipant.builder()
                 .taskId(taskId)
-                .userId(userId)
+                .userId(participantId)
                 .status("JOINED")
                 .build();
 
@@ -108,6 +122,8 @@ public class TaskServiceImpl implements TaskService {
         }
 
         taskRepository.save(task);
+
+        // 参与记录、积分发放等逻辑可后续基于 JPA 单独实现
     }
 
     @Override
@@ -115,7 +131,7 @@ public class TaskServiceImpl implements TaskService {
     public void finishTask(Long taskId) {
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("任务不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务"+taskId+"不存在"));
 
         task.setStatus("FINISHED");
         taskRepository.save(task);
@@ -159,7 +175,7 @@ public class TaskServiceImpl implements TaskService {
             LocalDate date = LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
             return date.atStartOfDay();
         } catch (DateTimeParseException ignored) {
-            throw new RuntimeException("deadline 格式错误: " + deadlineStr);
+            throw new IllegalArgumentException("deadline 格式错误: " + deadlineStr);
         }
     }
 

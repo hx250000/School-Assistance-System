@@ -29,7 +29,7 @@ public class TaskController {
 
     @PostMapping("/grab")
     public ApiResponse grab(@RequestBody GrabTaskRequest request) {
-        taskService.grabTask(request.getTaskId(), request.getUserId());
+        taskService.grabTask(request.getTaskId());
         return ApiResponse.success("抢单成功");
     }
 
