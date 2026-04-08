@@ -164,6 +164,8 @@
         </LinearLayout>
 
         <!-- ================= 快捷入口 ================= -->
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,17 +186,100 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="60dp" android:gravity="center" android:text="任务历史"/>
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="60dp" android:gravity="center" android:text="积分明细"/>
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="60dp" android:gravity="center" android:text="我的成就"/>
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="60dp" android:gravity="center" android:text="夜间模式"/>
+                <!-- 任务历史 -->
+                <LinearLayout
+                    android:id="@+id/btn_history"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_recent_history"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="任务历史"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!-- 积分明细 -->
+                <LinearLayout
+                    android:id="@+id/btn_points"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_info_details"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="积分明细"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!-- 我的成就 -->
+                <LinearLayout
+                    android:id="@+id/btn_achievement"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_myplaces"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="我的成就"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!-- 夜间模式 -->
+                <LinearLayout
+                    android:id="@+id/btn_dark"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_manage"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="夜间模式"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
-
         <!-- ================= 我的服务 ================= -->
         <LinearLayout
             android:layout_width="match_parent"
