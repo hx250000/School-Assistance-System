@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         Long userId = 1L; // TODO: 从JWT解析获取实际用户ID
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("用户"+userId+"不存在"));
 
         UserInfoVO vo = new UserInfoVO();
         // 复制属性

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
+import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.TaskRepository;
 import org.example.back.service.TaskService;
 import org.springframework.beans.BeanUtils;
@@ -65,14 +66,14 @@ public class TaskServiceImpl implements TaskService {
     public void grabTask(Long taskId) {
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("任务不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务"+taskId+"不存在"));
 
         if (!"OPEN".equals(task.getStatus())) {
-            throw new RuntimeException("任务不可抢");
+            throw new IllegalArgumentException("任务不可抢");
         }
 
         if (task.getCurrentPeople() >= task.getNeedPeople()) {
-            throw new RuntimeException("人数已满");
+            throw new IllegalArgumentException("人数已满");
         }
 
         // 更新人数
@@ -92,7 +93,7 @@ public class TaskServiceImpl implements TaskService {
     public void finishTask(Long taskId) {
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("任务不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务"+taskId+"不存在"));
 
         task.setStatus("FINISHED");
         taskRepository.save(task);
@@ -136,7 +137,7 @@ public class TaskServiceImpl implements TaskService {
             LocalDate date = LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
             return date.atStartOfDay();
         } catch (DateTimeParseException ignored) {
-            throw new RuntimeException("deadline 格式错误: " + deadlineStr);
+            throw new IllegalArgumentException("deadline 格式错误: " + deadlineStr);
         }
     }
 

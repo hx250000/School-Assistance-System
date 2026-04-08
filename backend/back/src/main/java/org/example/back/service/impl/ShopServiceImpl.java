@@ -5,6 +5,7 @@ import org.example.back.entity.PointsLog;
 import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
+import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
 import org.example.back.repository.ShopRepository;
@@ -43,16 +44,16 @@ public class ShopServiceImpl implements ShopService {
         Long userId = 1L;
 
         ShopItem item = shopItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("商品不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("商品不存在"));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
 
         if (user.getPoints() < item.getPrice()) {
-            throw new RuntimeException("积分不足");
+            throw new IllegalArgumentException("积分不足");
         }
 
         if (item.getStock() == null || item.getStock() <= 0) {
-            throw new RuntimeException("库存不足");
+            throw new IllegalArgumentException("库存不足");
         }
 
         // 扣积分
