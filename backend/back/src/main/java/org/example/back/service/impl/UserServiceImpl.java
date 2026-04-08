@@ -2,6 +2,7 @@ package org.example.back.service.impl;
 
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.LoginRequest;
+import org.example.back.dto.request.RegisterRequest;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.User;
@@ -27,7 +28,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public Long register(User user) {
+    public Long register(RegisterRequest registerRequest) {
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setPassword(registerRequest.getPassword());
+        user.setPhone(registerRequest.getPhone());
         // 初始化积分和信用分
         user.setPoints(0);
         user.setCreditScore(100);
