@@ -11,7 +11,7 @@ public interface TaskService {
 
     List<TaskVO> list(int page, int size);
 
-    void grabTask(Long taskId, Long userId);
+    void grabTask(Long taskId);
 
     void finishTask(Long taskId);
 }

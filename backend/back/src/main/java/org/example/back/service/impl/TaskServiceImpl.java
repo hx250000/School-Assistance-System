@@ -5,11 +5,9 @@ import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.entity.TaskParticipant;
+import org.example.back.exception.AuthenticationException;
 import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
-import org.example.back.dto.request.TaskCreateRequest;
-import org.example.back.dto.response.TaskVO;
-import org.example.back.entity.Task;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.TaskRepository;
 import org.example.back.service.TaskService;
@@ -88,17 +86,17 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("人数已满");
         }
 
-        // 🚨 关键：防止重复抢单（强烈建议加）
-        boolean exists = taskParticipantRepository
-                .existsByTaskIdAndUserId(taskId, userId);
-
-        if (exists) {
-            throw new IllegalArgumentException("你已经抢过该任务");
-        }
-      
         Long participantId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (participantId == null) {
             throw new AuthenticationException("用户未登录，无法发布任务");
+        }
+
+        // 🚨 关键：防止重复抢单（强烈建议加）
+        boolean exists = taskParticipantRepository
+                .existsByTaskIdAndUserId(taskId, participantId);
+
+        if (exists) {
+            throw new IllegalArgumentException("你已经抢过该任务");
         }
 
         // =========================

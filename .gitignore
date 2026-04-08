@@ -1,2 +1,5 @@
 design-spec-detail.md
 .idea/
+.vscode/
+*.iml
+*.class
