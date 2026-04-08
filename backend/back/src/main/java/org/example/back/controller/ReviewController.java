@@ -1,5 +1,6 @@
 package org.example.back.controller;
 
+import org.example.back.common.ApiResponse;
 import org.example.back.common.Result;
 import org.example.back.entity.Review;
 import org.example.back.service.ReviewService;
@@ -17,8 +18,8 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create")
-    public Result create(@RequestBody Review review) {
-        reviewService.createReview(review);
-        return Result.success("评价成功");
+    public ApiResponse create(@RequestBody Review review) {
+
+        return ApiResponse.success(reviewService.createReview(review));
     }
 }

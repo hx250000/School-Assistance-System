@@ -1,15 +1,18 @@
 package org.example.back.service.impl;
 
+import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
-import org.example.back.mapper.PointsLogMapper;
-import org.example.back.mapper.ShopMapper;
-import org.example.back.mapper.UserMapper;
+import org.example.back.repository.PointsLogRepository;
+import org.example.back.repository.ShopItemRepository;
+import org.example.back.repository.ShopRepository;
+import org.example.back.repository.UserRepository;
 import org.example.back.service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,52 +20,76 @@ import java.util.List;
 public class ShopServiceImpl implements ShopService {
 
     @Autowired
-    private ShopMapper shopMapper;
+    private ShopItemRepository shopItemRepository;
 
     @Autowired
-    private UserMapper userMapper;
+    private UserRepository userRepository;
 
     @Autowired
-    private PointsLogMapper pointsLogMapper;
+    private PointsLogRepository pointsLogRepository;
+
+    @Autowired
+    private ShopRepository shopRepository;
 
     @Override
     public List<ShopItem> listItems() {
-        return shopMapper.listItems();
+        return shopItemRepository.findAll();
     }
 
     @Override
-    public void exchange(Long itemId) {
+    @Transactional
+    public Long exchange(Long itemId) {
 
         Long userId = 1L;
 
-        ShopItem item = shopMapper.getById(itemId);
-        User user = userMapper.selectById(userId);
+        ShopItem item = shopItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("商品不存在"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
 
         if (user.getPoints() < item.getPrice()) {
             throw new RuntimeException("积分不足");
         }
 
+        if (item.getStock() == null || item.getStock() <= 0) {
+            throw new RuntimeException("库存不足");
+        }
+
         // 扣积分
         user.setPoints(user.getPoints() - item.getPrice());
-        userMapper.update(user);
+        userRepository.save(user);
 
         // 写日志
         PointsLog log = new PointsLog();
         log.setUserId(userId);
         log.setChangeAmount(-item.getPrice());
         log.setReason("兑换商品");
-
-        pointsLogMapper.insert(log);
+        pointsLogRepository.save(log);
 
         // 订单
         ShopOrder order = new ShopOrder();
         order.setUserId(userId);
         order.setItemId(itemId);
         order.setStatus("PAID");
-
-        shopMapper.insertOrder(order);
+        shopRepository.save(order);
 
         // 库存
-        shopMapper.updateStock(itemId);
+        item.setStock(item.getStock() - 1);
+        shopItemRepository.save(item);
+        return order.getId();
     }
+
+    @Override
+    public Long addItem(NewShopItemRequest request) {
+        ShopItem newItem = new ShopItem();
+        newItem.setName(request.getName());
+        newItem.setPrice(request.getPrice());
+        newItem.setStock(request.getStock());
+        newItem.setDescription(request.getDescription());
+
+        ShopItem save=shopItemRepository.save(newItem);
+        return save.getId();
+    }
+
+
 }

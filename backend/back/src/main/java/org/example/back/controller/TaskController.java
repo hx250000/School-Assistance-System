@@ -1,5 +1,6 @@
 package org.example.back.controller;
 
+import org.example.back.common.ApiResponse;
 import org.example.back.common.Result;
 import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
@@ -16,25 +17,25 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/create")
-    public Result create(@RequestBody TaskCreateRequest request) {
-        return Result.success(taskService.createTask(request));
+    public ApiResponse create(@RequestBody TaskCreateRequest request) {
+        return ApiResponse.success(taskService.createTask(request));
     }
 
     @GetMapping("/list")
-    public Result list(@RequestParam int page,
+    public ApiResponse list(@RequestParam int page,
                        @RequestParam int size) {
-        return Result.success(taskService.list(page, size));
+        return ApiResponse.success(taskService.list(page, size));
     }
 
     @PostMapping("/grab")
-    public Result grab(@RequestBody GrabTaskRequest request) {
-        taskService.grabTask(request.getTaskId());
-        return Result.success("抢单成功");
+    public ApiResponse grab(@RequestBody GrabTaskRequest request) {
+        taskService.grabTask(request.getTaskId(), request.getUserId());
+        return ApiResponse.success("抢单成功");
     }
 
     @PostMapping("/finish")
-    public Result finish(@RequestParam Long taskId) {
+    public ApiResponse finish(@RequestParam Long taskId) {
         taskService.finishTask(taskId);
-        return Result.success("任务完成");
+        return ApiResponse.success("任务完成");
     }
 }
