@@ -13,6 +13,7 @@ import org.example.back.repository.TaskRepository;
 import org.example.back.service.TaskService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -75,53 +76,57 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public void grabTask(Long taskId) {
 
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+
+        // 先查任务（校验状态）
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("任务"+taskId+"不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
         if (!"OPEN".equals(task.getStatus())) {
             throw new IllegalArgumentException("任务不可抢");
         }
 
-        if (task.getCurrentPeople() >= task.getNeedPeople()) {
-            throw new IllegalArgumentException("人数已满");
+        if (taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId)){
+            throw new IllegalArgumentException("你已经抢过该任务！");
         }
 
-        Long participantId = JwtAuthenticationInterceptor.getCurrentUserId();
-        if (participantId == null) {
-            throw new AuthenticationException("用户未登录，无法发布任务");
+        // 再抢名额（原子操作）
+        int updated = taskRepository.incrementIfNotFull(taskId);
+        if (updated == 0) {
+            throw new IllegalArgumentException("任务已满");
         }
 
-        // 🚨 关键：防止重复抢单（强烈建议加）
-        boolean exists = taskParticipantRepository
-                .existsByTaskIdAndUserId(taskId, participantId);
+        // 插入参与记录（用唯一索引兜底！）
+        try {
+            TaskParticipant participant = TaskParticipant.builder()
+                    .taskId(taskId)
+                    .userId(userId)
+                    .status("JOINED")
+                    .build();
 
-        if (exists) {
-            throw new IllegalArgumentException("你已经抢过该任务");
+            taskParticipantRepository.save(participant);
+
+        } catch (DataIntegrityViolationException e){
+            taskRepository.decrementIfNotEmpty(taskId);
+            throw new IllegalArgumentException("你已经抢过该任务！");
+        } catch (Exception e) {
+            taskRepository.decrementIfNotEmpty(taskId);
+            throw new RuntimeException("系统异常，请稍后再试");
         }
 
-        // =========================
-        // ✅ 1. 插入参与者记录（新增核心逻辑）
-        // =========================
-        TaskParticipant participant = TaskParticipant.builder()
-                .taskId(taskId)
-                .userId(participantId)
-                .status("JOINED")
-                .build();
-
-        taskParticipantRepository.save(participant);
-
-        // =========================
-        // ✅ 2. 更新任务人数
-        // =========================
-        task.setCurrentPeople(task.getCurrentPeople() + 1);
-
-        if (task.getCurrentPeople().equals(task.getNeedPeople())) {
-            task.setStatus("IN_PROGRESS");
-        }
-
-        taskRepository.save(task);
-
-        // 参与记录、积分发放等逻辑可后续基于 JPA 单独实现
+        //该修改有竞态条件，采用原子化操作
+//        // 重新查（拿最新人数）
+//        Task latestTask = taskRepository.findById(taskId).get();
+//
+//        // 满员 → 修改状态
+//        if (latestTask.getCurrentPeople() >= latestTask.getNeedPeople()) {
+//            latestTask.setStatus("IN_PROGRESS");
+//            taskRepository.save(latestTask);
+//        }
+        taskRepository.updateStatusIfFull(taskId);
     }
 
     @Override
