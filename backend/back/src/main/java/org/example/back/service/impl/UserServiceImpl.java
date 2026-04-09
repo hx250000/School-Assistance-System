@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -86,5 +89,17 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user, vo);
 
         return vo;
+    }
+
+    @Override
+    public List<UserInfoVO> getAllUsersInfo() {
+        List<User> users = userRepository.findAll();
+        List<UserInfoVO> vos = new ArrayList<>();
+        for (User user : users) {
+            UserInfoVO vo = new UserInfoVO();
+            BeanUtils.copyProperties(user, vo);
+            vos.add(vo);
+        }
+        return vos;
     }
 }
