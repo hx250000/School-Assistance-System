@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
@@ -35,5 +37,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
       AND t.currentPeople >= t.needPeople
     """)
     int updateStatusIfFull(@Param("taskId") Long taskId);
+
+    List<Task> findByStatus(String status);
+
+    List<Task> findByPublisherId(Long publisherId);
 
 }

@@ -140,6 +140,35 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.save(task);
     }
 
+    @Override
+    @Transactional
+    public void cancelTask(Long taskId) {
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
+
+        if (!userId.equals(task.getPublisherId())) {
+            throw new IllegalArgumentException("仅发布者可取消该任务");
+        }
+
+        String status = task.getStatus();
+        if ("FINISHED".equals(status)) {
+            throw new IllegalArgumentException("任务已完成，无法取消");
+        }
+        if ("CANCELLED".equals(status)) {
+            throw new IllegalArgumentException("任务已取消");
+        }
+
+        taskParticipantRepository.deleteByTaskId(taskId);
+        task.setCurrentPeople(0);
+        task.setStatus("CANCELLED");
+        taskRepository.save(task);
+    }
+
     private TaskVO toVO(Task task) {
         TaskVO vo = new TaskVO();
         vo.setId(task.getId());
@@ -151,6 +180,16 @@ public class TaskServiceImpl implements TaskService {
         vo.setPublisherId(task.getPublisherId());
         vo.setCreateTime(task.getCreatedAt() == null ? null : task.getCreatedAt().toString());
         return vo;
+    }
+
+    @Override
+    public List<Task> myTaskHistory(){
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+        List<Task> taskhistory = taskRepository.findByPublisherId(userId);
+        return taskhistory;
     }
 
     private LocalDateTime parseDeadline(String deadlineStr) {
