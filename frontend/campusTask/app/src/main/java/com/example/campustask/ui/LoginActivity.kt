@@ -11,7 +11,7 @@ import com.example.campustask.repository.UserRepository
 
 class LoginActivity : AppCompatActivity() {
 
-    private var isLogin = true
+    private var isLogining = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,11 +28,11 @@ class LoginActivity : AppCompatActivity() {
         val tvTitle = findViewById<TextView>(R.id.tv_title)
         val tvSub = findViewById<TextView>(R.id.tv_sub)
 
-        val repo = UserRepository()
+        val userRepo = UserRepository()
 
         // 登录tab
         tabLogin.setOnClickListener {
-            isLogin = true
+            isLogining = true
             etUsername.visibility = View.GONE
 
             tabLogin.setBackgroundResource(R.drawable.bg_tab_selected)
@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
 
         // 注册tab
         tabRegister.setOnClickListener {
-            isLogin = false
+            isLogining = false
             etUsername.visibility = View.VISIBLE
 
             tabRegister.setBackgroundResource(R.drawable.bg_tab_selected)
@@ -61,8 +61,8 @@ class LoginActivity : AppCompatActivity() {
             val phone = etPhone.text.toString()
             val password = etPassword.text.toString()
 
-            if (isLogin) {
-                repo.mockLogin(phone, password) { success, token ->
+            if (isLogining) {
+                userRepo.login(phone, password) { success, token ->
                     if (success) {
                         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
@@ -72,10 +72,10 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                repo.mockRegister(username, phone, password) { success, msg ->
+                userRepo.register(username, phone, password) { success, msg ->
                     if (success) {
                         Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show()
-                        isLogin = true
+                        isLogining = true
                         tabLogin.performClick()
                     } else {
                         Toast.makeText(this, "注册失败: $msg", Toast.LENGTH_SHORT).show()
@@ -84,4 +84,11 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+//override fun onCreate(savedInstanceState: Bundle?) {
+//    super.onCreate(savedInstanceState)
+//
+//    val tv = TextView(this)
+//    tv.text = "Hello"
+//    setContentView(tv)
+//}
 }

@@ -13,16 +13,16 @@ class UserRepository {
     // ===========================
     fun login(phone: String, password: String, callback: (Boolean, String?) -> Unit) {
         val request = LoginRequest(phone, password)
-        RetrofitClient.api.login(request).enqueue(object : Callback<BaseResponse<String>> {
-            override fun onResponse(call: Call<BaseResponse<String>>, response: Response<BaseResponse<String>>) {
+        RetrofitClient.api.login(request).enqueue(object : Callback<BaseResponse<LoginResponse>> {
+            override fun onResponse(call: Call<BaseResponse<LoginResponse>>, response: Response<BaseResponse<LoginResponse>>) {
                 if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data) // 返回 token
+                    callback(true, response.body()?.data?.token) // 返回 token
                 } else {
                     callback(false, response.body()?.message)
                 }
             }
 
-            override fun onFailure(call: Call<BaseResponse<String>>, t: Throwable) {
+            override fun onFailure(call: Call<BaseResponse<LoginResponse>>, t: Throwable) {
                 callback(false, t.message)
             }
         })
@@ -33,8 +33,8 @@ class UserRepository {
     // ===========================
     fun register(username: String, phone: String, password: String, callback: (Boolean, String?) -> Unit) {
         val request = RegisterRequest(username, phone, password)
-        RetrofitClient.api.register(request).enqueue(object : Callback<BaseResponse<User>> {
-            override fun onResponse(call: Call<BaseResponse<User>>, response: Response<BaseResponse<User>>) {
+        RetrofitClient.api.register(request).enqueue(object : Callback<BaseResponse<RegisterResponse>> {
+            override fun onResponse(call: Call<BaseResponse<RegisterResponse>>, response: Response<BaseResponse<RegisterResponse>>) {
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, null)
                 } else {
@@ -42,7 +42,7 @@ class UserRepository {
                 }
             }
 
-            override fun onFailure(call: Call<BaseResponse<User>>, t: Throwable) {
+            override fun onFailure(call: Call<BaseResponse<RegisterResponse>>, t: Throwable) {
                 callback(false, t.message)
             }
         })
