@@ -1,7 +1,9 @@
 package com.example.campustask.repository
 
+import android.content.Context
 import com.example.campustask.model.*
 import com.example.campustask.network.RetrofitClient
+import com.example.campustask.utils.AuthTokenStore
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,6 +46,29 @@ class UserRepository {
 
             override fun onFailure(call: Call<BaseResponse<RegisterResponse>>, t: Throwable) {
                 callback(false, t.message)
+            }
+        })
+    }
+
+    fun getMyInfo(context: Context, callback: (Boolean, UserInfo?, String?) -> Unit){
+        val header = AuthTokenStore.authorizationHeader(context)
+        if (header == null) {
+            callback(false, null, "用户未登录")
+            return
+        }
+
+        RetrofitClient.api.getMyInfo(header).enqueue(object : Callback<BaseResponse<UserInfo>> {
+            override fun onResponse(call: Call<BaseResponse<UserInfo>>, response: Response<BaseResponse<UserInfo>>) {
+                val body = response.body()
+                if (response.isSuccessful && body?.code == 200) {
+                    callback(true, body.data, null) // 成功返回数据
+                } else {
+                    callback(false, null, body?.message ?: "用户信息获取失败")
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse<UserInfo>>, t: Throwable) {
+                callback(false, null, t.message)
             }
         })
     }
