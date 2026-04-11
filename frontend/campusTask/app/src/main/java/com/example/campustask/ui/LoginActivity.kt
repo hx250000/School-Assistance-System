@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.campustask.MainActivity
 import com.example.campustask.R
 import com.example.campustask.repository.UserRepository
+import com.example.campustask.utils.AuthTokenStore
 
 class LoginActivity : AppCompatActivity() {
 
@@ -62,13 +63,17 @@ class LoginActivity : AppCompatActivity() {
             val password = etPassword.text.toString()
 
             if (isLogining) {
-                userRepo.login(phone, password) { success, token ->
+                userRepo.login(phone, password) { success, tokenOrMsg ->
                     if (success) {
+                        val jwt = tokenOrMsg
+                        if (!jwt.isNullOrBlank()) {
+                            AuthTokenStore.saveToken(this, jwt)
+                        }
                         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()
                     } else {
-                        Toast.makeText(this, "登录失败: $token", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "登录失败: $tokenOrMsg", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
