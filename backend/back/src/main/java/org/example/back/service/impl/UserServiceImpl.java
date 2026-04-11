@@ -4,6 +4,7 @@ import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
 import org.example.back.dto.response.LoginResponse;
+import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
@@ -11,6 +12,8 @@ import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.UserService;
 import org.example.back.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private UserRepository userRepository;
 
@@ -31,7 +35,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public Long register(RegisterRequest registerRequest) {
+    public RegisterResponse register(RegisterRequest registerRequest) {
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(registerRequest.getPassword());
@@ -43,7 +47,10 @@ public class UserServiceImpl implements UserService {
         // 保存到数据库（自动生成ID）
         User savedUser = userRepository.save(user);
 
-        return savedUser.getId();
+        RegisterResponse registerResponse = new RegisterResponse();
+        registerResponse.setUsername(savedUser.getUsername());
+        registerResponse.setUserId(savedUser.getId());
+        return registerResponse;
     }
 
     /**
@@ -52,7 +59,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse login(LoginRequest request) {
         // 改成根据手机号或用户名都可以登录
-        User user = userRepository.findByUsernameOrPhone(request.getUsername(), request.getUsername());
+//        User user = userRepository.findByUsernameOrPhone(request.getPhone(), request.getUsername());
+        User user=userRepository.findByPhone(request.getPhone());
+        log.info("user login: " + request);
 
         if (user == null || !user.getPassword().equals(request.getPassword())) {
             throw new AuthenticationException("用户名或密码错误");

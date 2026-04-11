@@ -55,4 +55,7 @@ dependencies {
 
     // 可选：OkHttp 日志打印
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    // 避免首帧依赖系统 FontsProvider（模拟器上可能异常导致卡黑屏）
+    implementation("androidx.emoji2:emoji2-bundled:1.6.0")
 }
