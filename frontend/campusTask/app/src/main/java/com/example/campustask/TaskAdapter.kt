@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campustask.model.Task
 
 class TaskAdapter(
     private var list: List<Task>,

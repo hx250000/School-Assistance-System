@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.model
 
 data class Task(
     val title: String,

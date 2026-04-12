@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.example.campustask.model.Task
 
 class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
 
