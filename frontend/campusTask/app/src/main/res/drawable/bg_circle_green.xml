@@ -1,5 +1,4 @@
-<!-- 绿色 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#4CAF50"/>
+    <solid android:color="@color/green"/>
     <corners android:radius="50dp"/>
 </shape>

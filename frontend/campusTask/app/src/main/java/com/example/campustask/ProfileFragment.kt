@@ -48,8 +48,14 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 成就
+//        itemAchievement.setOnClickListener {
+//            Toast.makeText(context, "查看我的成就", Toast.LENGTH_SHORT).show()
+//        }
         itemAchievement.setOnClickListener {
-            Toast.makeText(context, "查看我的成就", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, AchievementFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         // ⭐ 兑换记录（你这里原来跳错了）
@@ -96,8 +102,14 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 我的成就
+//        btnAchievement.setOnClickListener {
+//            Toast.makeText(context, "进入我的成就", Toast.LENGTH_SHORT).show()
+//        }
         btnAchievement.setOnClickListener {
-            Toast.makeText(context, "进入我的成就", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, AchievementFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         // 夜间模式

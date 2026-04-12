@@ -1,6 +1,5 @@
-<!-- bg_content.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FFFFFF"/>
+    <solid android:color="@color/bg_content_white"/>
     <corners
         android:topLeftRadius="24dp"
         android:topRightRadius="24dp"/>

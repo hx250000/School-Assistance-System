@@ -1,7 +1,6 @@
-<!-- bg_btn_main.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
-        android:startColor="#FF6FD8"
-        android:endColor="#8E2DE2"/>
+        android:startColor="@color/gradient_btn_main_start"
+        android:endColor="@color/gradient_btn_main_end"/>
     <corners android:radius="30dp"/>
 </shape>

@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F6FA">
+    android:background="@color/bg_main">
 
     <!-- 顶部渐变 -->
     <LinearLayout
@@ -21,14 +21,14 @@
             android:text="积分商城"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"/>
+            android:textColor="@color/text_primary"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="用积分兑换好礼"
             android:textSize="13sp"
-            android:textColor="#FCE4EC"
+            android:textColor="@color/text_secondary_on_primary"
             android:layout_marginTop="4dp"/>
 
         <!-- 积分卡片（浮层） -->
@@ -52,7 +52,7 @@
                     android:layout_width="26dp"
                     android:layout_height="26dp"
                     android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="#FFFFFF"/>
+                    app:tint="@color/text_primary"/>
             </LinearLayout>
 
             <!-- 中间 -->
@@ -68,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="我的积分余额"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"/>
 
                 <TextView
@@ -78,7 +78,7 @@
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.02"
-                    android:textColor="#FFFFFF"/>
+                    android:textColor="@color/text_primary"/>
             </LinearLayout>
 
             <!-- 右侧 -->
@@ -93,14 +93,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="累计兑换"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/text_primary"
                     android:textSize="12sp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="3次"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
             </LinearLayout>
@@ -131,14 +131,14 @@
                 android:text="🎁 热门商品"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#333333"/>
+                android:textColor="@color/text_body"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" 每周更新"
                 android:textSize="12sp"
-                android:textColor="#999999"
+                android:textColor="@color/text_hint"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 

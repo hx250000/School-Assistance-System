@@ -1,5 +1,4 @@
-<!-- bg_card_glass.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#33FFFFFF"/>
+    <solid android:color="@color/bg_card_glass"/>
     <corners android:radius="16dp"/>
 </shape>
