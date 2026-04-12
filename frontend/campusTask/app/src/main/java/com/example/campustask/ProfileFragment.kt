@@ -6,8 +6,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.campustask.model.UserInfo
+import com.example.campustask.repository.UserRepository
+import com.example.campustask.utils.AuthTokenStore
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
+
+    private val userRepo = UserRepository()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -24,10 +29,22 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val tvPoint = view.findViewById<TextView>(R.id.tv_point)
         val tvCredit = view.findViewById<TextView>(R.id.tv_credit)
 
-        tvName.text = "张三 ⭐"
-        tvId.text = "ID: user1"
-        tvPoint.text = "580"
-        tvCredit.text = "95"
+        userRepo.getMyInfo(requireContext()) { success, userInfo, error ->
+            if (success && userInfo != null) {
+                // 收到后端数据后更新 UI
+                tvName.text = userInfo.username
+                tvId.text = "ID: ${userInfo.id}"
+                tvPoint.text = userInfo.points.toString()
+                tvCredit.text = userInfo.creditScore.toString()
+            } else {
+                Toast.makeText(context, "加载个人信息失败: $error", Toast.LENGTH_SHORT).show()
+            }
+        }
+//
+//        tvName.text = "张三 ⭐"
+//        tvId.text = "ID: user1"
+//        tvPoint.text = "580"
+//        tvCredit.text = "95"
     }
 
     // 👉 我的服务 + 设置
@@ -76,7 +93,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         // 退出
         btnLogout.setOnClickListener {
-            Toast.makeText(context, "退出登录", Toast.LENGTH_SHORT).show()
+            AuthTokenStore.clearToken(requireContext()) // 清理 JWT
+            Toast.makeText(context, "已退出登录", Toast.LENGTH_SHORT).show()
+            // 这里需要添加跳转回 LoginActivity 的逻辑
         }
     }
 

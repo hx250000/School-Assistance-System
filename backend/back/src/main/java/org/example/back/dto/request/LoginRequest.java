@@ -7,8 +7,10 @@ import lombok.Data;
 @Schema(description = "登录请求参数")
 public class LoginRequest {
 
-    @Schema(description = "用户名", example = "zhangsan")
-    private String username;
+//    @Schema(description = "用户名", example = "zhangsan")
+//    private String username;
+    @Schema(description = "手机号", example = "13000000000")
+    private String phone;
 
     @Schema(description = "密码", example = "123456")
     private String password;

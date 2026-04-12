@@ -41,7 +41,7 @@
                         android:id="@+id/tv_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="张三 ⭐"
+                        android:text=""
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_on_primary" />
@@ -50,8 +50,13 @@
                         android:id="@+id/tv_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+<<<<<<< HEAD
                         android:text="ID: user1"
                         android:textColor="@color/text_on_primary" />
+=======
+                        android:text="ID: "
+                        android:textColor="#FFFFFF" />
+>>>>>>> 449806d35cbdaed14560761f27d6fb00b5090aee
                 </LinearLayout>
             </LinearLayout>
 
@@ -81,7 +86,7 @@
                         android:id="@+id/tv_point"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="580"
+                        android:text=""
                         android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_on_primary" />
@@ -107,7 +112,7 @@
                         android:id="@+id/tv_credit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="95"
+                        android:text=""
                         android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_on_primary" />
@@ -149,7 +154,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="解锁 3/8 徽章"
+                    android:text="解锁 / 徽章"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_on_primary" />
