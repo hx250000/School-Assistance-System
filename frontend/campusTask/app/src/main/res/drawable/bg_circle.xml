@@ -1,5 +1,4 @@
-<!-- bg_circle.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#33FFFFFF"/>
+    <solid android:color="@color/overlay_white"/>
     <corners android:radius="20dp"/>
 </shape>

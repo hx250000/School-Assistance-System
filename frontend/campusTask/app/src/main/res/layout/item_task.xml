@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:text="王者荣耀开黑"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="@color/text_title"/>
 
         <!-- 人数 + 积分 -->
         <LinearLayout
@@ -34,14 +35,15 @@
                 android:id="@+id/people"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1/3人"/>
+                android:text="1/3人"
+                android:textColor="@color/text_secondary"/>
 
             <TextView
                 android:id="@+id/score"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="20积分"
-                android:textColor="#FF6A00"
+                android:textColor="@color/score_orange"
                 android:layout_marginStart="16dp"/>
         </LinearLayout>
 
@@ -58,7 +60,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="2026-03-11 20:00"/>
+                android:text="2026-03-11 20:00"
+                android:textColor="@color/text_secondary"/>
 
             <ImageView
                 android:id="@+id/avatar"

@@ -1,8 +1,7 @@
-<!-- bg_score_card.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
-        android:startColor="#F06292"
-        android:endColor="#FF7043"
+        android:startColor="@color/gradient_score_card_start"
+        android:endColor="@color/gradient_score_card_end"
         android:angle="0"/>
     <corners android:radius="20dp"/>
 </shape>

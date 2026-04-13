@@ -1,5 +1,4 @@
-<!-- bg_tab_container.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#EEEEEE"/>
+    <solid android:color="@color/bg_tab_normal"/>
     <corners android:radius="22dp"/>
 </shape>

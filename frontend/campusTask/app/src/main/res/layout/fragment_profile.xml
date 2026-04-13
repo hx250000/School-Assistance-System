@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F6FA">
+    android:background="@color/bg_main">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,14 +44,19 @@
                         android:text=""
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/text_on_primary" />
 
                     <TextView
                         android:id="@+id/tv_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+<<<<<<< HEAD
+                        android:text="ID: user1"
+                        android:textColor="@color/text_on_primary" />
+=======
                         android:text="ID: "
                         android:textColor="#FFFFFF" />
+>>>>>>> 449806d35cbdaed14560761f27d6fb00b5090aee
                 </LinearLayout>
             </LinearLayout>
 
@@ -75,7 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="积分余额"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/text_on_primary" />
 
                     <TextView
                         android:id="@+id/tv_point"
@@ -84,7 +89,7 @@
                         android:text=""
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/text_on_primary" />
                 </LinearLayout>
 
                 <!-- 信用 -->
@@ -101,7 +106,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="信用评分"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/text_on_primary" />
 
                     <TextView
                         android:id="@+id/tv_credit"
@@ -110,7 +115,7 @@
                         android:text=""
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/text_on_primary" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -144,7 +149,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="查看我的成就"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/text_on_primary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -152,20 +157,18 @@
                     android:text="解锁 / 徽章"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/text_on_primary" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=">"
-                android:textColor="#FFFFFF" />
+                android:textColor="@color/text_on_primary" />
 
         </LinearLayout>
 
         <!-- ================= 快捷入口 ================= -->
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -178,7 +181,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="快捷入口"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/text_body" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -206,7 +210,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="任务历史"
-                        android:textSize="12sp"/>
+                        android:textSize="12sp"
+                        android:textColor="@color/text_body"/>
                 </LinearLayout>
 
                 <!-- 积分明细 -->
@@ -229,7 +234,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="积分明细"
-                        android:textSize="12sp"/>
+                        android:textSize="12sp"
+                        android:textColor="@color/text_body"/>
                 </LinearLayout>
 
                 <!-- 我的成就 -->
@@ -252,7 +258,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="我的成就"
-                        android:textSize="12sp"/>
+                        android:textSize="12sp"
+                        android:textColor="@color/text_body"/>
                 </LinearLayout>
 
                 <!-- 夜间模式 -->
@@ -275,11 +282,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="夜间模式"
-                        android:textSize="12sp"/>
+                        android:textSize="12sp"
+                        android:textColor="@color/text_body"/>
                 </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>
+
         <!-- ================= 我的服务 ================= -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -298,8 +307,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="消息通知" />
-
+                    android:text="消息通知"
+                    android:textColor="@color/text_body"/>
             </LinearLayout>
 
             <LinearLayout
@@ -312,7 +321,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="我的成就" />
+                    android:text="我的成就"
+                    android:textColor="@color/text_body"/>
             </LinearLayout>
 
             <LinearLayout
@@ -325,7 +335,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="兑换记录" />
+                    android:text="兑换记录"
+                    android:textColor="@color/text_body"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -348,7 +359,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="切换主题" />
+                    android:text="切换主题"
+                    android:textColor="@color/text_body"/>
             </LinearLayout>
 
             <LinearLayout
@@ -361,7 +373,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="设置" />
+                    android:text="设置"
+                    android:textColor="@color/text_body"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -374,7 +387,7 @@
             android:layout_margin="16dp"
             android:gravity="center"
             android:text="退出登录"
-            android:textColor="#FF3D3D"
+            android:textColor="@color/red"
             android:background="@drawable/bg_white_card" />
 
     </LinearLayout>

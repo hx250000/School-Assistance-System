@@ -1,5 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- ================= 基础颜色 ================= -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="red">#FF3D3D</color>
+    <color name="green">#4CAF50</color>
+
+    <color name="gray_light">#E0E0E0</color>
+    <color name="gray_dark">#333333</color>
+
+    <!-- ================= 页面背景 ================= -->
+    <color name="bg_main">#F5F6FA</color>
+    <color name="bg_card_small">#FFFFFF</color>
+    <color name="bg_search">#FFFFFF</color>
+    <color name="bg_tab_card">#FFFFFF</color>
+
+    <!-- ================= Tab ================= -->
+    <color name="bg_tab_selected">#FF4081</color>
+    <color name="bg_tab_normal">#EEEEEE</color>
+
+    <!-- ================= 文本颜色 ================= -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#EEEEEE</color>
+
+    <color name="text_body">#333333</color>
+    <color name="text_hint">#999999</color>
+
+    <color name="text_title">#111111</color>
+    <color name="text_desc">#333333</color>
+    <color name="text_gray">#888888</color>
+
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_secondary_on_primary">#DDFFFFFF</color>
+
+    <!-- ================= 按钮 ================= -->
+    <color name="text_on_button">#FFFFFF</color>
+
+    <color name="btn_finish_bg">#4CAF50</color>
+    <color name="btn_cancel_bg">#666666</color>
+
+    <!-- ================= 积分 / 强调 ================= -->
+    <color name="color_score">#FF6A00</color>
+    <color name="score_orange">#FF6A00</color>
+
+    <!-- ================= 主题色 ================= -->
+    <color name="color_primary">#7B61FF</color>
+    <color name="color_primary_light">#B99FFF</color>
+    <color name="color_accent">#FF5722</color>
+
+    <!-- ================= 渐变基础 ================= -->
+    <color name="gradient_start">#FF7F50</color>
+    <color name="gradient_end">#FF6347</color>
+
+    <!-- ================= 统一渐变（保留你现有所有） ================= -->
+
+    <!-- 主渐变 -->
+    <color name="gradient_main_start">#FF7F50</color>
+    <color name="gradient_main_end">#FF6347</color>
+
+    <!-- 自定义渐变 -->
+    <color name="gradient_custom_start">#FF7AC6</color>
+    <color name="gradient_custom_end">#6A5AE0</color>
+
+    <!-- 按钮渐变 -->
+    <color name="gradient_btn_start">#FF7A18</color>
+    <color name="gradient_btn_end">#FFB347</color>
+
+    <color name="gradient_btn_main_start">#FF6FD8</color>
+    <color name="gradient_btn_main_end">#8E2DE2</color>
+
+    <!-- 登录渐变 -->
+    <color name="gradient_blue_cyan_start">#4FACFE</color>
+    <color name="gradient_blue_cyan_end">#00F2FE</color>
+
+    <!-- Logo -->
+    <color name="gradient_logo_start">#FF6FD8</color>
+    <color name="gradient_logo_end">#3813C2</color>
+
+    <!-- 积分卡 -->
+    <color name="gradient_score_card_start">#F06292</color>
+    <color name="gradient_score_card_end">#FF7043</color>
+
+    <!-- 绿色 / 紫色 / 橙红 -->
+    <color name="gradient_green_start">#4CAF50</color>
+    <color name="gradient_green_end">#66BB6A</color>
+
+    <color name="gradient_orange_red_start">#F6B73C</color>
+    <color name="gradient_orange_red_end">#E66A5C</color>
+
+    <color name="gradient_orange_pink_start">#FF8A00</color>
+    <color name="gradient_orange_pink_end">#FF3D7F</color>
+
+    <color name="gradient_purple_start">#B388FF</color>
+    <color name="gradient_purple_end">#7C6CFF</color>
+
+    <color name="gradient_purple_teal_start">#6A5AE0</color>
+    <color name="gradient_purple_teal_end">#00C9A7</color>
+
+    <!-- ================= 背景 ================= -->
+    <color name="bg_card_white">#FFFFFF</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_card_light">#F7F8FA</color>
+    <color name="bg_card_glass">#33FFFFFF</color>
+
+    <color name="bg_content_white">#FFFFFF</color>
+    <color name="bg_sub">#F6F7FB</color>
+
+    <!-- ================= 状态色 ================= -->
+    <color name="color_success">#4CAF50</color>
+    <color name="color_warning">#FF9800</color>
+    <color name="color_error">#FF3D3D</color>
+
+    <!-- ================= 叠加 ================= -->
+    <color name="overlay_white">#33FFFFFF</color>
+
+    <!-- ================= 输入框 ================= -->
+    <color name="bg_input">#FFFFFF</color>
+    <color name="border_input">#EEEEEE</color>
+
 </resources>
