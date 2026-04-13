@@ -12,7 +12,7 @@ public interface TaskService {
 
     List<TaskVO> list(int page, int size);
 
-    void grabTask(Long taskId);
+    Task grabTask(Long taskId);
 
     void finishTask(Long taskId);
 

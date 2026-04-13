@@ -33,6 +33,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskParticipantRepository taskParticipantRepository;
+
     @Override
     @Transactional
     public Long createTask(TaskCreateRequest request) {
@@ -74,7 +75,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void grabTask(Long taskId) {
+    public Task grabTask(Long taskId) {
 
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
@@ -127,6 +128,9 @@ public class TaskServiceImpl implements TaskService {
 //            taskRepository.save(latestTask);
 //        }
         taskRepository.updateStatusIfFull(taskId);
+
+        Task taskGrabbed=taskRepository.findById(taskId).get();
+        return taskGrabbed;
     }
 
     @Override
