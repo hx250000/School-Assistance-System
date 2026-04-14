@@ -3,6 +3,7 @@ package org.example.back.controller;
 import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
+import org.example.back.entity.Task;
 import org.example.back.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,8 @@ public class TaskController {
 
     @PostMapping("/grab")
     public ApiResponse grab(@RequestBody GrabTaskRequest request) {
-        taskService.grabTask(request.getTaskId());
-        return ApiResponse.success("抢单成功");
+        Task taskGrabbed=taskService.grabTask(request.getTaskId());
+        return ApiResponse.success(taskGrabbed);
     }
 
     @PostMapping("/finish")
