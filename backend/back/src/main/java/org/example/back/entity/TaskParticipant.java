@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "task_participant")
+@Table(name = "task_participant",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"task_id", "user_id"})
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

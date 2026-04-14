@@ -1,7 +1,6 @@
 package org.example.back.controller;
 
 import org.example.back.common.ApiResponse;
-import org.example.back.common.Result;
 import org.example.back.entity.Review;
 import org.example.back.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;

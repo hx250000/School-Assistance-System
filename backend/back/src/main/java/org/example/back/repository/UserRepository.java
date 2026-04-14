@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);
     User findByUsernameOrPhone(String username, String phone); // 登录用
+
+    User findByPhone(String phone);
 }
