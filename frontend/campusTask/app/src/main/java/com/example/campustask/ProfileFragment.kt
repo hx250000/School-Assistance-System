@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.example.campustask.model.UserInfo
 import com.example.campustask.repository.UserRepository
 import com.example.campustask.utils.AuthTokenStore
+import androidx.appcompat.app.AppCompatDelegate
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -82,8 +83,30 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 主题
+//        itemTheme.setOnClickListener {
+//            Toast.makeText(context, "切换主题（后面可做夜间模式）", Toast.LENGTH_SHORT).show()
+//        }
         itemTheme.setOnClickListener {
-            Toast.makeText(context, "切换主题（后面可做夜间模式）", Toast.LENGTH_SHORT).show()
+
+            val sp = requireContext().getSharedPreferences("theme", android.content.Context.MODE_PRIVATE)
+
+            val isNight = sp.getBoolean("night", false)
+            val newMode = !isNight
+
+            // 保存状态
+            sp.edit().putBoolean("night", newMode).apply()
+
+            // 切换模式
+            if (newMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                Toast.makeText(context, "已切换为夜间模式 🌙", Toast.LENGTH_SHORT).show()
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                Toast.makeText(context, "已切换为日间模式 ☀️", Toast.LENGTH_SHORT).show()
+            }
+
+            // 🔥 关键：刷新界面（Fragment 必须）
+            requireActivity().recreate()
         }
 
         // 设置
@@ -132,8 +155,30 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 夜间模式
+//        btnDark.setOnClickListener {
+//            Toast.makeText(context, "切换夜间模式（待实现）", Toast.LENGTH_SHORT).show()
+//        }
         btnDark.setOnClickListener {
-            Toast.makeText(context, "切换夜间模式（待实现）", Toast.LENGTH_SHORT).show()
+
+            val sp = requireContext().getSharedPreferences("theme", android.content.Context.MODE_PRIVATE)
+
+            val isNight = sp.getBoolean("night", false)
+            val newMode = !isNight
+
+            // 保存状态
+            sp.edit().putBoolean("night", newMode).apply()
+
+            // 切换模式
+            if (newMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                Toast.makeText(context, "已切换为夜间模式 🌙", Toast.LENGTH_SHORT).show()
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                Toast.makeText(context, "已切换为日间模式 ☀️", Toast.LENGTH_SHORT).show()
+            }
+
+            // 🔥 关键：刷新界面（Fragment 必须）
+            requireActivity().recreate()
         }
     }
 }
