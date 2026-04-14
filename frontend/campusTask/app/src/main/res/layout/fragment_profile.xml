@@ -50,13 +50,9 @@
                         android:id="@+id/tv_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-<<<<<<< HEAD
-                        android:text="ID: user1"
-                        android:textColor="@color/text_on_primary" />
-=======
                         android:text="ID: "
-                        android:textColor="#FFFFFF" />
->>>>>>> 449806d35cbdaed14560761f27d6fb00b5090aee
+                        android:textColor="@color/text_on_primary" />
+
                 </LinearLayout>
             </LinearLayout>
 
