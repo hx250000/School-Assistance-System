@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 class PublishFragment : Fragment() {
@@ -23,7 +24,10 @@ class PublishFragment : Fragment() {
         val desc = view.findViewById<EditText>(R.id.et_desc)
         val btnPublish = view.findViewById<Button>(R.id.btn_publish)
 
-        // 👉 类型（TextView）
+        // ⭐ 新增：积分
+        val etScore = view.findViewById<EditText>(R.id.et_score)
+
+        // 👉 类型
         val type1 = view.findViewById<TextView>(R.id.type1)
         val type2 = view.findViewById<TextView>(R.id.type2)
         val type3 = view.findViewById<TextView>(R.id.type3)
@@ -35,21 +39,21 @@ class PublishFragment : Fragment() {
 
             types.forEach {
                 it.setBackgroundResource(R.drawable.bg_tag)
-                it.setTextColor(resources.getColor(android.R.color.black))
+                it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
             }
 
             selected.setBackgroundResource(R.drawable.bg_tag_selected)
-            selected.setTextColor(resources.getColor(android.R.color.white))
+            selected.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
         }
 
         type1.setOnClickListener { selectType(type1, "生活") }
         type2.setOnClickListener { selectType(type2, "学习") }
         type3.setOnClickListener { selectType(type3, "游戏") }
 
-        // 👉 默认选中
+        // 默认选中
         selectType(type1, "生活")
 
-        // 👉 人数选择
+        // 👉 人数
         val etPeople = view.findViewById<EditText>(R.id.et_people)
         val btnAdd = view.findViewById<Button>(R.id.btn_add)
         val btnMinus = view.findViewById<Button>(R.id.btn_minus)
@@ -66,21 +70,31 @@ class PublishFragment : Fragment() {
             }
         }
 
-        // 👉 发布按钮
+        // 👉 发布
         btnPublish.setOnClickListener {
-            val t = title.text.toString()
-            val d = desc.text.toString()
-            val people = etPeople.text.toString()
 
+            val t = title.text.toString().trim()
+            val d = desc.text.toString().trim()
+            val people = etPeople.text.toString().toIntOrNull() ?: 1
+            val score = etScore.text.toString().toIntOrNull() ?: 0
+
+            // ✅ 校验
             if (t.isEmpty() || d.isEmpty()) {
                 Toast.makeText(context, "请填写完整信息", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(
-                    context,
-                    "发布成功：$selectedType - $t（$people 人）",
-                    Toast.LENGTH_SHORT
-                ).show()
+                return@setOnClickListener
             }
+
+            if (score <= 0) {
+                Toast.makeText(context, "请输入有效积分", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // ✅ 成功提示（升级版）
+            Toast.makeText(
+                context,
+                "发布成功 🎉\n类型：$selectedType\n标题：$t\n人数：$people 人\n奖励：$score 积分",
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         return view
