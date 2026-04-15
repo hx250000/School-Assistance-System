@@ -1,8 +1,8 @@
 package com.example.campustask
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupWindow
@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
+
+    private var selectedType = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,9 +39,55 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // 🔥 悬浮按钮逻辑
         val floatingBtn = findViewById<ImageView>(R.id.floatingBtn)
 
+        // 🔥 ========== 可拖动逻辑 ==========
+        var dX = 0f
+        var dY = 0f
+        var isDragging = false
+
+        floatingBtn.setOnTouchListener { view, event ->
+
+            when (event.action) {
+
+                MotionEvent.ACTION_DOWN -> {
+                    dX = view.x - event.rawX
+                    dY = view.y - event.rawY
+                    isDragging = false
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.animate()
+                        .x(event.rawX + dX)
+                        .y(event.rawY + dY)
+                        .setDuration(0)
+                        .start()
+
+                    isDragging = true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    if (!isDragging) {
+                        view.performClick()
+                    } else {
+                        // 👉 吸附边缘
+                        val screenWidth = resources.displayMetrics.widthPixels
+                        val targetX =
+                            if (view.x > screenWidth / 2)
+                                (screenWidth - view.width).toFloat()
+                            else 0f
+
+                        view.animate()
+                            .x(targetX)
+                            .setDuration(200)
+                            .start()
+                    }
+                }
+            }
+            true
+        }
+
+        // 🔥 点击事件（弹窗）
         floatingBtn.setOnClickListener {
 
             val popupView = LayoutInflater.from(this)
@@ -64,14 +112,18 @@ class MainActivity : AppCompatActivity() {
             )
 
             recyclerView.layoutManager = LinearLayoutManager(this)
+
             recyclerView.adapter = SmallTaskAdapter(taskList) { taskName ->
 
                 Toast.makeText(this, "打开任务：$taskName", Toast.LENGTH_SHORT).show()
 
-                // 👉 跳转详情页
-                val intent = Intent(this, TaskDetailFragment::class.java)
-                intent.putExtra("task_name", taskName)
-                startActivity(intent)
+                // 🔥 正确方式：Fragment 跳转
+                val fragment = TaskDetailFragment()
+                val bundle = Bundle()
+                bundle.putString("task_name", taskName)
+                fragment.arguments = bundle
+
+                loadFragment(fragment)
 
                 popupWindow.dismiss()
             }
