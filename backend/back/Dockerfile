@@ -1,14 +1,20 @@
-# 使用OpenJDK基础镜像
-FROM eclipse-temurin:17-jdk
+# ---------- Stage 1: build ----------
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /workspace
 
-# 设置工作dir目录
+COPY pom.xml .
+
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# ---------- Stage 2: runtime ----------
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
-# 将项目的jar包复制到容器中
-COPY target/back-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /workspace/target/*.jar ./app.jar
 
-# 暴露应用运行的端口
+ENV JAVA_OPTS=""
+
 EXPOSE 8080
 
-# 定义容器启动时运行的命令
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
