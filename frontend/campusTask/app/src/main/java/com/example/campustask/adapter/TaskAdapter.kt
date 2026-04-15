@@ -7,10 +7,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.model.Task
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TaskAdapter(
     private var list: List<Task>,
-    private val onItemClick: (Task) -> Unit   // 👉 回调
+    private val onItemClick: (Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -29,14 +31,21 @@ class TaskAdapter(
     override fun getItemCount() = list.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
         val task = list[position]
 
+        // ===== 标题 =====
         holder.title.text = task.title
-        holder.people.text = task.people
-        holder.score.text = task.score
-        holder.time.text = task.time
 
-        // 👉 点击事件
+        // ===== 人数（核心改造🔥）=====
+        holder.people.text = "${task.currentPeople}/${task.needPeople}人"
+
+        // ===== 积分 =====
+        holder.score.text = "+${task.rewardPoints}积分"
+
+        // ===== 时间（格式化）=====
+        holder.time.text = formatTime(task.deadline)
+
         holder.itemView.setOnClickListener {
             onItemClick(task)
         }
@@ -45,5 +54,11 @@ class TaskAdapter(
     fun update(newList: List<Task>) {
         list = newList
         notifyDataSetChanged()
+    }
+
+    // ===== 时间格式化 =====
+    private fun formatTime(time: Long): String {
+        val sdf = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
+        return sdf.format(Date(time))
     }
 }
