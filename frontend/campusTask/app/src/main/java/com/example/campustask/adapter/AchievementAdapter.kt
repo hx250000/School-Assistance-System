@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campustask.R
 import com.example.campustask.model.Achievement
 
 class AchievementAdapter(private val list: List<Achievement>) :

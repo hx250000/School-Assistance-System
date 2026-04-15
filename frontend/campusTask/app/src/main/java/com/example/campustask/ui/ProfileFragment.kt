@@ -1,15 +1,16 @@
-package com.example.campustask
+package com.example.campustask.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import com.example.campustask.model.UserInfo
+import com.example.campustask.R
 import com.example.campustask.repository.UserRepository
 import com.example.campustask.utils.AuthTokenStore
-import androidx.appcompat.app.AppCompatDelegate
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -88,7 +89,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 //        }
         itemTheme.setOnClickListener {
 
-            val sp = requireContext().getSharedPreferences("theme", android.content.Context.MODE_PRIVATE)
+            val sp = requireContext().getSharedPreferences("theme", Context.MODE_PRIVATE)
 
             val isNight = sp.getBoolean("night", false)
             val newMode = !isNight
@@ -160,7 +161,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 //        }
         btnDark.setOnClickListener {
 
-            val sp = requireContext().getSharedPreferences("theme", android.content.Context.MODE_PRIVATE)
+            val sp = requireContext().getSharedPreferences("theme", Context.MODE_PRIVATE)
 
             val isNight = sp.getBoolean("night", false)
             val newMode = !isNight

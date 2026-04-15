@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.ui
 
 import android.os.Bundle
 import android.view.View
@@ -7,6 +7,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campustask.R
+import com.example.campustask.ui.TaskDetailFragment
+import com.example.campustask.adapter.TaskAdapter
 import com.example.campustask.model.Task
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -64,7 +67,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     val tabs = listOf(tabAll, tabGame, tabLife, tabStudy)
 
     adapter = TaskAdapter(allTasks) { task ->
-        val fragment = TaskDetailFragment.newInstance(task)
+        val fragment = TaskDetailFragment.Companion.newInstance(task)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)

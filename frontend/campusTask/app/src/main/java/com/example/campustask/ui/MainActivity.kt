@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campustask.ui.MyTaskFragment
+import com.example.campustask.ui.ProfileFragment
+import com.example.campustask.ui.PublishFragment
+import com.example.campustask.R
+import com.example.campustask.ui.ShopFragment
+import com.example.campustask.ui.TaskDetailFragment
+import com.example.campustask.adapter.SmallTaskAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {

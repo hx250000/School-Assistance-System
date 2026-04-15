@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.model
 
 data class ShopItem(
     val title: String,

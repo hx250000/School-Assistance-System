@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campustask.R
+import com.example.campustask.model.ShopItem
+import com.example.campustask.adapter.ShopAdapter
 
 class ShopFragment : Fragment() {
 

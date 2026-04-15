@@ -1,4 +1,4 @@
-package com.example.campustask
+package com.example.campustask.ui
 
 import android.os.Bundle
 import android.view.View
@@ -6,6 +6,8 @@ import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campustask.R
+import com.example.campustask.adapter.PointsAdapter
 import com.example.campustask.model.PointRecord
 
 class PointsFragment : Fragment(R.layout.fragment_points) {

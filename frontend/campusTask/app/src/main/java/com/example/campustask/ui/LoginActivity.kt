@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.campustask.MainActivity
+import com.example.campustask.ui.MainActivity
 import com.example.campustask.R
 import com.example.campustask.repository.UserRepository
 import com.example.campustask.utils.AuthTokenStore

@@ -1,9 +1,14 @@
-package com.example.campustask
+package com.example.campustask.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.campustask.R
 import com.example.campustask.model.Task
 
 class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {

@@ -1,5 +1,6 @@
-package com.example.campustask
+package com.example.campustask.adapter
 
+import android.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +13,12 @@ class SmallTaskAdapter(
 ) : RecyclerView.Adapter<SmallTaskAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val text: TextView = view.findViewById(android.R.id.text1)
+        val text: TextView = view.findViewById(R.id.text1)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
-            .inflate(android.R.layout.simple_list_item_1, parent, false)
+            .inflate(R.layout.simple_list_item_1, parent, false)
         return VH(view)
     }
 
