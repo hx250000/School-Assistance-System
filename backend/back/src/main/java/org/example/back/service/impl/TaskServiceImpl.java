@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -181,8 +182,14 @@ public class TaskServiceImpl implements TaskService {
         vo.setNeedPeople(task.getNeedPeople());
         vo.setCurrentPeople(task.getCurrentPeople());
         vo.setStatus(task.getStatus());
+        vo.setType(task.getType());
         vo.setPublisherId(task.getPublisherId());
-        vo.setCreateTime(task.getCreatedAt() == null ? null : task.getCreatedAt().toString());
+
+//        vo.setRewardMoney(task.getRewardMoney());
+        vo.setRewardPoints(task.getRewardPoints());
+
+        vo.setCreatedAt(task.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        vo.setDeadline(task.getDeadline().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         return vo;
     }
 

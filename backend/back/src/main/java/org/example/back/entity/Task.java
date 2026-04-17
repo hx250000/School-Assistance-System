@@ -51,9 +51,9 @@ public class Task {
     @Schema(description = "奖励积分")
     private Integer rewardPoints;
 
-    @Column(name = "reward_money", precision = 10, scale = 2)
-    @Schema(description = "奖励金额")
-    private BigDecimal rewardMoney;
+//    @Column(name = "reward_money", precision = 10, scale = 2)
+//    @Schema(description = "奖励金额")
+//    private BigDecimal rewardMoney;
 
     @Column(nullable = false, length = 20)
     @Schema(description = "任务状态", example = "OPEN/IN_PROGRESS/FINISHED/CANCELLED")
