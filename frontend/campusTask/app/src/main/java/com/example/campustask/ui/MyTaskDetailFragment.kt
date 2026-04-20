@@ -10,66 +10,70 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.campustask.R
 import com.example.campustask.model.Task
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
 
     companion object {
         fun newInstance(task: Task): MyTaskDetailFragment {
             val fragment = MyTaskDetailFragment()
+
             val bundle = Bundle().apply {
-                putString("title", task.title)
-                putString("people", task.people)
-                putString("score", task.score)
-                putString("time", task.time)
+                putLong("id", task.id)
             }
+
             fragment.arguments = bundle
             return fragment
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
-        // ===== 获取参数 =====
-        val title = arguments?.getString("title") ?: ""
-        val people = arguments?.getString("people") ?: ""
-        val score = arguments?.getString("score") ?: ""
-        val time = arguments?.getString("time") ?: ""
+        val taskId = arguments?.getLong("id") ?: return
 
-        // ===== 顶部显示 =====
-        view.findViewById<TextView>(R.id.tv_title).text = title
-        view.findViewById<TextView>(R.id.tv_task_id).text = "任务ID: 101"
+        // 👉 这里先用假数据（后面接数据库）
+        val task = com.example.campustask.data.FakeTaskDatabase
+            .getAllTasks()
+            .find { it.id == taskId } ?: return
 
-        // ===== 进度条 =====
-        view.findViewById<TextView>(R.id.tv_progress).text = people
-        view.findViewById<ProgressBar>(R.id.progress_bar).progress = 66
+        // ===== 标题 =====
+        view.findViewById<TextView>(R.id.tv_title).text = task.title
+
+        // ===== 任务ID =====
+        view.findViewById<TextView>(R.id.tv_task_id).text = "任务ID: ${task.id}"
+
+        // ===== 进度 =====
+        val progressText = "${task.currentPeople}/${task.needPeople}"
+        view.findViewById<TextView>(R.id.tv_progress).text = progressText
+
+        val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
+        progressBar.progress = (task.currentPeople * 100 / task.needPeople)
 
         // ===== 信息卡片 =====
-        view.findViewById<TextView>(R.id.tv_people).text = people
-        view.findViewById<TextView>(R.id.tv_score).text = score
-        view.findViewById<TextView>(R.id.tv_time).text = time
-        view.findViewById<TextView>(R.id.tv_deadline).text = "2026-03-20 19:00"
+        view.findViewById<TextView>(R.id.tv_people).text = progressText
+        view.findViewById<TextView>(R.id.tv_score).text = "+${task.rewardPoints}积分"
 
-        // ===== 顶部操作按钮 =====
-        view.findViewById<ImageView>(R.id.btn_edit).setOnClickListener {
-            Toast.makeText(requireContext(), "编辑任务", Toast.LENGTH_SHORT).show()
-        }
+        view.findViewById<TextView>(R.id.tv_time).text = formatTime(task.deadline)
 
-        view.findViewById<ImageView>(R.id.btn_delete).setOnClickListener {
-            Toast.makeText(requireContext(), "删除任务", Toast.LENGTH_SHORT).show()
-        }
+        view.findViewById<TextView>(R.id.tv_deadline).text = formatTime(task.deadline)
 
+        // ===== 按钮 =====
         view.findViewById<ImageView>(R.id.btn_back).setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        // ===== 底部按钮 =====
         view.findViewById<Button>(R.id.btn_finish).setOnClickListener {
-            Toast.makeText(requireContext(), "任务已完成", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "任务完成", Toast.LENGTH_SHORT).show()
         }
 
         view.findViewById<Button>(R.id.btn_cancel).setOnClickListener {
-            Toast.makeText(requireContext(), "任务已取消", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "任务取消", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun formatTime(time: Long): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        return sdf.format(Date(time))
     }
 }

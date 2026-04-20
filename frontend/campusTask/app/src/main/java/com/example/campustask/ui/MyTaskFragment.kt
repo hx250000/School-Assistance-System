@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.adapter.MyTaskAdapter
+import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
 
 class MyTaskFragment : Fragment(R.layout.fragment_task) {
@@ -21,18 +22,11 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_task)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        // 👉 模拟数据
-        allList = listOf(
-            Task("取快递", "3人已接", "5积分", "今天", "跑腿", "publish"),
-            Task("代写作业", "1人已接", "10积分", "明天", "学习", "ing"),
-            Task("买早餐", "2人已接", "3积分", "已结束", "生活", "done")
-        )
+        // 从“假数据库”获取数据
+        allList = FakeTaskDatabase.getAllTasks()
 
-        // ✅ 这里是关键修改（加点击事件）
         adapter = MyTaskAdapter(allList) { task ->
-
             val fragment = MyTaskDetailFragment.newInstance(task)
-
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
@@ -42,45 +36,63 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         recycler.adapter = adapter
 
         initTab(view)
+
+        // 默认选中“全部”
+        filter("ALL")
     }
 
+    // ===== tab 初始化（已全部加安全判断，绝不崩溃）=====
     private fun initTab(view: View) {
         val tabPublish = view.findViewById<TextView>(R.id.tab_publish)
         val tabIng = view.findViewById<TextView>(R.id.tab_ing)
         val tabDone = view.findViewById<TextView>(R.id.tab_done)
+        val tabAll = view.findViewById<TextView>(R.id.tab_all)
 
-        tabPublish.setOnClickListener {
-            filter("publish")
+        // 👇 全部加上 ? 安全调用，找不到控件也不会崩
+        tabAll?.setOnClickListener {
+            selectTab(view, tabAll)
+            filter("ALL")
+        }
+
+        tabPublish?.setOnClickListener {
             selectTab(view, tabPublish)
+            filter("OPEN")
         }
 
-        tabIng.setOnClickListener {
-            filter("ing")
+        tabIng?.setOnClickListener {
             selectTab(view, tabIng)
+            filter("IN_PROGRESS")
         }
 
-        tabDone.setOnClickListener {
-            filter("done")
+        tabDone?.setOnClickListener {
             selectTab(view, tabDone)
+            filter("FINISHED")
         }
     }
 
+    // ===== 筛选逻辑 =====
     private fun filter(status: String) {
-        val newList = allList.filter { it.status == status }
-        adapter.update(newList)
+        val data = if (status == "ALL") {
+            FakeTaskDatabase.getAllTasks()
+        } else {
+            FakeTaskDatabase.getTasksByStatus(status)
+        }
+        adapter.update(data)
     }
 
-    private fun selectTab(view: View, selected: TextView) {
+    // ===== tab UI（全部安全调用）=====
+    private fun selectTab(view: View, selected: TextView?) {
         val tabs = listOf(
+            view.findViewById<TextView>(R.id.tab_all),
             view.findViewById<TextView>(R.id.tab_publish),
             view.findViewById<TextView>(R.id.tab_ing),
             view.findViewById<TextView>(R.id.tab_done)
         )
 
         tabs.forEach {
-            it.setBackgroundResource(R.drawable.bg_tab)
+            it?.setBackgroundResource(R.drawable.bg_tab)
         }
 
-        selected.setBackgroundResource(R.drawable.bg_tab_selected)
+        selected?.setBackgroundResource(R.drawable.bg_tab_selected)
     }
 }

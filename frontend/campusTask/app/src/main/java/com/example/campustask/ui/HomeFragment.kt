@@ -8,15 +8,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.adapter.TaskAdapter
-import com.example.campustask.model.Task
 import com.example.campustask.repository.TaskRepository
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var adapter: TaskAdapter
-    private lateinit var allTasks: List<Task>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
 
@@ -27,12 +26,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val tabs = listOf(tabAll, tabGame, tabLife, tabStudy)
 
-        // 🔥 从“假数据库”获取数据
-        allTasks = TaskRepository.getAllTasks()
+        // 获取数据
+        val allTasks = TaskRepository.getAllTasks()
 
         adapter = TaskAdapter(allTasks) { task ->
             val fragment = TaskDetailFragment.newInstance(task)
-
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
@@ -42,26 +40,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-        // ===== 默认选中 =====
+        // 默认选中
         selectTab(tabAll, tabs)
         filter("全部")
 
-        // ===== 点击事件 =====
+        // 点击事件
         tabAll.setOnClickListener {
             selectTab(tabAll, tabs)
             filter("全部")
         }
-
         tabGame.setOnClickListener {
             selectTab(tabGame, tabs)
             filter("游戏")
         }
-
         tabLife.setOnClickListener {
             selectTab(tabLife, tabs)
             filter("生活")
         }
-
         tabStudy.setOnClickListener {
             selectTab(tabStudy, tabs)
             filter("学习")
@@ -69,7 +64,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun filter(category: String) {
-
         val data = if (category == "全部") {
             TaskRepository.getAllTasks()
         } else {
@@ -79,12 +73,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 "学习" -> "STUDY"
                 else -> ""
             }
-
             TaskRepository.getTasksByType(type)
         }
-
         adapter.update(data)
     }
+
     private fun selectTab(selected: TextView, tabs: List<TextView>) {
         for (tv in tabs) {
             tv.setBackgroundResource(R.drawable.bg_tag)

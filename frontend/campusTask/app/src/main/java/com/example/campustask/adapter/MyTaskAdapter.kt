@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.model.Task
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyTaskAdapter(
     private var list: List<Task>,
@@ -18,7 +20,7 @@ class MyTaskAdapter(
         val people: TextView = view.findViewById(R.id.people)
         val score: TextView = view.findViewById(R.id.score)
         val time: TextView = view.findViewById(R.id.time)
-        val status: TextView = view.findViewById(R.id.status) // 👉 可加状态标签
+        val status: TextView = view.findViewById(R.id.status)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,18 +32,21 @@ class MyTaskAdapter(
     override fun getItemCount() = list.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
         val task = list[position]
 
         holder.title.text = task.title
-        holder.people.text = task.people
-        holder.score.text = task.score
-        holder.time.text = task.time
 
-        // 👉 状态显示（核心区别）
+        holder.people.text = "${task.currentPeople}/${task.needPeople}人"
+
+        holder.score.text = "+${task.rewardPoints}积分"
+
+        holder.time.text = formatTime(task.deadline)
+
         holder.status.text = when (task.status) {
-            "publish" -> "已发布"
-            "ing" -> "进行中"
-            "done" -> "已完成"
+            "OPEN" -> "已发布"
+            "IN_PROGRESS" -> "进行中"
+            "FINISHED" -> "已完成"
             else -> ""
         }
 
@@ -53,5 +58,10 @@ class MyTaskAdapter(
     fun update(newList: List<Task>) {
         list = newList
         notifyDataSetChanged()
+    }
+
+    private fun formatTime(time: Long): String {
+        val sdf = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
+        return sdf.format(Date(time))
     }
 }
