@@ -6,23 +6,16 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.campustask.ui.MyTaskFragment
-import com.example.campustask.ui.ProfileFragment
-import com.example.campustask.ui.PublishFragment
 import com.example.campustask.R
-import com.example.campustask.ui.ShopFragment
-import com.example.campustask.ui.TaskDetailFragment
-import com.example.campustask.adapter.SmallTaskAdapter
+import com.example.campustask.adapter.PopupTaskAdapter
+import com.example.campustask.repository.TaskRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
-
-    private var selectedType = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // 🔥 点击事件（弹窗）
+        // 🔥 点击弹窗 → 已替换成新适配器，文字不竖排、不换行
         floatingBtn.setOnClickListener {
 
             val popupView = LayoutInflater.from(this)
@@ -109,39 +102,31 @@ class MainActivity : AppCompatActivity() {
 
             popupWindow.isOutsideTouchable = true
 
-            val recyclerView =
-                popupView.findViewById<RecyclerView>(R.id.recyclerTasks)
-
-            val taskList = listOf(
-                "帮拿外卖",
-                "代取快递",
-                "一起打游戏"
-            )
-
+            val recyclerView = popupView.findViewById<RecyclerView>(R.id.recyclerTasks)
             recyclerView.layoutManager = LinearLayoutManager(this)
 
-            recyclerView.adapter = SmallTaskAdapter(taskList) { taskName ->
+            val taskList = TaskRepository.getAllTasks()
 
-                Toast.makeText(this, "打开任务：$taskName", Toast.LENGTH_SHORT).show()
-
-                // 🔥 正确方式：Fragment 跳转
-                val fragment = TaskDetailFragment()
-                val bundle = Bundle()
-                bundle.putString("task_name", taskName)
-                fragment.arguments = bundle
-
-                loadFragment(fragment)
-
+            // ✅ 使用新的简洁适配器
+            val adapter = PopupTaskAdapter(taskList) { task ->
+                val fragment = TaskDetailFragment.newInstance(task)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
                 popupWindow.dismiss()
             }
+            recyclerView.adapter = adapter
 
-            popupWindow.showAsDropDown(floatingBtn, -250, -500)
+            // ✅ 弹窗位置优化，不偏移
+            popupWindow.showAsDropDown(floatingBtn, -260, -220)
         }
     }
 
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
             .commit()
     }
 }
