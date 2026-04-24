@@ -73,7 +73,7 @@ public class ShopServiceImpl implements ShopService {
         PointsLog log = new PointsLog();
         log.setUserId(userId);
         log.setChangeAmount(-item.getPrice());
-        log.setReason("兑换商品");
+        log.setTitle("兑换商品");
         pointsLogRepository.save(log);
 
         // 订单

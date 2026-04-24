@@ -17,7 +17,8 @@ public class PointsLog {
 
     @Column(name = "change_amount", nullable = false)
     private Integer changeAmount; // +20 / -50
-    private String reason;        // 完成任务 / 兑换商品
+    private String title;        // 完成任务 / 兑换商品
+    private String description;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
