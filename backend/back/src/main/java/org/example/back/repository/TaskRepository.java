@@ -42,4 +42,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByPublisherId(Long publisherId);
 
+    List<Task> findByTitleLike(String keyword);
+
 }

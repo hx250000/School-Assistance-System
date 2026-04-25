@@ -19,4 +19,8 @@ public interface TaskService {
     void cancelTask(Long taskId);
 
     List<Task> myTaskHistory();
+
+    List<TaskVO> findByTitle(String keywords);
+
+    TaskVO findById(Long id);
 }

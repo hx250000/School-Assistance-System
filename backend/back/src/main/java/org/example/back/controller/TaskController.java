@@ -48,4 +48,14 @@ public class TaskController {
     public ApiResponse myTaskHistory() {
         return ApiResponse.success(taskService.myTaskHistory());
     }
+
+    @GetMapping("/search")
+    public ApiResponse search(@RequestParam String keyword) {
+        return ApiResponse.success(taskService.findByTitle(keyword));
+    }
+
+    @GetMapping("/task")
+    public ApiResponse getTaskById(@RequestParam Long taskId) {
+        return ApiResponse.success(taskService.findById(taskId));
+    }
 }

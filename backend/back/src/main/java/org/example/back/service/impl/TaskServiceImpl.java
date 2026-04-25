@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -258,5 +259,21 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Override
+    public List<TaskVO> findByTitle(String keywords){
+        List<Task> tasks=taskRepository.findByTitleLike("%"+keywords+"%");
+        List<TaskVO> vos=new ArrayList<TaskVO>();
+        for(Task task:tasks){
+            vos.add(toVO(task));
+        }
+        return vos;
+    }
 
+    @Override
+    public TaskVO findById(Long taskId){
+        Task t=taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在！"));
+        TaskVO vo=toVO(t);
+        return vo;
+    }
 }
