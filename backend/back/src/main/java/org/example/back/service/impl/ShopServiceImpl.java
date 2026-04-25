@@ -61,10 +61,6 @@ public class ShopServiceImpl implements ShopService {
             throw new IllegalArgumentException("库存不足");
         }
 
-        if (item.getStock() == null || item.getStock() <= 0) {
-            throw new RuntimeException("库存不足");
-        }
-
         // 扣积分
         user.setPoints(user.getPoints() - item.getPrice());
         userRepository.save(user);
