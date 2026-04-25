@@ -11,6 +11,7 @@ import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.TaskRepository;
 import org.example.back.service.TaskService;
+import org.example.back.service.PointsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +36,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskParticipantRepository taskParticipantRepository;
+
+    @Autowired
+    private PointsService pointsService;
 
     @Override
     @Transactional
@@ -141,8 +146,30 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务"+taskId+"不存在"));
 
+        // 更新任务状态为已完成
         task.setStatus("FINISHED");
         taskRepository.save(task);
+
+        // 如果没有奖励积分，则只更新任务状态
+        Integer reward = task.getRewardPoints();
+        if (reward == null || reward <= 0) {
+            return;
+        }
+
+        // 查找参与者，过滤出仍为 JOINED 的参与者，更新其状态并发放积分
+        List<TaskParticipant> participants = taskParticipantRepository.findByTaskId(taskId);
+        for (TaskParticipant p : participants) {
+            if (!"JOINED".equals(p.getStatus())) {
+                continue;
+            }
+            p.setStatus("FINISHED");
+            taskParticipantRepository.save(p);
+
+            // 发放积分（标题和描述带上任务信息）
+            String title = "完成任务";
+            String desc = "完成任务 " + task.getTitle() + " 获得 "+ reward +" 积分";
+            pointsService.addPoints(p.getUserId(), reward, title, desc);
+        }
     }
 
     @Override
@@ -232,5 +259,21 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Override
+    public List<TaskVO> findByTitle(String keywords){
+        List<Task> tasks=taskRepository.findByTitleLike("%"+keywords+"%");
+        List<TaskVO> vos=new ArrayList<TaskVO>();
+        for(Task task:tasks){
+            vos.add(toVO(task));
+        }
+        return vos;
+    }
 
+    @Override
+    public TaskVO findById(Long taskId){
+        Task t=taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在！"));
+        TaskVO vo=toVO(t);
+        return vo;
+    }
 }

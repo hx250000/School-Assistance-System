@@ -19,4 +19,12 @@ public class PointsController {
     public ApiResponse getPoints() {
         return ApiResponse.success(pointsService.getUserPoints());
     }
+
+    /**
+     * 查看个人积分信息
+     */
+    @GetMapping("/history")
+    public ApiResponse getMyPointsHistory() {
+        return ApiResponse.success(pointsService.getMyPointsHistory());
+    }
 }
