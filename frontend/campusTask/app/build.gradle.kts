@@ -4,11 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.campustask"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.campustask"
@@ -29,6 +25,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -41,21 +38,21 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    // 测试依赖
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
-    // Retrofit & Gson Converter (Kotlin DSL 用双引号)
+    // Retrofit & Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    // 可选：OkHttp 日志打印
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
-    // 避免首帧依赖系统 FontsProvider（模拟器上可能异常导致卡黑屏）
+    // Emoji 兼容
     implementation("androidx.emoji2:emoji2-bundled:1.6.0")
+
+    // 测试
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:4.8.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 }
