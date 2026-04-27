@@ -1,4 +1,6 @@
 target/
+logs/
+htmlReport/
 .idea/
 *.class
 application.yml

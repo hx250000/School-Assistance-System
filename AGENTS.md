@@ -1,37 +1,5 @@
 # 项目规则
 
-## 技术栈
-- **前端 / 客户端**：Android (Kotlin + XML)  
-  - UI 框架：Jetpack Fragment + RecyclerView + Adapter  
-  - 设计模式：MVVM（可选）  
-  - 第三方库：Material Components、Glide/Coil、Coroutines  
-- **后端**：Spring Boot (Java / Kotlin)  
-  - 数据库：MySQL  
-  - 接口：REST API，JSON 交互  
-  - ORM：Spring Data JPA  
-- **部署 / 运行环境**：本地开发 + Docker 可选
-
----
-
-## 目录结构
-
-android-app/
-├─ src/main/java/com/example/campustask/
-│ ├─ adapter/ # RecyclerView Adapter
-│ ├─ fragment/ # 各页面 Fragment
-# 项目规则
-
-本文档列出本仓库的技术栈、目录结构、代码规范与 AI 辅助开发注意事项，便于团队协作和代码一致性。
-
-## 技术栈
-
-- 前端 / 客户端：Android (Kotlin + XML)
-  - UI 框架：Jetpack Fragment + RecyclerView + Adapter
-  - 设计模式：MVVM（可选）
-  - 第三方库：Material Components、Glide / Coil、Kotlin Coroutines
-
-# 项目规则
-
 本文档列出本仓库的技术栈、目录结构、代码规范与 AI 辅助开发注意事项，便于团队协作和代码一致性。
 
 ## 技术栈
@@ -121,3 +89,4 @@ spring-boot-backend/
 - Tab / 分类 / 状态逻辑可封装为函数或组件并复用。
 - 生成的 UI 代码应与现有 Material 风格一致。
 - 生成的 XML 与 Kotlin 代码应支持 ViewBinding，确保安全访问控件。
+- 回答尽量简洁明了，只完成需要做的，不做多余的修改
