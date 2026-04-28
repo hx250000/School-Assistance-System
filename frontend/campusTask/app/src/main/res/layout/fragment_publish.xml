@@ -144,6 +144,14 @@
             </LinearLayout>
 
             <!-- ⭐ 奖励积分 -->
+
+            <EditText
+                android:id="@+id/et_deadline"
+                android:layout_width="336dp"
+                android:layout_height="wrap_content"
+                android:hint="截止时间 (格式: yyyy-MM-dd HH:mm:ss)"
+                android:inputType="text" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
