@@ -17,6 +17,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
+    val taskRepository= TaskRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -105,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             val recyclerView = popupView.findViewById<RecyclerView>(R.id.recyclerTasks)
             recyclerView.layoutManager = LinearLayoutManager(this)
 
-            val taskList = TaskRepository.getAllTasks()
+            val taskList = taskRepository.mockGetAllTasks()
 
             // ✅ 使用新的简洁适配器
             val adapter = PopupTaskAdapter(taskList) { task ->

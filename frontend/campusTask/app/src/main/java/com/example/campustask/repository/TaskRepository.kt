@@ -3,21 +3,21 @@ package com.example.campustask.repository
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
 
-object TaskRepository {
+class TaskRepository {
 
-    fun getAllTasks(): List<Task> {
+    fun mockGetAllTasks(): List<Task> {
         return FakeTaskDatabase.getAllTasks()
     }
 
-    fun getTasksByStatus(status: String): List<Task> {
+    fun mockGetTasksByStatus(status: String): List<Task> {
         return FakeTaskDatabase.getTasksByStatus(status)
     }
 
-    fun getTasksByType(type: String): List<Task> {
+    fun mockGetTasksByType(type: String): List<Task> {
         return FakeTaskDatabase.getByType(type)
     }
 
-    fun addTask(task: Task) {
+    fun mockAddTask(task: Task) {
         FakeTaskDatabase.addTask(task)
     }
 }

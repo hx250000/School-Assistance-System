@@ -10,12 +10,11 @@ import retrofit2.Response
 
 class UserRepository {
 
-    // ===========================
+
     // 登录接口
-    // ===========================
     fun login(phone: String, password: String, callback: (Boolean, String?) -> Unit) {
         val request = LoginRequest(phone, password)
-        RetrofitClient.api.login(request).enqueue(object : Callback<BaseResponse<LoginResponse>> {
+        RetrofitClient.userApi.login(request).enqueue(object : Callback<BaseResponse<LoginResponse>> {
             override fun onResponse(call: Call<BaseResponse<LoginResponse>>, response: Response<BaseResponse<LoginResponse>>) {
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, response.body()?.data?.token) // 返回 token
@@ -30,12 +29,10 @@ class UserRepository {
         })
     }
 
-    // ===========================
     // 注册接口
-    // ===========================
     fun register(username: String, phone: String, password: String, callback: (Boolean, String?) -> Unit) {
         val request = RegisterRequest(username, phone, password)
-        RetrofitClient.api.register(request).enqueue(object : Callback<BaseResponse<RegisterResponse>> {
+        RetrofitClient.userApi.register(request).enqueue(object : Callback<BaseResponse<RegisterResponse>> {
             override fun onResponse(call: Call<BaseResponse<RegisterResponse>>, response: Response<BaseResponse<RegisterResponse>>) {
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, null)
@@ -50,6 +47,7 @@ class UserRepository {
         })
     }
 
+    //获取个人信息
     fun getMyInfo(context: Context, callback: (Boolean, UserInfo?, String?) -> Unit){
         val header = AuthTokenStore.authorizationHeader(context)
         if (header == null) {
@@ -57,7 +55,7 @@ class UserRepository {
             return
         }
 
-        RetrofitClient.api.getMyInfo(header).enqueue(object : Callback<BaseResponse<UserInfo>> {
+        RetrofitClient.userApi.getMyInfo(header).enqueue(object : Callback<BaseResponse<UserInfo>> {
             override fun onResponse(call: Call<BaseResponse<UserInfo>>, response: Response<BaseResponse<UserInfo>>) {
                 val body = response.body()
                 if (response.isSuccessful && body?.code == 200) {

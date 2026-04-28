@@ -73,7 +73,6 @@ public class PointsServiceImpl implements PointsService {
         return pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(log -> new UserPointsHistory(
-                        log.getId(),
                         log.getChangeAmount(),
                         log.getTitle(),
                         log.getDescription(),
