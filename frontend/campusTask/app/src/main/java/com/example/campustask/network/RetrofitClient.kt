@@ -16,4 +16,5 @@ object RetrofitClient {
 
     val userApi: UserApi by lazy { retrofit.create(UserApi::class.java) }
     val pointApi: PointApi by lazy { retrofit.create(PointApi::class.java) }
+    val taskApi: TaskApi by lazy { retrofit.create(TaskApi::class.java) }
 }

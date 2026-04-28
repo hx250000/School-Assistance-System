@@ -1,8 +1,8 @@
 package com.example.campustask.network
 
-import com.example.campustask.model.BaseResponse
 import com.example.campustask.model.Task
-import com.example.campustask.model.TaskCreateRequest
+import com.example.campustask.model.request.TaskCreateRequest
+import com.example.campustask.model.response.BaseResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Call

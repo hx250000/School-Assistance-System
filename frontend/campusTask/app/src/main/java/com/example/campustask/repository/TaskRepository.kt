@@ -2,9 +2,9 @@ package com.example.campustask.repository
 
 import android.content.Context
 import com.example.campustask.data.FakeTaskDatabase
-import com.example.campustask.model.BaseResponse
+import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.*
-import com.example.campustask.model.TaskCreateRequest
+import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
 import retrofit2.Call
@@ -27,6 +27,7 @@ class TaskRepository {
 
     fun mockAddTask(task: Task) {
         FakeTaskDatabase.addTask(task)
+    }
 //    fun getAllTasks(): List<Task> {
 //        return FakeTaskDatabase.getAllTasks()
 //    }
