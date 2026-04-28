@@ -1,6 +1,7 @@
 package org.example.back.service.impl;
 
 import org.example.back.config.JwtAuthenticationInterceptor;
+import org.example.back.dto.response.PointsHistoryResponse;
 import org.example.back.dto.response.UserPointsHistory;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.User;
@@ -64,20 +65,54 @@ public class PointsServiceImpl implements PointsService {
 
     //添加积分记录查询功能
     @Override
-    public List<UserPointsHistory> getMyPointsHistory(){
+    public PointsHistoryResponse getMyPointsHistory(){
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
         }
 
-        return pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId)
-                .stream()
+        //获取所有记录
+        List<PointsLog> logs = pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        // 2. 转换为 DTO 列表
+        List<UserPointsHistory> historyList = logs.stream()
                 .map(log -> new UserPointsHistory(
                         log.getChangeAmount(),
                         log.getTitle(),
                         log.getDescription(),
                         log.getCreatedAt()
                 ))
-                .collect(Collectors.toList());
+                .toList();
+
+        // 3. 计算累计增加和减少
+        int increase = logs.stream()
+                .filter(log -> log.getChangeAmount() > 0)
+                .mapToInt(PointsLog::getChangeAmount)
+                .sum();
+
+        int decrease = logs.stream()
+                .filter(log -> log.getChangeAmount() < 0)
+                .mapToInt(PointsLog::getChangeAmount)
+                .sum();
+
+        // 4. 封装返回
+        PointsHistoryResponse response = new PointsHistoryResponse();
+        response.setPointsHistoryList(historyList);
+        response.setIncreasePoints(increase);
+        response.setDecreasePoints(decrease);
+
+        System.out.println("response: " + response);
+
+        return response;
+
+//        return pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId)
+//                .stream()
+//                .map(log -> new UserPointsHistory(
+//                        log.getChangeAmount(),
+//                        log.getTitle(),
+//                        log.getDescription(),
+//                        log.getCreatedAt()
+//                ))
+//                .collect(Collectors.toList());
     }
 }
