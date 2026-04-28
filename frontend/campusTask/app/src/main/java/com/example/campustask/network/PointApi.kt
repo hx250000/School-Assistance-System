@@ -1,9 +1,9 @@
 package com.example.campustask.network
 
-import com.example.campustask.model.BaseResponse
+import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.PointRecord
-import com.example.campustask.model.RegisterRequest
-import com.example.campustask.model.RegisterResponse
+import com.example.campustask.model.request.RegisterRequest
+import com.example.campustask.model.response.RegisterResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET

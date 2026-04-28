@@ -1,7 +1,7 @@
 package com.example.campustask.repository
 
 import android.content.Context
-import com.example.campustask.model.BaseResponse
+import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.PointRecord
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore

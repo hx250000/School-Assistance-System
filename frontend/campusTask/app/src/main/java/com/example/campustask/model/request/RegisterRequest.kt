@@ -1,4 +1,4 @@
-package com.example.campustask.model
+package com.example.campustask.model.request
 
 data class RegisterRequest(
     val username: String,

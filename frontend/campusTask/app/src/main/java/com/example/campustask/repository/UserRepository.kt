@@ -2,6 +2,11 @@ package com.example.campustask.repository
 
 import android.content.Context
 import com.example.campustask.model.*
+import com.example.campustask.model.request.LoginRequest
+import com.example.campustask.model.request.RegisterRequest
+import com.example.campustask.model.response.BaseResponse
+import com.example.campustask.model.response.LoginResponse
+import com.example.campustask.model.response.RegisterResponse
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
 import retrofit2.Call
