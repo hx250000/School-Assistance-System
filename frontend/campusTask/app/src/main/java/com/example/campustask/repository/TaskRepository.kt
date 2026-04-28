@@ -11,8 +11,22 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-object TaskRepository {
+class TaskRepository {
 
+    fun mockGetAllTasks(): List<Task> {
+        return FakeTaskDatabase.getAllTasks()
+    }
+
+    fun mockGetTasksByStatus(status: String): List<Task> {
+        return FakeTaskDatabase.getTasksByStatus(status)
+    }
+
+    fun mockGetTasksByType(type: String): List<Task> {
+        return FakeTaskDatabase.getByType(type)
+    }
+
+    fun mockAddTask(task: Task) {
+        FakeTaskDatabase.addTask(task)
 //    fun getAllTasks(): List<Task> {
 //        return FakeTaskDatabase.getAllTasks()
 //    }
@@ -28,7 +42,7 @@ object TaskRepository {
 //    fun addTask(task: Task) {
 //        FakeTaskDatabase.addTask(task)
 //    }
-private val taskApi = RetrofitClient.taskApi
+    private val taskApi = RetrofitClient.taskApi
 
     // 创建任务
     fun createTask(context: Context, request: TaskCreateRequest, callback: (Boolean, Long?, String?) -> Unit) {

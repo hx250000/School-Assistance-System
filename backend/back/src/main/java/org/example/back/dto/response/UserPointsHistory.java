@@ -3,20 +3,21 @@ package org.example.back.dto.response;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 public class UserPointsHistory {
-    private Long id;
     private Integer changeAmount;
     private String title;
     private String description;
-    private LocalDateTime createdAt;
+    private String time;
 
-    public UserPointsHistory(Long id, Integer changeAmount, String title,String description, LocalDateTime createdAt) {
-        this.id = id;
+    public UserPointsHistory(Integer changeAmount, String title,String description, LocalDateTime createdAt) {
         this.changeAmount = changeAmount;
         this.title = title;
         this.description = description;
-        this.createdAt = createdAt;
+        if (createdAt != null) {
+            this.time = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        }
     }
 }

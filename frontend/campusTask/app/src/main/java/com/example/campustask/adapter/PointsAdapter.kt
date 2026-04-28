@@ -29,13 +29,13 @@ class PointsAdapter(private var list: List<PointRecord>) :
         val item = list[position]
 
         holder.tvTitle.text = item.title
-        holder.tvDesc.text = item.desc
+        holder.tvDesc.text = item.description
         holder.tvTime.text = item.time
 
         holder.tvScore.text =
-            if (item.score > 0) "+${item.score}" else "${item.score}"
+            if (item.changeAmount > 0) "+${item.changeAmount}" else "${item.changeAmount}"
 
-        if (item.score > 0) {
+        if (item.changeAmount > 0) {
             holder.tvScore.setTextColor(holder.itemView.resources.getColor(android.R.color.holo_green_dark))
             holder.tvIcon.text = "↑"
             holder.tvIcon.setBackgroundResource(R.drawable.bg_circle_green)

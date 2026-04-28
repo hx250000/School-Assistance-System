@@ -1,4 +1,4 @@
-package com.example.campustask.model
+package com.example.campustask.model.response
 
 data class LoginResponse (
     val token: String,

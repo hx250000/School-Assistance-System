@@ -1,10 +1,10 @@
 package com.example.campustask.network
 
-import com.example.campustask.model.BaseResponse
-import com.example.campustask.model.LoginRequest
-import com.example.campustask.model.LoginResponse
-import com.example.campustask.model.RegisterRequest
-import com.example.campustask.model.RegisterResponse
+import com.example.campustask.model.response.BaseResponse
+import com.example.campustask.model.request.LoginRequest
+import com.example.campustask.model.response.LoginResponse
+import com.example.campustask.model.request.RegisterRequest
+import com.example.campustask.model.response.RegisterResponse
 import com.example.campustask.model.User
 import com.example.campustask.model.UserInfo
 import retrofit2.http.Body

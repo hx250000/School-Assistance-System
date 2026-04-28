@@ -1,6 +1,7 @@
 package com.example.campustask.ui
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -21,10 +22,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         initUserInfo(view)
         initClick(view)
-        initQuickEntry(view) // ⭐ 新增
+        initQuickEntry(view)
     }
 
-    // 👉 用户数据
+    // 用户数据
     private fun initUserInfo(view: View) {
         val tvName = view.findViewById<TextView>(R.id.tv_name)
         val tvId = view.findViewById<TextView>(R.id.tv_id)
@@ -67,9 +68,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 成就
-//        itemAchievement.setOnClickListener {
-//            Toast.makeText(context, "查看我的成就", Toast.LENGTH_SHORT).show()
-//        }
+
         itemAchievement.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, AchievementFragment())
@@ -77,16 +76,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .commit()
         }
 
-        // ⭐ 兑换记录（你这里原来跳错了）
+        // 兑换记录
         itemExchange.setOnClickListener {
             Toast.makeText(context, "兑换记录", Toast.LENGTH_SHORT).show()
             // 👉 这里以后可以跳 ExchangeFragment
         }
 
         // 主题
-//        itemTheme.setOnClickListener {
-//            Toast.makeText(context, "切换主题（后面可做夜间模式）", Toast.LENGTH_SHORT).show()
-//        }
         itemTheme.setOnClickListener {
 
             val sp = requireContext().getSharedPreferences("theme", Context.MODE_PRIVATE)
@@ -106,7 +102,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 Toast.makeText(context, "已切换为日间模式 ☀️", Toast.LENGTH_SHORT).show()
             }
 
-            // 🔥 关键：刷新界面（Fragment 必须）
+            // 刷新界面（Fragment 必须）
             requireActivity().recreate()
         }
 
@@ -119,11 +115,15 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         btnLogout.setOnClickListener {
             AuthTokenStore.clearToken(requireContext()) // 清理 JWT
             Toast.makeText(context, "已退出登录", Toast.LENGTH_SHORT).show()
-            // 这里需要添加跳转回 LoginActivity 的逻辑
+            // 跳转回 LoginActivity
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            requireActivity().finish()
         }
     }
 
-    // ⭐⭐ 快捷入口（重点）
+    // 快捷入口
     private fun initQuickEntry(view: View) {
 
         val btnHistory = view.findViewById<LinearLayout>(R.id.btn_history)
@@ -136,7 +136,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             Toast.makeText(context, "进入任务历史", Toast.LENGTH_SHORT).show()
         }
 
-        // ⭐ 积分明细（核心）
+        // 积分明细
         btnPoints.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, PointsFragment())
@@ -145,9 +145,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 我的成就
-//        btnAchievement.setOnClickListener {
-//            Toast.makeText(context, "进入我的成就", Toast.LENGTH_SHORT).show()
-//        }
         btnAchievement.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, AchievementFragment())
@@ -156,9 +153,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // 夜间模式
-//        btnDark.setOnClickListener {
-//            Toast.makeText(context, "切换夜间模式（待实现）", Toast.LENGTH_SHORT).show()
-//        }
         btnDark.setOnClickListener {
 
             val sp = requireContext().getSharedPreferences("theme", Context.MODE_PRIVATE)
@@ -178,7 +172,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 Toast.makeText(context, "已切换为日间模式 ☀️", Toast.LENGTH_SHORT).show()
             }
 
-            // 🔥 关键：刷新界面（Fragment 必须）
+            // 刷新界面（Fragment 必须）
             requireActivity().recreate()
         }
     }

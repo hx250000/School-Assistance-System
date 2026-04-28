@@ -14,6 +14,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var adapter: TaskAdapter
 
+    val taskRepo = TaskRepository()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -27,7 +29,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val tabs = listOf(tabAll, tabGame, tabLife, tabStudy)
 
         // 获取数据
-        val allTasks = TaskRepository.getAllTasks()
+        val allTasks = taskRepo.mockGetAllTasks()
 
         adapter = TaskAdapter(allTasks) { task ->
             val fragment = TaskDetailFragment.newInstance(task)
@@ -65,7 +67,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun filter(category: String) {
         val data = if (category == "全部") {
-            TaskRepository.getAllTasks()
+            taskRepo.mockGetAllTasks()
         } else {
             val type = when (category) {
                 "游戏" -> "GAME"
@@ -73,7 +75,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 "学习" -> "STUDY"
                 else -> ""
             }
-            TaskRepository.getTasksByType(type)
+            taskRepo.mockGetTasksByType(type)
         }
         adapter.update(data)
     }
