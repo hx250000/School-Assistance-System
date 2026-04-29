@@ -1,6 +1,7 @@
 package com.example.campustask.network
 
 import com.example.campustask.model.Task
+import com.example.campustask.model.request.GrabTaskRequest
 import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.response.HomeStatResp
@@ -20,8 +21,8 @@ interface TaskApi {
     @GET("task/list")
     fun listTasks(@Header("Authorization") token: String, @Query("page") page: Int, @Query("size") size: Int): Call<BaseResponse<List<Task>>>
 
-    @POST("task/grab/{taskId}")
-    fun grabTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Task>>
+    @POST("task/grab")
+    fun grabTask(@Header("Authorization") token: String, @Body taskGrabRequest: GrabTaskRequest): Call<BaseResponse<Task>>
 
     @POST("task/finish/{taskId}")
     fun finishTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Void>>

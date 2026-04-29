@@ -1,6 +1,7 @@
 package com.example.campustask.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -11,12 +12,19 @@ import androidx.fragment.app.Fragment
 import com.example.campustask.R
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
+import com.example.campustask.model.request.GrabTaskRequest
+import com.example.campustask.repository.TaskRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TaskDetailFragment : Fragment(R.layout.fragment_task_detail) {
 
+    val TAG="TaskDetailFragment"
+
     companion object {
+        const val GRAB_RESULT_KEY = "task_grab_result"
+        private const val ARG_RESULT_SUCCESS = "success"
+
         private const val ARG_TASK_ID = "task_id"
         private const val ARG_TASK_TITLE = "task_title"
         private const val ARG_TASK_DESC = "task_desc"
@@ -50,6 +58,8 @@ class TaskDetailFragment : Fragment(R.layout.fragment_task_detail) {
             return fragment
         }
     }
+
+    private val taskRepo = TaskRepository()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -92,12 +102,49 @@ class TaskDetailFragment : Fragment(R.layout.fragment_task_detail) {
         }
 
         // 操作按钮
-        view.findViewById<Button>(R.id.btn_finish)?.setOnClickListener {
-            Toast.makeText(requireContext(), "任务完成", Toast.LENGTH_SHORT).show()
+        view.findViewById<Button>(R.id.grabtask)?.setOnClickListener {
+            val grabBtn = it
+            grabBtn.isEnabled = false // 防止重复点击造成多次抢单
+
+            val taskGrabRequest= GrabTaskRequest(task.id)
+
+            taskRepo.grabTask(requireContext(), taskGrabRequest) { success, updatedTask, err ->
+                if (!isAdded) return@grabTask
+
+                requireActivity().runOnUiThread {
+                    grabBtn.isEnabled = true
+
+                    if (success) {
+                        // 通知 Home 刷新列表/统计
+                        parentFragmentManager.setFragmentResult(
+                            GRAB_RESULT_KEY,
+                            Bundle().apply {
+                                putBoolean(ARG_RESULT_SUCCESS, true)
+                                putLong(ARG_TASK_ID, task.id)
+                            }
+                        )
+                        parentFragmentManager.popBackStack()
+                    } else {
+
+                        Log.e(TAG,err?:"unsolved error")
+
+                        Toast.makeText(
+                            requireContext(),
+                            err ?: "抢任务失败",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
         }
-        view.findViewById<Button>(R.id.btn_cancel)?.setOnClickListener {
-            Toast.makeText(requireContext(), "任务取消", Toast.LENGTH_SHORT).show()
-        }
+
+
+//        view.findViewById<Button>(R.id.btn_finish)?.setOnClickListener {
+//            Toast.makeText(requireContext(), "任务完成", Toast.LENGTH_SHORT).show()
+//        }
+//        view.findViewById<Button>(R.id.btn_cancel)?.setOnClickListener {
+//            Toast.makeText(requireContext(), "任务取消", Toast.LENGTH_SHORT).show()
+//        }
     }
 
     private fun bindCard(view: View, cardId: Int, label: String, value: String) {
