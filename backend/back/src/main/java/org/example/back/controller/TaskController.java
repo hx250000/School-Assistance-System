@@ -3,6 +3,7 @@ package org.example.back.controller;
 import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
+import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.service.TaskService;
@@ -24,8 +25,9 @@ public class TaskController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<java.util.List<org.example.back.dto.response.TaskVO>> list(@RequestParam int page,
+    public ApiResponse<List<TaskVO>> list(@RequestParam int page,
                        @RequestParam int size) {
+//        AllTaskListResponse taskListResponse=new AllTaskListResponse();
         return ApiResponse.success(taskService.list(page, size));
     }
 
@@ -60,5 +62,10 @@ public class TaskController {
     @GetMapping("/task")
     public ApiResponse<TaskVO> getTaskById(@RequestParam Long taskId) {
         return ApiResponse.success(taskService.findById(taskId));
+    }
+
+    @GetMapping("/stats")
+    public ApiResponse<HomeStatResp> homeStats(){
+        return ApiResponse.success(taskService.stats());
     }
 }

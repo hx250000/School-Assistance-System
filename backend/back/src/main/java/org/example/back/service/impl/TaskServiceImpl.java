@@ -2,6 +2,7 @@ package org.example.back.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.example.back.dto.request.TaskCreateRequest;
+import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.entity.TaskParticipant;
@@ -10,6 +11,7 @@ import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.TaskRepository;
+import org.example.back.repository.UserRepository;
 import org.example.back.service.TaskService;
 import org.example.back.service.PointsService;
 import org.springframework.beans.BeanUtils;
@@ -39,6 +41,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private PointsService pointsService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     @Transactional
@@ -226,8 +230,30 @@ public class TaskServiceImpl implements TaskService {
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
         }
-        List<Task> taskhistory = taskRepository.findByPublisherId(userId);
-        return taskhistory;
+        List<Task> taskHistory = taskRepository.findByPublisherId(userId);
+        return taskHistory;
+    }
+
+    @Override
+    public HomeStatResp stats(){
+        HomeStatResp resp = new HomeStatResp();
+        List<Task> tasks=taskRepository.findAll();
+        int users= (int) userRepository.count();
+        int inProgress=0,finished=0;
+        for (Task task : tasks) {
+            String status = task.getStatus();
+            if ("FINISHED".equals(status)) {
+                finished++;
+            }
+            else if ("IN_PROGRESS".equals(status)) {
+                inProgress++;
+            }
+        }
+        resp.setInProgress(inProgress);
+        resp.setFinished(finished);
+        resp.setUsers(users);
+        System.out.println("[statresp] "+resp);
+        return resp;
     }
 
     private LocalDateTime parseDeadline(String deadlineStr) {

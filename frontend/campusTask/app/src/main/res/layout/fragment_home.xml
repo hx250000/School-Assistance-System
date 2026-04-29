@@ -65,6 +65,7 @@
                 android:layout_marginEnd="8dp">
 
                 <TextView
+                    android:id="@+id/inprogress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="6"
@@ -91,6 +92,7 @@
                 android:layout_marginEnd="8dp">
 
                 <TextView
+                    android:id="@+id/finished"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="156"
@@ -116,6 +118,7 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/users"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="89"

@@ -3,6 +3,7 @@ package com.example.campustask.network
 import com.example.campustask.model.Task
 import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.model.response.BaseResponse
+import com.example.campustask.model.response.HomeStatResp
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Call
@@ -36,4 +37,7 @@ interface TaskApi {
 
     @GET("task/{taskId}")
     fun getTaskById(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Task>>
+
+    @GET("task/stats")
+    fun stats(): Call<BaseResponse<HomeStatResp>>
 }
