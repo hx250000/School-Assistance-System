@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import com.example.campustask.R
 import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.repository.TaskRepository
+import com.example.campustask.util.CategoryMapper
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class PublishFragment : Fragment() {
 
@@ -90,7 +92,7 @@ class PublishFragment : Fragment() {
             val request = TaskCreateRequest(
                 title = t,
                 description = d,
-                type = selectedType,
+                type = CategoryMapper.toType(selectedType),//selectedType,
                 needPeople = people,
                 rewardPoints = score,
                 deadline = deadline  // 传递deadline
@@ -100,7 +102,9 @@ class PublishFragment : Fragment() {
             taskRepository.createTask(requireContext(), request) { success, taskId, error ->
                 if (success) {
                     Toast.makeText(context, "发布成功！任务ID: $taskId", Toast.LENGTH_LONG).show()
-                    // 可选：清空表单或导航到其他页面
+                    (activity as? MainActivity)?.let {
+                        it.findViewById<BottomNavigationView>(R.id.bottom_nav)?.selectedItemId = R.id.nav_home
+                    }
                 } else {
                     Toast.makeText(context, "发布失败: $error", Toast.LENGTH_LONG).show()
                 }
