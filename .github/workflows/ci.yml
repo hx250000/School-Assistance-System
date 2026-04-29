@@ -39,10 +39,10 @@ jobs:
           node-version: '20'
 
       - name: 安装依赖
-        run: npm ci --prefix frontend
+        run: npm ci --prefix frontend/campusTask
 
       - name: 检查代码规范
-        run: npm run lint --prefix frontend
+        run: npm run lint --prefix frontend/campusTask
 
       - name: 运行测试
-        run: npm test --prefix frontend -- --ci
+        run: npm test --prefix frontend/campusTask -- --ci
