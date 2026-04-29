@@ -1,6 +1,5 @@
 package com.example.campustask.ui
 
-import android.R.attr.type
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +14,6 @@ import com.example.campustask.adapter.TaskAdapter
 import com.example.campustask.model.Task
 import com.example.campustask.repository.TaskRepository
 import com.example.campustask.util.CategoryMapper
-import okhttp3.internal.format
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -28,6 +26,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var currentPage = 0    // 当前页码
     private val pageSize = 20      // 每页数量
     private var isLoading = false  // 是否正在请求中
+    private var isStatsLoading = false  // 顶部统计是否正在请求中
     private var isLastPage = false // 后端是否已经没有更多数据了
     private var currentCategory = "全部" // 记录当前分类
 
@@ -86,9 +85,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         })
 
-        // 默认选中
-        selectTab(tabAll, tabs)
-        loadData("全部")
+        // 默认选中 / 恢复当前分类
+        currentCategory = currentCategory.ifBlank { "全部" }
+        val selectedTab = when (currentCategory) {
+            "游戏" -> tabGame
+            "生活" -> tabLife
+            "学习" -> tabStudy
+            else -> tabAll
+        }
+        selectTab(selectedTab, tabs)
+
+        if (allLoadedTasks.isNotEmpty()) {
+            adapter.update(allLoadedTasks)
+            // 列表复用缓存，但顶部统计仍需要刷新
+            refreshHeadStats()
+        } else {
+            loadData(currentCategory, isRefresh = true)
+        }
 
         // 点击事件
         tabAll.setOnClickListener {
@@ -112,6 +125,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             loadData(currentCategory,isRefresh = true)
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 返回到 Home 时：即使任务列表已恢复（复用缓存），顶部统计也要重新拉取
+        refreshHeadStats()
+
+        if (!isLoading && allLoadedTasks.isEmpty()) {
+            loadData(currentCategory, isRefresh = true)
+        }
     }
 
 //    private fun filter(category: String) {
@@ -148,11 +171,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         if (isLastPage) return
 
-        Log.i(TAG, format("loadingdata, category=%s, currentpage=%d, size=%d",category,currentPage,pageSize))
+        Log.i(TAG, "loadingData, category=$category, currentPage=$currentPage, size=$pageSize")
 
         isLoading=true
 
-        val safeContext = context ?: return
+        val safeContext = context ?: run {
+            isLoading = false
+            return
+        }
 
         //更新统计数据
         taskRepo.stats(safeContext){ success, data, err->
@@ -170,7 +196,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // 如果是“全部”，直接调用接口；如果是分类，可以调用接口后在客户端过滤
         taskRepo.getAllTasks(safeContext, currentPage,pageSize) { success, tasks, error ->
-            if (!isAdded || activity == null) return@getAllTasks
+            if (!isAdded || activity == null) {
+                isLoading = false
+                return@getAllTasks
+            }
             activity?.runOnUiThread {
                 isLoading = false
                 if (success && tasks != null) {
@@ -210,5 +239,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         inprogressTextView?.text=inprogress.toString()
         finishedTextView?.text=finished.toString()
         totaluserTextView?.text=users.toString()
+    }
+
+    private fun refreshHeadStats() {
+        if (isStatsLoading) return
+
+        val safeContext = context ?: return
+        isStatsLoading = true
+
+        taskRepo.stats(safeContext) { success, data, err ->
+            if (!isAdded || activity == null) {
+                isStatsLoading = false
+                return@stats
+            }
+
+            activity?.runOnUiThread {
+                isStatsLoading = false
+                if (success && data != null) {
+                    updateHeadStats(data.inProgress, data.finished, data.users)
+                } else {
+                    Toast.makeText(safeContext, err ?: "加载失败", Toast.LENGTH_SHORT).show()
+                    updateHeadStats(100, 900, 500)
+                }
+            }
+        }
     }
 }
