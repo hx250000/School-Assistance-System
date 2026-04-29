@@ -16,13 +16,31 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
     private lateinit var adapter: MyTaskAdapter
     private lateinit var allList: List<Task>
 
+    private var defaultStatus = "ALL"
+
+    companion object {
+        private const val KEY_STATUS = "status"
+
+        fun newInstance(status: String): MyTaskFragment {
+            val fragment = MyTaskFragment()
+            val bundle = Bundle()
+            bundle.putString(KEY_STATUS, status)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        defaultStatus = arguments?.getString(KEY_STATUS) ?: "ALL"
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_task)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        // 从“假数据库”获取数据
         allList = FakeTaskDatabase.getAllTasks()
 
         adapter = MyTaskAdapter(allList) { task ->
@@ -37,18 +55,29 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
         initTab(view)
 
-        // 默认选中“全部”
-        filter("ALL")
+        // ===== 设置默认选中 tab =====
+        val tabAll = view.findViewById<TextView>(R.id.tab_all)
+        val tabPublish = view.findViewById<TextView>(R.id.tab_publish)
+        val tabIng = view.findViewById<TextView>(R.id.tab_ing)
+        val tabDone = view.findViewById<TextView>(R.id.tab_done)
+
+        when (defaultStatus) {
+            "OPEN" -> selectTab(view, tabPublish)
+            "IN_PROGRESS" -> selectTab(view, tabIng)
+            "FINISHED" -> selectTab(view, tabDone)
+            else -> selectTab(view, tabAll)
+        }
+
+        // ===== 默认筛选 =====
+        filter(defaultStatus)
     }
 
-    // ===== tab 初始化（已全部加安全判断，绝不崩溃）=====
     private fun initTab(view: View) {
         val tabPublish = view.findViewById<TextView>(R.id.tab_publish)
         val tabIng = view.findViewById<TextView>(R.id.tab_ing)
         val tabDone = view.findViewById<TextView>(R.id.tab_done)
         val tabAll = view.findViewById<TextView>(R.id.tab_all)
 
-        // 👇 全部加上 ? 安全调用，找不到控件也不会崩
         tabAll?.setOnClickListener {
             selectTab(view, tabAll)
             filter("ALL")
@@ -70,7 +99,6 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         }
     }
 
-    // ===== 筛选逻辑 =====
     private fun filter(status: String) {
         val data = if (status == "ALL") {
             FakeTaskDatabase.getAllTasks()
@@ -80,7 +108,6 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         adapter.update(data)
     }
 
-    // ===== tab UI（全部安全调用）=====
     private fun selectTab(view: View, selected: TextView?) {
         val tabs = listOf(
             view.findViewById<TextView>(R.id.tab_all),

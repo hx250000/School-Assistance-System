@@ -132,8 +132,12 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val btnDark = view.findViewById<LinearLayout>(R.id.btn_dark)
 
         // 任务历史
+        // 任务历史
         btnHistory.setOnClickListener {
-            Toast.makeText(context, "进入任务历史", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MyTaskFragment.newInstance("FINISHED"))
+                .addToBackStack(null)
+                .commit()
         }
 
         // 积分明细
