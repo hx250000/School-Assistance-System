@@ -17,10 +17,34 @@ import java.util.*
 class TaskDetailFragment : Fragment(R.layout.fragment_task_detail) {
 
     companion object {
+        private const val ARG_TASK_ID = "task_id"
+        private const val ARG_TASK_TITLE = "task_title"
+        private const val ARG_TASK_DESC = "task_desc"
+        private const val ARG_TASK_TYPE = "task_type"
+        private const val ARG_TASK_PUBLISHER_ID = "task_publisher_id"
+        private const val ARG_TASK_NEED_PEOPLE = "task_need_people"
+        private const val ARG_TASK_CURRENT_PEOPLE = "task_current_people"
+        private const val ARG_TASK_REWARD_POINTS = "task_reward_points"
+        private const val ARG_TASK_REWARD_MONEY = "task_reward_money"
+        private const val ARG_TASK_STATUS = "task_status"
+        private const val ARG_TASK_DEADLINE = "task_deadline"
+        private const val ARG_TASK_CREATED_AT = "task_created_at"
+
         fun newInstance(task: Task): TaskDetailFragment {
             val fragment = TaskDetailFragment()
             val bundle = Bundle().apply {
-                putLong("task_id", task.id)
+                putLong(ARG_TASK_ID, task.id)
+                putString(ARG_TASK_TITLE, task.title)
+                putString(ARG_TASK_DESC, task.description)
+                putString(ARG_TASK_TYPE, task.type)
+                putLong(ARG_TASK_PUBLISHER_ID, task.publisherId)
+                putInt(ARG_TASK_NEED_PEOPLE, task.needPeople)
+                putInt(ARG_TASK_CURRENT_PEOPLE, task.currentPeople)
+                putInt(ARG_TASK_REWARD_POINTS, task.rewardPoints)
+                task.rewardMoney?.let { putDouble(ARG_TASK_REWARD_MONEY, it) }
+                putString(ARG_TASK_STATUS, task.status)
+                putLong(ARG_TASK_DEADLINE, task.deadline)
+                putLong(ARG_TASK_CREATED_AT, task.createdAt)
             }
             fragment.arguments = bundle
             return fragment
@@ -30,15 +54,14 @@ class TaskDetailFragment : Fragment(R.layout.fragment_task_detail) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 安全获取 taskId
-        val taskId = arguments?.getLong("task_id") ?: run {
-            parentFragmentManager.popBackStack()
-            return
-        }
-
-        // 安全获取任务
-        val task = FakeTaskDatabase.getAllTasks()
-            .find { it.id == taskId } ?: run {
+        // 优先使用 Bundle 中完整任务数据；兼容历史逻辑按 id 从 FakeTaskDatabase 回查
+        val task = parseTaskFromArgs() ?: run {
+            val taskId = arguments?.getLong(ARG_TASK_ID) ?: run {
+                parentFragmentManager.popBackStack()
+                return
+            }
+            FakeTaskDatabase.getAllTasks().find { it.id == taskId }
+        } ?: run {
             parentFragmentManager.popBackStack()
             return
         }
@@ -81,6 +104,31 @@ class TaskDetailFragment : Fragment(R.layout.fragment_task_detail) {
         val card = view.findViewById<View>(cardId) ?: return
         card.findViewById<TextView>(R.id.tv_label)?.text = label
         card.findViewById<TextView>(R.id.tv_value)?.text = value
+    }
+
+    //从Bundle中获取数据组装Task
+    private fun parseTaskFromArgs(): Task? {
+        val args = arguments ?: return null
+        if (!args.containsKey(ARG_TASK_TITLE)) return null
+
+        return Task(
+            id = args.getLong(ARG_TASK_ID),
+            title = args.getString(ARG_TASK_TITLE).orEmpty(),
+            description = args.getString(ARG_TASK_DESC).orEmpty(),
+            type = args.getString(ARG_TASK_TYPE).orEmpty(),
+            publisherId = args.getLong(ARG_TASK_PUBLISHER_ID),
+            needPeople = args.getInt(ARG_TASK_NEED_PEOPLE),
+            currentPeople = args.getInt(ARG_TASK_CURRENT_PEOPLE),
+            rewardPoints = args.getInt(ARG_TASK_REWARD_POINTS),
+            rewardMoney = if (args.containsKey(ARG_TASK_REWARD_MONEY)) {
+                args.getDouble(ARG_TASK_REWARD_MONEY)
+            } else {
+                null
+            },
+            status = args.getString(ARG_TASK_STATUS).orEmpty(),
+            deadline = args.getLong(ARG_TASK_DEADLINE),
+            createdAt = args.getLong(ARG_TASK_CREATED_AT)
+        )
     }
 
     private fun formatTime(time: Long): String {

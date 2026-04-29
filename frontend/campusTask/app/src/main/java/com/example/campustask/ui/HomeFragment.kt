@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.adapter.TaskAdapter
+import com.example.campustask.model.Task
 import com.example.campustask.repository.TaskRepository
+import com.example.campustask.util.CategoryMapper
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -20,6 +22,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     val TAG="HomeFragment"
 
     val taskRepo = TaskRepository()
+
+    private var currentPage = 0    // 当前页码
+    private val pageSize = 20      // 每页数量
+    private var isLoading = false  // 是否正在请求中
+    private var isStatsLoading = false  // 顶部统计是否正在请求中
+    private var isLastPage = false // 后端是否已经没有更多数据了
+    private var currentCategory = "全部" // 记录当前分类
+
+    // 存储所有已加载的数据
+    private val allLoadedTasks = mutableListOf<Task>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,26 +66,74 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-        // 默认选中
-        selectTab(tabAll, tabs)
-        loadData("全部")
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                // 判断是否滑到了倒数第 3 个（提前一点加载，体验更好）
+                if (!isLoading && !isLastPage) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
+                        && firstVisibleItemPosition >= 0) {
+                        loadData(currentCategory) // 加载下一页
+                    }
+                }
+            }
+        })
+
+        // 默认选中 / 恢复当前分类
+        currentCategory = currentCategory.ifBlank { "全部" }
+        val selectedTab = when (currentCategory) {
+            "游戏" -> tabGame
+            "生活" -> tabLife
+            "学习" -> tabStudy
+            else -> tabAll
+        }
+        selectTab(selectedTab, tabs)
+
+        if (allLoadedTasks.isNotEmpty()) {
+            adapter.update(allLoadedTasks)
+            // 列表复用缓存，但顶部统计仍需要刷新
+            refreshHeadStats()
+        } else {
+            loadData(currentCategory, isRefresh = true)
+        }
 
         // 点击事件
         tabAll.setOnClickListener {
             selectTab(tabAll, tabs)
-            loadData("全部")
+            currentCategory="全部"
+            loadData(currentCategory,isRefresh = true)
         }
         tabGame.setOnClickListener {
             selectTab(tabGame, tabs)
-            loadData("游戏")
+            currentCategory="游戏"
+            loadData(currentCategory,isRefresh = true)
         }
         tabLife.setOnClickListener {
             selectTab(tabLife, tabs)
-            loadData("生活")
+            currentCategory="生活"
+            loadData(currentCategory,isRefresh = true)
         }
         tabStudy.setOnClickListener {
             selectTab(tabStudy, tabs)
-            loadData("学习")
+            currentCategory="学习"
+            loadData(currentCategory,isRefresh = true)
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 返回到 Home 时：即使任务列表已恢复（复用缓存），顶部统计也要重新拉取
+        refreshHeadStats()
+
+        if (!isLoading && allLoadedTasks.isEmpty()) {
+            loadData(currentCategory, isRefresh = true)
         }
     }
 
@@ -99,10 +159,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         selected.setBackgroundResource(R.drawable.bg_tag_selected)
     }
 
-    private fun loadData(category: String = "全部") {
-        Log.i(TAG,"loadingdata...")
+    private fun loadData(category: String = "全部", isRefresh: Boolean=false) {
+        if(isLoading) return
 
-        val safeContext = context ?: return
+        // 如果是切换分类或者下拉刷新，重置状态
+        if (isRefresh) {
+            currentPage = 0
+            isLastPage = false
+            allLoadedTasks.clear()
+        }
+
+        if (isLastPage) return
+
+        Log.i(TAG, "loadingData, category=$category, currentPage=$currentPage, size=$pageSize")
+
+        isLoading=true
+
+        val safeContext = context ?: run {
+            isLoading = false
+            return
+        }
 
         //更新统计数据
         taskRepo.stats(safeContext){ success, data, err->
@@ -119,23 +195,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
 
         // 如果是“全部”，直接调用接口；如果是分类，可以调用接口后在客户端过滤
-        taskRepo.getAllTasks(safeContext) { success, tasks, error ->
-            if (!isAdded || activity == null) return@getAllTasks
+        taskRepo.getAllTasks(safeContext, currentPage,pageSize) { success, tasks, error ->
+            if (!isAdded || activity == null) {
+                isLoading = false
+                return@getAllTasks
+            }
             activity?.runOnUiThread {
+                isLoading = false
                 if (success && tasks != null) {
-                    val filteredData = if (category == "全部") {
-                        tasks
-                    } else {
-                        val type = when (category) {
-                            "游戏" -> "GAME"
-                            "生活" -> "LIFE"
-                            "学习" -> "STUDY"
-                            else -> ""
-                        }
-                        tasks.filter { it.type == type }
+                    if(tasks.isEmpty()) {
+                        isLastPage=true
                     }
-                    adapter.update(filteredData)
+                    else {
+                        Log.d(TAG,"tasks="+tasks)
+                        val filteredData = if (category == "全部") {
+                            tasks
+                        } else {
+
+                            tasks.filter { it.type == CategoryMapper.toType(category) }
+                        }
+                        Log.d(TAG,"category="+category+"filtered="+filteredData)
+                        allLoadedTasks.addAll(filteredData)
+                        adapter.update(allLoadedTasks)
+                        currentPage++
+                    }
                 } else {
+                    isLoading=false
                     if (error == "用户未登录") {
                         // 返回登录界面
                         startActivity(Intent(activity, LoginActivity::class.java))
@@ -146,6 +231,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
     }
+
     private fun updateHeadStats(inprogress: Int, finished: Int, users:Int){
         val inprogressTextView=view?.findViewById<TextView>(R.id.inprogress)
         val finishedTextView=view?.findViewById<TextView>(R.id.finished)
@@ -153,5 +239,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         inprogressTextView?.text=inprogress.toString()
         finishedTextView?.text=finished.toString()
         totaluserTextView?.text=users.toString()
+    }
+
+    private fun refreshHeadStats() {
+        if (isStatsLoading) return
+
+        val safeContext = context ?: return
+        isStatsLoading = true
+
+        taskRepo.stats(safeContext) { success, data, err ->
+            if (!isAdded || activity == null) {
+                isStatsLoading = false
+                return@stats
+            }
+
+            activity?.runOnUiThread {
+                isStatsLoading = false
+                if (success && data != null) {
+                    updateHeadStats(data.inProgress, data.finished, data.users)
+                } else {
+                    Toast.makeText(safeContext, err ?: "加载失败", Toast.LENGTH_SHORT).show()
+                    updateHeadStats(100, 900, 500)
+                }
+            }
+        }
     }
 }
