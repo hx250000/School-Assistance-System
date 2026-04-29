@@ -111,7 +111,7 @@ class TaskServiceImplTest {
 
         List<TaskVO> vos = taskService.list(0, 10);
         assertThat(vos).hasSize(1);
-        assertThat(vos.get(0).getId()).isEqualTo(1L);
+        assertThat(vos.get(0).getTaskId()).isEqualTo(1L);
         assertThat(vos.get(0).getTitle()).isEqualTo("a");
     }
 

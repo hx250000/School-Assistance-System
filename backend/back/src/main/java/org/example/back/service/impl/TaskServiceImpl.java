@@ -1,11 +1,13 @@
 package org.example.back.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.entity.TaskParticipant;
+import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TaskServiceImpl implements TaskService {
 
     @Autowired
@@ -86,12 +89,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Task grabTask(Long taskId) {
+    public TaskVO grabTask(Long taskId) {
 
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
         }
+
+        log.info("grabtask, userid={}, taskid={}",userId,taskId);
 
         // 先查任务（校验状态）
         Task task = taskRepository.findById(taskId)
@@ -112,8 +117,9 @@ public class TaskServiceImpl implements TaskService {
         }
 
         // 插入参与记录（用唯一索引兜底！）
+        TaskParticipant participant=null;
         try {
-            TaskParticipant participant = TaskParticipant.builder()
+            participant = TaskParticipant.builder()
                     .taskId(taskId)
                     .userId(userId)
                     .status("JOINED")
@@ -130,18 +136,16 @@ public class TaskServiceImpl implements TaskService {
         }
 
         //该修改有竞态条件，采用原子化操作
-//        // 重新查（拿最新人数）
-//        Task latestTask = taskRepository.findById(taskId).get();
-//
-//        // 满员 → 修改状态
-//        if (latestTask.getCurrentPeople() >= latestTask.getNeedPeople()) {
-//            latestTask.setStatus("IN_PROGRESS");
-//            taskRepository.save(latestTask);
-//        }
+
         taskRepository.updateStatusIfFull(taskId);
 
         Task taskGrabbed=taskRepository.findById(taskId).get();
-        return taskGrabbed;
+
+        log.info("grab task successfully, taskparticipant={}",participant);
+
+        TaskVO resp=toVO(taskGrabbed);
+
+        return resp;
     }
 
     @Override
@@ -208,7 +212,10 @@ public class TaskServiceImpl implements TaskService {
 
     private TaskVO toVO(Task task) {
         TaskVO vo = new TaskVO();
-        vo.setId(task.getId());
+        User publisher=userRepository.findById(task.getPublisherId())
+                        .orElseThrow(()->new ResourceNotFoundException("用户不存在！"));
+
+        vo.setTaskId(task.getId());
         vo.setTitle(task.getTitle());
         vo.setDescription(task.getDescription());
         vo.setNeedPeople(task.getNeedPeople());
@@ -216,6 +223,7 @@ public class TaskServiceImpl implements TaskService {
         vo.setStatus(task.getStatus());
         vo.setType(task.getType());
         vo.setPublisherId(task.getPublisherId());
+        vo.setPublisherName(publisher.getUsername());
 
 //        vo.setRewardMoney(task.getRewardMoney());
         vo.setRewardPoints(task.getRewardPoints());

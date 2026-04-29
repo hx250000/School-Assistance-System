@@ -125,6 +125,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             loadData(currentCategory,isRefresh = true)
         }
 
+        // 接收抢单成功结果：刷新列表与顶部统计
+        parentFragmentManager.setFragmentResultListener(
+            TaskDetailFragment.GRAB_RESULT_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val success = bundle.getBoolean("success", false)
+            if (success) {
+                // 强制刷新：防止返回时仍处于加载中导致被 loadData() 拦截
+                isLoading = false
+                currentPage = 0
+                isLastPage = false
+                allLoadedTasks.clear()
+                adapter.update(emptyList())
+                loadData(currentCategory, isRefresh = true)
+            }
+        }
     }
 
     override fun onResume() {

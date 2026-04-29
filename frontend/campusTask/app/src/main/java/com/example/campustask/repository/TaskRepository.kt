@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.*
+import com.example.campustask.model.request.GrabTaskRequest
 import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.model.response.HomeStatResp
 import com.example.campustask.network.RetrofitClient
@@ -103,14 +104,14 @@ class TaskRepository {
     }
 
     // 抢任务
-    fun grabTask(context: Context, taskId: Long, callback: (Boolean, Task?, String?) -> Unit) {
+    fun grabTask(context: Context, taskGrabRequest: GrabTaskRequest, callback: (Boolean, Task?, String?) -> Unit) {
         val header = AuthTokenStore.authorizationHeader(context)
         if (header == null) {
             callback(false, null, "用户未登录")
             return
         }
 
-        taskApi.grabTask(header, taskId).enqueue(object : Callback<BaseResponse<Task>> {
+        taskApi.grabTask(header, taskGrabRequest).enqueue(object : Callback<BaseResponse<Task>> {
             override fun onResponse(call: Call<BaseResponse<Task>>, response: Response<BaseResponse<Task>>) {
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, response.body()?.data, null)

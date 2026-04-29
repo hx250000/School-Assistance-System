@@ -2,12 +2,10 @@ package org.example.back.dto.response;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 public class TaskVO {
 
-    private Long id;
+    private Long taskId;
     private String title;
     private String description;
     private Integer needPeople;
@@ -15,6 +13,7 @@ public class TaskVO {
     private String type;
     private String status;
     private Long publisherId;
+    private String publisherName;
 
     private Integer rewardPoints;
 //    private BigDecimal rewardMoney;

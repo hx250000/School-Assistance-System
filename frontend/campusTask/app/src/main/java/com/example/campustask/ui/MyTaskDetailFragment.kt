@@ -21,7 +21,7 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
             val fragment = MyTaskDetailFragment()
 
             val bundle = Bundle().apply {
-                putLong("id", task.id)
+                putLong("id", task.taskId)
             }
 
             fragment.arguments = bundle
@@ -36,13 +36,13 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
         // 👉 这里先用假数据（后面接数据库）
         val task = FakeTaskDatabase
             .getAllTasks()
-            .find { it.id == taskId } ?: return
+            .find { it.taskId == taskId } ?: return
 
         // ===== 标题 =====
         view.findViewById<TextView>(R.id.tv_title).text = task.title
 
         // ===== 任务ID =====
-        view.findViewById<TextView>(R.id.tv_task_id).text = "任务ID: ${task.id}"
+        view.findViewById<TextView>(R.id.tv_task_id).text = "任务ID: ${task.taskId}"
 
         // ===== 进度 =====
         val progressText = "${task.currentPeople}/${task.needPeople}"

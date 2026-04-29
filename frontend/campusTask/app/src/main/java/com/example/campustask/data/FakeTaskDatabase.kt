@@ -11,7 +11,7 @@ object FakeTaskDatabase {
 
         taskList.add(
             Task(
-                id = 1,
+                taskId = 1,
                 title = "王者开黑",
                 description = "缺辅助，来个会配合的",
                 type = "GAME",
@@ -22,13 +22,14 @@ object FakeTaskDatabase {
                 rewardMoney = null,
                 status = "OPEN",
                 deadline = System.currentTimeMillis() + 3600_000,
+                publisherName = "李四",
                 createdAt = System.currentTimeMillis()
             )
         )
 
         taskList.add(
             Task(
-                id = 2,
+                taskId = 2,
                 title = "帮拿外卖",
                 description = "二饭麻辣香锅",
                 type = "LIFE",
@@ -39,13 +40,14 @@ object FakeTaskDatabase {
                 rewardMoney = null,
                 status = "OPEN",
                 deadline = System.currentTimeMillis() + 7200_000,
+                publisherName = "李四",
                 createdAt = System.currentTimeMillis()
             )
         )
 
         taskList.add(
             Task(
-                id = 3,
+                taskId = 3,
                 title = "高数互助",
                 description = "一起写作业",
                 type = "STUDY",
@@ -56,6 +58,7 @@ object FakeTaskDatabase {
                 rewardMoney = null,
                 status = "IN_PROGRESS",
                 deadline = System.currentTimeMillis() + 86400_000,
+                publisherName = "罗翔",
                 createdAt = System.currentTimeMillis()
             )
         )

@@ -4,5 +4,4 @@ import lombok.Data;
 @Data
 public class GrabTaskRequest {
     private Long taskId;
-    private Long userId;
 }

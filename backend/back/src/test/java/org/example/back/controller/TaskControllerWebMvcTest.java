@@ -61,7 +61,7 @@ class TaskControllerWebMvcTest {
     @Test
     void list_shouldReturnArray() throws Exception {
         TaskVO vo = new TaskVO();
-        vo.setId(1L);
+        vo.setTaskId(1L);
         vo.setTitle("a");
         when(taskService.list(0, 10)).thenReturn(List.of(vo));
 

@@ -32,8 +32,8 @@ public class TaskController {
     }
 
     @PostMapping("/grab")
-    public ApiResponse<Task> grab(@RequestBody GrabTaskRequest request) {
-        Task taskGrabbed=taskService.grabTask(request.getTaskId());
+    public ApiResponse<TaskVO> grab(@RequestBody GrabTaskRequest request) {
+        TaskVO taskGrabbed=taskService.grabTask(request.getTaskId());
         return ApiResponse.success(taskGrabbed);
     }
 
