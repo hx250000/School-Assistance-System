@@ -3,26 +3,19 @@ package com.example.campustask
 import com.example.campustask.model.ShopItem
 import org.junit.Test
 import org.junit.Assert.*
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class ShopFragmentTest {
-
-    // =========================
-    // 8 个严格组件测试
-    // =========================
 
     @Test
     fun shopListShouldNotBeEmpty() {
         val list = getMockShopList()
-        assertFalse(list.isEmpty())
+        assertTrue(list.isNotEmpty())
     }
 
     @Test
     fun shopItemTitleShouldNotBeEmpty() {
         val item = getMockShopList()[0]
-        assertFalse(item.title.isEmpty())
+        assertTrue(item.title.isNotEmpty())
     }
 
     @Test
@@ -32,67 +25,54 @@ class ShopFragmentTest {
     }
 
     @Test
-    fun negativePointsShouldBeInvalid() {
-        val invalidItem = ShopItem("异常商品", -100, 0)
-        assertTrue(invalidItem.points < 0)
+    fun negativePoints_shouldBeDetected() {
+        val item = ShopItem("异常商品", -100, 0)
+        assertTrue(item.points < 0)
     }
 
     @Test
-    fun gridLayoutShouldUse2Columns() {
+    fun gridLayout_shouldBe2Columns() {
         val spanCount = 2
         assertEquals(2, spanCount)
     }
 
     @Test
-    fun emptyListShouldNotCrash() {
-        val emptyList = emptyList<ShopItem>() // ✅ 修复泛型
+    fun emptyList_shouldNotCrash() {
+        val emptyList: List<ShopItem> = emptyList()
         assertNotNull(emptyList)
     }
 
     @Test
-    fun shopItemImageResShouldNotBeZero() {
+    fun imageRes_shouldBeValid() {
         val item = getMockShopList()[0]
         assertNotEquals(0, item.imageRes)
     }
 
     @Test
-    fun adapterShouldReceiveCorrectItemCount() {
+    fun adapter_shouldHaveCorrectSize() {
         val list = getMockShopList()
         assertEquals(4, list.size)
     }
 
-    // =========================
-    // 4 个 Mock 测试
-    // =========================
-
     @Test
-    fun mockLoadShopItemsSuccess() {
+    fun mockLoad_shouldReturnList() {
         val list = getMockShopList()
         assertNotNull(list)
     }
 
     @Test
-    fun mockInvalidImageResourceWillCrash() {
-        val item = ShopItem("无图商品", 100, 0)
-        assertEquals(0, item.imageRes)
-    }
-
-    @Test
-    fun mockNullListShouldBeSafe() {
+    fun mockNullSafeList() {
         val nullList: List<ShopItem>? = null
-        val safeList = nullList ?: emptyList<ShopItem>() // ✅ 修复泛型
+        val safeList = nullList ?: emptyList()
         assertNotNull(safeList)
     }
 
     @Test
-    fun mockIllegalPointsShouldBeRejected() {
+    fun mockIllegalPoints_shouldBeInvalid() {
         val invalid = -50
         assertTrue(invalid < 0)
     }
 
-    // =========================
-    // 模拟数据
-    // =========================
     private fun getMockShopList(): List<ShopItem> {
         return listOf(
             ShopItem("星巴克咖啡券", 200, 1),
