@@ -76,7 +76,8 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskVO> list(int page, int size) {
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return taskRepository.findAll(pageable)
+        // 传入状态过滤条件
+        return taskRepository.findAllByStatus("OPEN", pageable)
                 .getContent()
                 .stream()
                 .map(this::toVO)

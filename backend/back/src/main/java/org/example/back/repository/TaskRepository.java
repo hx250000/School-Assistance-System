@@ -1,6 +1,8 @@
 package org.example.back.repository;
 
 import org.example.back.entity.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,5 +45,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByPublisherId(Long publisherId);
 
     List<Task> findByTitleLike(String keyword);
+
+    // 自动按 status 过滤并支持分页
+    Page<Task> findAllByStatus(String status, Pageable pageable);
 
 }

@@ -1,5 +1,6 @@
 package com.example.campustask.ui
 
+import android.R.attr.type
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.adapter.TaskAdapter
+import com.example.campustask.model.Task
 import com.example.campustask.repository.TaskRepository
+import com.example.campustask.util.CategoryMapper
+import okhttp3.internal.format
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -20,6 +24,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     val TAG="HomeFragment"
 
     val taskRepo = TaskRepository()
+
+    private var currentPage = 0    // 当前页码
+    private val pageSize = 20      // 每页数量
+    private var isLoading = false  // 是否正在请求中
+    private var isLastPage = false // 后端是否已经没有更多数据了
+    private var currentCategory = "全部" // 记录当前分类
+
+    // 存储所有已加载的数据
+    private val allLoadedTasks = mutableListOf<Task>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,6 +67,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                // 判断是否滑到了倒数第 3 个（提前一点加载，体验更好）
+                if (!isLoading && !isLastPage) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
+                        && firstVisibleItemPosition >= 0) {
+                        loadData(currentCategory) // 加载下一页
+                    }
+                }
+            }
+        })
+
         // 默认选中
         selectTab(tabAll, tabs)
         loadData("全部")
@@ -61,20 +93,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // 点击事件
         tabAll.setOnClickListener {
             selectTab(tabAll, tabs)
-            loadData("全部")
+            currentCategory="全部"
+            loadData(currentCategory,isRefresh = true)
         }
         tabGame.setOnClickListener {
             selectTab(tabGame, tabs)
-            loadData("游戏")
+            currentCategory="游戏"
+            loadData(currentCategory,isRefresh = true)
         }
         tabLife.setOnClickListener {
             selectTab(tabLife, tabs)
-            loadData("生活")
+            currentCategory="生活"
+            loadData(currentCategory,isRefresh = true)
         }
         tabStudy.setOnClickListener {
             selectTab(tabStudy, tabs)
-            loadData("学习")
+            currentCategory="学习"
+            loadData(currentCategory,isRefresh = true)
         }
+
     }
 
 //    private fun filter(category: String) {
@@ -99,8 +136,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         selected.setBackgroundResource(R.drawable.bg_tag_selected)
     }
 
-    private fun loadData(category: String = "全部") {
-        Log.i(TAG,"loadingdata...")
+    private fun loadData(category: String = "全部", isRefresh: Boolean=false) {
+        if(isLoading) return
+
+        // 如果是切换分类或者下拉刷新，重置状态
+        if (isRefresh) {
+            currentPage = 0
+            isLastPage = false
+            allLoadedTasks.clear()
+        }
+
+        if (isLastPage) return
+
+        Log.i(TAG, format("loadingdata, category=%s, currentpage=%d, size=%d",category,currentPage,pageSize))
+
+        isLoading=true
 
         val safeContext = context ?: return
 
@@ -119,23 +169,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
 
         // 如果是“全部”，直接调用接口；如果是分类，可以调用接口后在客户端过滤
-        taskRepo.getAllTasks(safeContext) { success, tasks, error ->
+        taskRepo.getAllTasks(safeContext, currentPage,pageSize) { success, tasks, error ->
             if (!isAdded || activity == null) return@getAllTasks
             activity?.runOnUiThread {
+                isLoading = false
                 if (success && tasks != null) {
-                    val filteredData = if (category == "全部") {
-                        tasks
-                    } else {
-                        val type = when (category) {
-                            "游戏" -> "GAME"
-                            "生活" -> "LIFE"
-                            "学习" -> "STUDY"
-                            else -> ""
-                        }
-                        tasks.filter { it.type == type }
+                    if(tasks.isEmpty()) {
+                        isLastPage=true
                     }
-                    adapter.update(filteredData)
+                    else {
+                        Log.d(TAG,"tasks="+tasks)
+                        val filteredData = if (category == "全部") {
+                            tasks
+                        } else {
+
+                            tasks.filter { it.type == CategoryMapper.toType(category) }
+                        }
+                        Log.d(TAG,"category="+category+"filtered="+filteredData)
+                        allLoadedTasks.addAll(filteredData)
+                        adapter.update(allLoadedTasks)
+                        currentPage++
+                    }
                 } else {
+                    isLoading=false
                     if (error == "用户未登录") {
                         // 返回登录界面
                         startActivity(Intent(activity, LoginActivity::class.java))
@@ -146,6 +202,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
     }
+
     private fun updateHeadStats(inprogress: Int, finished: Int, users:Int){
         val inprogressTextView=view?.findViewById<TextView>(R.id.inprogress)
         val finishedTextView=view?.findViewById<TextView>(R.id.finished)
