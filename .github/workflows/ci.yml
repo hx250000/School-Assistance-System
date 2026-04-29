@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装依赖
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest coverage ruff
+
+      - name: 检查代码规范
+        run: ruff check backend/
+
+      - name: 运行测试
+        run: coverage run -m pytest backend/tests
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装依赖
+        run: npm ci --prefix frontend
+
+      - name: 检查代码规范
+        run: npm run lint --prefix frontend
+
+      - name: 运行测试
+        run: npm test --prefix frontend -- --ci
