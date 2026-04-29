@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.campustask.R
+import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,7 +34,7 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
         val taskId = arguments?.getLong("id") ?: return
 
         // 👉 这里先用假数据（后面接数据库）
-        val task = com.example.campustask.data.FakeTaskDatabase
+        val task = FakeTaskDatabase
             .getAllTasks()
             .find { it.id == taskId } ?: return
 

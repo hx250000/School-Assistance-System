@@ -5,6 +5,7 @@ import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.*
 import com.example.campustask.model.request.TaskCreateRequest
+import com.example.campustask.model.response.HomeStatResp
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
 import retrofit2.Call
@@ -28,21 +29,7 @@ class TaskRepository {
     fun mockAddTask(task: Task) {
         FakeTaskDatabase.addTask(task)
     }
-//    fun getAllTasks(): List<Task> {
-//        return FakeTaskDatabase.getAllTasks()
-//    }
-//
-//    fun getTasksByStatus(status: String): List<Task> {
-//        return FakeTaskDatabase.getTasksByStatus(status)
-//    }
-//
-//    fun getTasksByType(type: String): List<Task> {
-//        return FakeTaskDatabase.getByType(type)
-//    }
-//
-//    fun addTask(task: Task) {
-//        FakeTaskDatabase.addTask(task)
-//    }
+
     private val taskApi = RetrofitClient.taskApi
 
     // 创建任务
@@ -248,6 +235,22 @@ class TaskRepository {
             }
 
             override fun onFailure(call: Call<BaseResponse<Task>>, t: Throwable) {
+                callback(false, null, t.message)
+            }
+        })
+    }
+
+    fun stats(context: Context, callback: (Boolean, HomeStatResp?, String?) -> Unit){
+        taskApi.stats().enqueue(object : Callback<BaseResponse<HomeStatResp>> {
+            override fun onResponse(call: Call<BaseResponse<HomeStatResp>>, response: Response<BaseResponse<HomeStatResp>>) {
+                if (response.isSuccessful && response.body()?.code == 200) {
+                    callback(true, response.body()?.data, null)
+                } else {
+                    callback(false, null, response.body()?.message ?: "返回统计信息失败")
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse<HomeStatResp>>, t: Throwable) {
                 callback(false, null, t.message)
             }
         })

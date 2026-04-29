@@ -20,4 +20,8 @@ public class UserPointsHistory {
             this.time = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         }
     }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+    }
 }

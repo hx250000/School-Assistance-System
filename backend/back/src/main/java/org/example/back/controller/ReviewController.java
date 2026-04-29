@@ -17,7 +17,7 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create")
-    public ApiResponse create(@RequestBody Review review) {
+    public ApiResponse<String> create(@RequestBody Review review) {
 
         return ApiResponse.success(reviewService.createReview(review));
     }

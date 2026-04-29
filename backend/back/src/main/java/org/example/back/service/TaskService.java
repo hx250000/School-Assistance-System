@@ -1,6 +1,7 @@
 package org.example.back.service;
 
 import org.example.back.dto.request.TaskCreateRequest;
+import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 
@@ -23,4 +24,6 @@ public interface TaskService {
     List<TaskVO> findByTitle(String keywords);
 
     TaskVO findById(Long id);
+
+    HomeStatResp stats();
 }
