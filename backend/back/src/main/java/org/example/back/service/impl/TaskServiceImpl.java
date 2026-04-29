@@ -7,6 +7,7 @@ import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.entity.TaskParticipant;
+import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
@@ -211,7 +212,10 @@ public class TaskServiceImpl implements TaskService {
 
     private TaskVO toVO(Task task) {
         TaskVO vo = new TaskVO();
-        vo.setId(task.getId());
+        User publisher=userRepository.findById(task.getPublisherId())
+                        .orElseThrow(()->new ResourceNotFoundException("用户不存在！"));
+
+        vo.setTaskId(task.getId());
         vo.setTitle(task.getTitle());
         vo.setDescription(task.getDescription());
         vo.setNeedPeople(task.getNeedPeople());
@@ -219,6 +223,7 @@ public class TaskServiceImpl implements TaskService {
         vo.setStatus(task.getStatus());
         vo.setType(task.getType());
         vo.setPublisherId(task.getPublisherId());
+        vo.setPublisherName(publisher.getUsername());
 
 //        vo.setRewardMoney(task.getRewardMoney());
         vo.setRewardPoints(task.getRewardPoints());
