@@ -2,8 +2,11 @@ package com.example.campustask.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -29,6 +32,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var isStatsLoading = false  // 顶部统计是否正在请求中
     private var isLastPage = false // 后端是否已经没有更多数据了
     private var currentCategory = "全部" // 记录当前分类
+    private var isSearchMode = false // 搜索状态
 
     // 存储所有已加载的数据
     private val allLoadedTasks = mutableListOf<Task>()
@@ -36,6 +40,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val et_search=view.findViewById<EditText>(R.id.et_search)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
 
         val tabAll = view.findViewById<TextView>(R.id.tab_all)
@@ -45,7 +50,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val tabs = listOf(tabAll, tabGame, tabLife, tabStudy)
 
-        // 获取数据
+        // 获取Mock数据
         /*val allTasks = taskRepo.mockGetAllTasks()
 
         adapter = TaskAdapter(allTasks) { task ->
@@ -75,11 +80,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 val totalItemCount = layoutManager.itemCount
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                // 判断是否滑到了倒数第 3 个（提前一点加载，体验更好）
-                if (!isLoading && !isLastPage) {
+                // 增加 !isSearchMode 判断
+                if (!isLoading && !isLastPage && !isSearchMode) {
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
                         && firstVisibleItemPosition >= 0) {
-                        loadData(currentCategory) // 加载下一页
+                        loadData(currentCategory)
                     }
                 }
             }
@@ -105,25 +110,68 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // 点击事件
         tabAll.setOnClickListener {
+            et_search.text.clear()
             selectTab(tabAll, tabs)
             currentCategory="全部"
             loadData(currentCategory,isRefresh = true)
         }
         tabGame.setOnClickListener {
+            et_search.text.clear()
             selectTab(tabGame, tabs)
             currentCategory="游戏"
             loadData(currentCategory,isRefresh = true)
         }
         tabLife.setOnClickListener {
+            et_search.text.clear()
             selectTab(tabLife, tabs)
             currentCategory="生活"
             loadData(currentCategory,isRefresh = true)
         }
         tabStudy.setOnClickListener {
+            et_search.text.clear()
             selectTab(tabStudy, tabs)
             currentCategory="学习"
             loadData(currentCategory,isRefresh = true)
         }
+
+        et_search.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                val keyword = et_search.text.toString().trim()
+
+                if (keyword.isNotEmpty()) {
+                    performSearch(view, keyword)
+                } else {
+                    // 如果关键词为空，重新拉取首页数据（恢复全量模式）
+                    isSearchMode = false
+                    loadData(currentCategory, isRefresh = true)
+                }
+
+                val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+                true
+            } else {
+                false
+            }
+        }
+        et_search.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                // 当用户点击其他可点击控件（如 Tab、RecyclerView）导致搜索框失去焦点时
+                if (et_search.text.isEmpty() && isSearchMode) {
+                    exitSearchMode()
+                }
+            }
+        }
+        et_search.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                // 如果文字被清空，且当前处于搜索模式，则自动切回全量模式
+                if (s.isNullOrEmpty() && isSearchMode) {
+                    exitSearchMode()
+                }
+            }
+        })
 
         // 接收抢单成功结果：刷新列表与顶部统计
         parentFragmentManager.setFragmentResultListener(
@@ -145,6 +193,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onResume() {
         super.onResume()
+        val et_search=view?.findViewById<EditText>(R.id.et_search)
+        et_search?.text?.clear()
+        et_search?.clearFocus()
         // 返回到 Home 时：即使任务列表已恢复（复用缓存），顶部统计也要重新拉取
         refreshHeadStats()
 
@@ -182,6 +233,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         if (isRefresh) {
             currentPage = 0
             isLastPage = false
+            isSearchMode = false
             allLoadedTasks.clear()
         }
 
@@ -278,6 +330,55 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     updateHeadStats(100, 900, 500)
                 }
             }
+        }
+    }
+
+    private fun performSearch(view: View, keyword: String) {
+        val safeContext = context ?: return
+
+        // 1. 进入搜索模式，重置状态
+        isLoading = true
+        isSearchMode = true
+        isLastPage = true // 搜索不分页，所以直接封死滑动加载
+
+        // 2. 调用后端搜索接口
+        taskRepo.searchTasks(safeContext, keyword) { success, tasks, error ->
+            if (!isAdded || activity == null) {
+                isLoading = false
+                return@searchTasks
+            }
+
+            activity?.runOnUiThread {
+                isLoading = false
+                if (success && tasks != null) {
+                    // 3. 搜索成功，直接覆盖 Adapter 数据
+                    // 注意：这里不操作 allLoadedTasks，以免破坏全量数据的缓存
+                    Log.d(TAG,"[search]tasks: "+tasks)
+                    adapter.update(tasks)
+
+                    if (tasks.isEmpty()) {
+                        Toast.makeText(safeContext, "未找到相关任务", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    // 搜索失败处理
+                    Toast.makeText(safeContext, error ?: "搜索失败", Toast.LENGTH_SHORT).show()
+                    // 如果搜索失败，建议自动刷回全量数据，或者保持空状态
+                    isSearchMode = false
+                    loadData(currentCategory, isRefresh = true)
+                }
+            }
+        }
+    }
+    private fun exitSearchMode() {
+        // 1. 状态重置
+        isSearchMode = false
+        isLastPage = false
+        currentPage = 0
+        allLoadedTasks.clear()
+
+        // 2. 只有在当前 Fragment 处于活动状态时才执行加载
+        if (isAdded) {
+            loadData(currentCategory, isRefresh = true)
         }
     }
 }

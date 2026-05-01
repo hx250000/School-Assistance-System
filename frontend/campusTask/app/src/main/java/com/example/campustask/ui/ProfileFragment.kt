@@ -135,7 +135,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         // 任务历史
         btnHistory.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, MyTaskFragment.newInstance("FINISHED"))
+                .replace(R.id.fragment_container, MyTaskFragment.newInstance("OPEN"))
                 .addToBackStack(null)
                 .commit()
         }

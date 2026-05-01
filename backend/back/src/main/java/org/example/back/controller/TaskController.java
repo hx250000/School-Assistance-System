@@ -5,7 +5,6 @@ import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
-import org.example.back.entity.Task;
 import org.example.back.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +49,7 @@ public class TaskController {
     }
 
     @GetMapping("/history")
-    public ApiResponse<List<Task>> myTaskHistory() {
+    public ApiResponse<List<TaskVO>> myTaskHistory() {
         return ApiResponse.success(taskService.myTaskHistory());
     }
 
