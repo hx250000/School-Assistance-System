@@ -4,6 +4,7 @@ import android.R.attr.data
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -45,6 +46,30 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_task)
         recycler.layoutManager = LinearLayoutManager(requireContext())
+
+        val etSearch = view.findViewById<EditText>(R.id.et_search)
+        etSearch.setOnEditorActionListener { v, actionId, event ->
+            // 捕获“搜索”动作或“回车”键
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+
+                val keyword = etSearch.text.toString().trim()
+
+                if (keyword.isNotEmpty()) {
+                    performSearch(view,keyword) // 调用搜索接口
+                } else {
+                    // 如果关键词为空，可以刷回全量数据
+                    adapter.update(allList)
+                }
+
+                // 搜索完自动收起键盘，提升体验
+                val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+
+                true // 表示我们已经消费了这次点击事件
+            } else {
+                false
+            }
+        }
 
         adapter = MyTaskAdapter(allList) { task ->
             val fragment = MyTaskDetailFragment.newInstance(task)
@@ -147,6 +172,10 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     private fun selectTab(view: View, selected: TextView?) {
+        val etSearch = view.findViewById<EditText>(R.id.et_search)
+        etSearch.text.clear()
+        etSearch.clearFocus()
+
         val tabs = listOf(
             view.findViewById<TextView>(R.id.tab_all),
             view.findViewById<TextView>(R.id.tab_publish),
@@ -173,6 +202,39 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
             v.findViewById<TextView>(R.id.published_count).text = publishCount.toString()
             v.findViewById<TextView>(R.id.in_progress_count).text = ingCount.toString()
             v.findViewById<TextView>(R.id.finished_count).text = doneCount.toString()
+        }
+    }
+
+    private fun performSearch(view:View,keyword: String) {
+        val tabs = listOf(
+            view.findViewById<TextView>(R.id.tab_all),
+            view.findViewById<TextView>(R.id.tab_publish),
+            view.findViewById<TextView>(R.id.tab_ing),
+            view.findViewById<TextView>(R.id.tab_done)
+        )
+
+        tabs.forEach {
+            it?.setBackgroundResource(R.drawable.bg_tab)
+        }
+
+        if (keyword.isEmpty()) {
+            // 关键词为空，根据当前选中的 Tab 恢复显示
+            filter(defaultStatus)
+            return
+        }
+
+        // 在本地 allList 中进行模糊搜索（匹配标题或描述）
+        val filteredList = allList.filter { task ->
+            task.title.contains(keyword, ignoreCase = true) ||
+                    task.description.contains(keyword, ignoreCase = true)
+        }
+
+
+
+        adapter.update(filteredList)
+
+        if (filteredList.isEmpty()) {
+            Toast.makeText(requireContext(), "未找到匹配任务", Toast.LENGTH_SHORT).show()
         }
     }
 }
