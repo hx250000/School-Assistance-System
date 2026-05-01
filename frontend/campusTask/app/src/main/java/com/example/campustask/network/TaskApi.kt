@@ -30,7 +30,7 @@ interface TaskApi {
     @POST("task/cancel/{taskId}")
     fun cancelTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Void>>
 
-    @GET("task/my-history")
+    @GET("task/history")
     fun getMyTaskHistory(@Header("Authorization") token: String): Call<BaseResponse<List<Task>>>
 
     @GET("task/search")

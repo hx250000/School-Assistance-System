@@ -3,7 +3,6 @@ package org.example.back.service;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
-import org.example.back.entity.Task;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ public interface TaskService {
 
     void cancelTask(Long taskId);
 
-    List<Task> myTaskHistory();
+    List<TaskVO> myTaskHistory();
 
     List<TaskVO> findByTitle(String keywords);
 

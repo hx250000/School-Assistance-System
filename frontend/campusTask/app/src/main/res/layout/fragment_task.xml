@@ -66,9 +66,10 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/published_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1"
+                    android:text="0"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"/>
@@ -89,9 +90,10 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/in_progress_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1"
+                    android:text="0"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"/>
@@ -112,9 +114,10 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/finished_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1"
+                    android:text="0"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"/>
@@ -131,7 +134,7 @@
 
     </LinearLayout>
 
-    <!-- 白色内容区（核心层次） -->
+    <!-- 白色内容区 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

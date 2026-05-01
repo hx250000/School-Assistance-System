@@ -234,13 +234,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> myTaskHistory(){
+    public List<TaskVO> myTaskHistory(){
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
         }
-        List<Task> taskHistory = taskRepository.findByPublisherId(userId);
-        return taskHistory;
+        List<Task> myTasks= taskRepository.findByPublisherId(userId);
+        List<TaskVO> myTasksResp=new ArrayList<>();
+        for (Task task : myTasks) {
+            myTasksResp.add(toVO(task));
+        }
+        return myTasksResp;
     }
 
     @Override

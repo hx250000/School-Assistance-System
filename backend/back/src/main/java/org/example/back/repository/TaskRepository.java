@@ -1,5 +1,6 @@
 package org.example.back.repository;
 
+import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,8 +1,11 @@
 package com.example.campustask.ui
 
+import android.R.attr.data
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -10,13 +13,15 @@ import com.example.campustask.R
 import com.example.campustask.adapter.MyTaskAdapter
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
+import com.example.campustask.repository.TaskRepository
 
 class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
     private lateinit var adapter: MyTaskAdapter
-    private lateinit var allList: List<Task>
+    private var allList= mutableListOf<Task>()
+    private val TAG="MyTasksFragment"
 
-    private var defaultStatus = "ALL"
+    private var defaultStatus = "OPEN"
 
     companion object {
         private const val KEY_STATUS = "status"
@@ -32,7 +37,7 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        defaultStatus = arguments?.getString(KEY_STATUS) ?: "ALL"
+        defaultStatus = "OPEN"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,8 +46,6 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_task)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        allList = FakeTaskDatabase.getAllTasks()
-
         adapter = MyTaskAdapter(allList) { task ->
             val fragment = MyTaskDetailFragment.newInstance(task)
             parentFragmentManager.beginTransaction()
@@ -50,8 +53,39 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
                 .addToBackStack(null)
                 .commit()
         }
+        recycler.adapter = adapter // 绑定到 RecyclerView
 
-        recycler.adapter = adapter
+//        allList = FakeTaskDatabase.getAllTasks()
+
+//        adapter = MyTaskAdapter(allList) { task ->
+//            val fragment = MyTaskDetailFragment.newInstance(task)
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container, fragment)
+//                .addToBackStack(null)
+//                .commit()
+//        }
+
+        // 调用后端API
+        Log.d(TAG,"调用后端API")
+        TaskRepository().getMyTaskHistory(requireContext()) { success, tasks, error ->
+            if (success && tasks != null) {
+                allList.clear()
+                allList.addAll(tasks)
+
+                Log.d(TAG,"Tasks: "+tasks)
+
+                updateStatistics(allList)
+                filter(defaultStatus)
+
+                recycler.adapter = adapter
+            } else {
+                Toast.makeText(requireContext(), error ?: "加载失败", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        Log.d(TAG, "Current defaultStatus: $defaultStatus")
+
+        //recycler.adapter = adapter
 
         initTab(view)
 
@@ -101,11 +135,15 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
     private fun filter(status: String) {
         val data = if (status == "ALL") {
-            FakeTaskDatabase.getAllTasks()
+            //FakeTaskDatabase.getAllTasks()
+            allList
         } else {
-            FakeTaskDatabase.getTasksByStatus(status)
+            //FakeTaskDatabase.getTasksByStatus(status)
+            allList.filter { it.status==status }
         }
-        adapter.update(data)
+        if (::adapter.isInitialized) {
+            adapter.update(data)
+        }
     }
 
     private fun selectTab(view: View, selected: TextView?) {
@@ -120,6 +158,21 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
             it?.setBackgroundResource(R.drawable.bg_tab)
         }
 
+        Log.d(TAG,"TabSelected: "+selected?.toString())
         selected?.setBackgroundResource(R.drawable.bg_tab_selected)
+    }
+
+    private fun updateStatistics(tasks: List<Task>) {
+        // 1. 分类计数
+        val publishCount = tasks.count { it.status == "OPEN" }
+        val ingCount = tasks.count { it.status == "IN_PROGRESS" }
+        val doneCount = tasks.count { it.status == "FINISHED" }
+
+        // 2. 更新 UI（确保在主线程执行，Repository 回调通常在主线程）
+        view?.let { v ->
+            v.findViewById<TextView>(R.id.published_count).text = publishCount.toString()
+            v.findViewById<TextView>(R.id.in_progress_count).text = ingCount.toString()
+            v.findViewById<TextView>(R.id.finished_count).text = doneCount.toString()
+        }
     }
 }
