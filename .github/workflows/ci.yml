@@ -33,6 +33,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x frontend/campusTask/gradlew
 
+      - name: Lint Android
+        run: |
+          cd frontend/campusTask
+          ./gradlew lint    
+
       - name: Run unit tests
         run: |
           cd frontend/campusTask
@@ -73,3 +78,15 @@ jobs:
         with:
           name: backend-jar
           path: backend/back/target/*.jar
+      
+      - name: Lint backend
+        run: |
+          cd backend/back
+          mvn spotless:check
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: backend/back/target/site/jacoco/jacoco.xml
+          flags: backend
