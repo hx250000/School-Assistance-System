@@ -68,15 +68,15 @@ class TaskControllerWebMvcTest {
         mockMvc.perform(get("/api/task/list?page=0&size=10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data[0].id").value(1));
+                .andExpect(jsonPath("$.data[0].taskId").value(1));
     }
 
     @Test
     void grab_shouldReturnTask() throws Exception {
-        org.example.back.entity.Task t = new org.example.back.entity.Task();
-        t.setId(1L);
-        t.setStatus("OPEN");
-        when(taskService.grabTask(1L)).thenReturn(t);
+        TaskVO vo = new TaskVO();
+        vo.setTaskId(1L);
+        vo.setStatus("OPEN");
+        when(taskService.grabTask(1L)).thenReturn(vo);
 
         GrabTaskRequest req = new GrabTaskRequest();
         req.setTaskId(1L);
@@ -86,7 +86,7 @@ class TaskControllerWebMvcTest {
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.id").value(1));
+                .andExpect(jsonPath("$.data.taskId").value(1));
     }
 
     @Test
