@@ -4,10 +4,12 @@ import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.Task;
 import org.example.back.entity.TaskParticipant;
+import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.repository.TaskRepository;
+import org.example.back.repository.UserRepository;
 import org.example.back.service.impl.TaskServiceImpl;
 import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +44,9 @@ class TaskServiceImplTest {
 
     @Mock
     private PointsService pointsService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private TaskServiceImpl taskService;
@@ -107,7 +112,12 @@ class TaskServiceImplTest {
         t1.setDeadline(LocalDateTime.of(2026, 1, 2, 0, 0));
 
         Page<Task> page = new PageImpl<>(List.of(t1));
-        when(taskRepository.findAll(any(Pageable.class))).thenReturn(page);
+        when(taskRepository.findAllByStatus(eq("OPEN"), any(Pageable.class))).thenReturn(page);
+
+        // 3. 同时别忘了 toVO 依赖 User
+        User mockUser = new User();
+        mockUser.setId(1L);
+        when(userRepository.findById(any())).thenReturn(Optional.of(mockUser));
 
         List<TaskVO> vos = taskService.list(0, 10);
         assertThat(vos).hasSize(1);
@@ -196,20 +206,45 @@ class TaskServiceImplTest {
 
     @Test
     void grabTask_whenSuccess_shouldCreateParticipant_updateStatusAndReturnLatestTask() {
+        // 1. 设置当前操作用户
         AuthTestUtil.setCurrentUserId(1L);
+
+        // 2. 准备任务数据，注意设置 PublisherId
         Task t = new Task();
         t.setId(1L);
         t.setStatus("OPEN");
+        t.setPublisherId(100L); // 假设发布者 ID 是 100
+
+        // 3. 模拟参与逻辑
         when(taskParticipantRepository.existsByTaskIdAndUserId(1L, 1L)).thenReturn(false);
         when(taskRepository.incrementIfNotFull(1L)).thenReturn(1);
 
+        // 4. 模拟 grabTask 结束前重新查询到的最新任务状态
         Task latest = new Task();
         latest.setId(1L);
         latest.setStatus("IN_PROGRESS");
+        latest.setPublisherId(100L); // 保持发布者 ID 一致
+        latest.setCreatedAt(LocalDateTime.now()); // 修复 getCreatedAt() 为空的问题
+        latest.setDeadline(LocalDateTime.of(2026,12,31,23,59,59));
+        latest.setTitle("测试任务");
+        latest.setNeedPeople(5);
+        latest.setCurrentPeople(1);
+
+        // 模拟 findById 的两次调用（第一次在逻辑开始，第二次在 toVO 转换前）
         when(taskRepository.findById(1L)).thenReturn(Optional.of(t), Optional.of(latest));
 
-        Task res = taskService.grabTask(1L);
+        // 模拟 User 的存在，防止 toVO 抛出 ResourceNotFoundException ---
+        org.example.back.entity.User mockUser = new org.example.back.entity.User();
+        mockUser.setId(100L);
+        mockUser.setUsername("testPublisher");
+        // 只要是查询这个 ID，就返回这个 Mock 用户
+        when(userRepository.findById(100L)).thenReturn(Optional.of(mockUser));
+        // -----------------------------------------------------------------------
 
+        // 执行
+        TaskVO res = taskService.grabTask(1L);
+
+        // 断言
         assertThat(res.getStatus()).isEqualTo("IN_PROGRESS");
         verify(taskParticipantRepository).save(any(TaskParticipant.class));
         verify(taskRepository).updateStatusIfFull(1L);
