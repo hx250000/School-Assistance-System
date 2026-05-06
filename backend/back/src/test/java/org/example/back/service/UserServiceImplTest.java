@@ -7,6 +7,7 @@ import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.impl.UserServiceImpl;
@@ -18,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.util.DigestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,40 +43,80 @@ class UserServiceImplTest {
         AuthTestUtil.clear();
     }
 
+    // 辅助方法：模拟业务代码中的加密逻辑
+    private String md5(String psd) {
+        return DigestUtils.md5DigestAsHex(psd.getBytes());
+    }
+
     @Test
     void register_shouldInitPointsAndCreditScore_andReturnRegisterResponse() {
+        // 1. 准备请求数据（需符合校验规则：用户名英文数字，密码>=6位，手机号正则）
         RegisterRequest req = new RegisterRequest();
-        req.setUsername("u1");
-        req.setPhone("13000000000");
-        req.setPassword("p1");
+        req.setUsername("user123");
+        req.setPhone("13812345678");
+        req.setPassword("password123");
+
+        // 2. Mock 查重逻辑
+        when(userRepository.existsByUsernameOrPhone(req.getUsername(), req.getPhone())).thenReturn(false);
 
         User saved = new User();
         saved.setId(10L);
-        saved.setUsername("u1");
+        saved.setUsername("user123");
         when(userRepository.save(any(User.class))).thenReturn(saved);
 
+        // 3. 执行
         RegisterResponse resp = userService.register(req);
 
+        // 4. 断言返回结果
         assertThat(resp.getUserId()).isEqualTo(10L);
-        assertThat(resp.getUsername()).isEqualTo("u1");
+        assertThat(resp.getUsername()).isEqualTo("user123");
 
+        // 5. 验证保存的对象属性
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User toSave = captor.getValue();
-        assertThat(toSave.getUsername()).isEqualTo("u1");
-        assertThat(toSave.getPhone()).isEqualTo("13000000000");
-        assertThat(toSave.getPassword()).isEqualTo("p1");
+
+        assertThat(toSave.getUsername()).isEqualTo("user123");
+        assertThat(toSave.getPhone()).isEqualTo("13812345678");
+        // 验证密码是否经过了 MD5 加密
+        assertThat(toSave.getPassword()).isEqualTo(md5("password123"));
         assertThat(toSave.getPoints()).isEqualTo(0);
         assertThat(toSave.getCreditScore()).isEqualTo(100);
     }
 
     @Test
+    void register_whenUserExists_shouldThrowConflictException() {
+        RegisterRequest req = new RegisterRequest();
+        req.setUsername("exists");
+        req.setPhone("13812345678");
+        req.setPassword("password123");
+
+        when(userRepository.existsByUsernameOrPhone(anyString(), anyString())).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.register(req))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("用户名或电话号码已被使用");
+    }
+
+    @Test
+    void register_withInvalidPhone_shouldThrowException() {
+        RegisterRequest req = new RegisterRequest();
+        req.setUsername("user");
+        req.setPhone("123"); // 错误格式
+        req.setPassword("password123");
+
+        assertThatThrownBy(() -> userService.register(req))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("手机号格式不正确");
+    }
+
+    @Test
     void login_whenUserNotFound_shouldThrowAuthenticationException() {
         LoginRequest req = new LoginRequest();
-        req.setPhone("13000000000");
-        req.setPassword("wrong");
+        req.setPhone("13800000000");
+        req.setPassword("any_pass");
 
-        when(userRepository.findByPhone("13000000000")).thenReturn(null);
+        when(userRepository.findByPhone("13800000000")).thenReturn(null);
 
         assertThatThrownBy(() -> userService.login(req))
                 .isInstanceOf(AuthenticationException.class)
@@ -84,14 +126,12 @@ class UserServiceImplTest {
     @Test
     void login_whenPasswordMismatch_shouldThrowAuthenticationException() {
         LoginRequest req = new LoginRequest();
-        req.setPhone("13000000000");
-        req.setPassword("p2");
+        req.setPhone("13800000000");
+        req.setPassword("wrong_password");
 
         User user = new User();
-        user.setId(1L);
-        user.setUsername("u1");
-        user.setPassword("p1");
-        when(userRepository.findByPhone("13000000000")).thenReturn(user);
+        user.setPassword(md5("correct_password")); // 数据库存的是加密后的
+        when(userRepository.findByPhone("13800000000")).thenReturn(user);
 
         assertThatThrownBy(() -> userService.login(req))
                 .isInstanceOf(AuthenticationException.class)
@@ -101,14 +141,14 @@ class UserServiceImplTest {
     @Test
     void login_whenSuccess_shouldReturnTokenAndUserInfo() {
         LoginRequest req = new LoginRequest();
-        req.setPhone("13000000000");
-        req.setPassword("p1");
+        req.setPhone("13800000000");
+        req.setPassword("p123456");
 
         User user = new User();
         user.setId(1L);
         user.setUsername("u1");
-        user.setPassword("p1");
-        when(userRepository.findByPhone("13000000000")).thenReturn(user);
+        user.setPassword(md5("p123456")); // 模拟数据库中的加密密码
+        when(userRepository.findByPhone("13800000000")).thenReturn(user);
 
         LoginResponse resp = userService.login(req);
 
@@ -119,6 +159,7 @@ class UserServiceImplTest {
 
     @Test
     void getCurrentUser_whenNotLoggedIn_shouldThrowAuthenticationException() {
+        // 模拟拦截器没有存入 ID 的情况
         AuthTestUtil.clear();
 
         assertThatThrownBy(() -> userService.getCurrentUser())
@@ -174,4 +215,3 @@ class UserServiceImplTest {
         assertThat(vos.get(1).getId()).isEqualTo(2L);
     }
 }
-

@@ -8,6 +8,7 @@ import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.UserService;
@@ -22,6 +23,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,9 +38,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
+        checkInformation(registerRequest);
         User user = new User();
+        boolean exists=userRepository.existsByUsernameOrPhone(
+                registerRequest.getUsername(),
+                registerRequest.getPhone());
+        if(exists){
+            throw new ResourceConflictException("用户名或电话号码已被使用！");
+        }
+        String password = encryptPassword(registerRequest.getPassword());
         user.setUsername(registerRequest.getUsername());
-        user.setPassword(registerRequest.getPassword());
+        user.setPassword(password);
         user.setPhone(registerRequest.getPhone());
         // 初始化积分和信用分
         user.setPoints(0);
@@ -63,8 +73,8 @@ public class UserServiceImpl implements UserService {
         User user=userRepository.findByPhone(request.getPhone());
         log.info("user login: " + request);
 
-        if (user == null || !user.getPassword().equals(request.getPassword())) {
-            throw new AuthenticationException("用户名或密码错误");
+        if (user == null || !user.getPassword().equals(encryptPassword(request.getPassword()))) {
+            throw new AuthenticationException("用户名或密码错误!");
         }
 
         // 生成JWT
@@ -111,4 +121,47 @@ public class UserServiceImpl implements UserService {
         }
         return vos;
     }
+
+    public String encryptPassword(String password) {
+        // 使用MD5进行加密（注意：MD5不适合用于生产环境中的密码存储）
+        return org.springframework.util.DigestUtils.md5DigestAsHex(password.getBytes());
+    }
+
+    public void checkInformation(RegisterRequest userRegister){
+        if (userRegister == null) {
+            throw new ResourceConflictException("用户信息不能为空！");
+        }
+
+        log.info(userRegister.toString());
+
+        // 1. 用户名校验
+        String username = userRegister.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            throw new ResourceConflictException("用户名不能为空！");
+        }
+
+        if (!username.matches("^[a-zA-Z0-9_]+$")) {
+            throw new ResourceConflictException("用户名只能包含字母、数字和下划线！");
+        }
+
+        // 2. 密码校验
+        String password = userRegister.getPassword();
+        if (password == null || password.trim().isEmpty()) {
+            throw new ResourceConflictException("密码不能为空！");
+        }
+        if (password.length() < 6) {
+            throw new ResourceConflictException("密码长度不能少于 6 位！");
+        }
+
+        // 3. 手机号校验（中国大陆）
+        String phone = userRegister.getPhone();
+        if (phone == null || phone.trim().isEmpty()) {
+            throw new ResourceConflictException("手机号不能为空！");
+        }
+        if (!phone.matches("^1[3-9]\\d{9}$")) {
+            throw new ResourceConflictException("手机号格式不正确！");
+        }
+
+    }
+
 }

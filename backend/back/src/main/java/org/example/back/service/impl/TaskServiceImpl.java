@@ -8,6 +8,9 @@ import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
 import org.example.back.entity.*;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
+import org.example.back.repository.TaskParticipantRepository;
+import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.*;
 import org.example.back.service.PointsService;
@@ -58,14 +61,17 @@ public class TaskServiceImpl implements TaskService {
     // ================= list =================
     @Override
     public List<TaskVO> list(int page, int size) {
-
+        log.info("list tasks, page={}, size={}",page,size);
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return taskRepository.findAllByStatus("OPEN", pageable)
+        List<TaskVO> resp=taskRepository.findAllByStatus("OPEN", pageable)
                 .getContent()
                 .stream()
                 .map(this::toVO)
                 .collect(Collectors.toList());
+        log.info("list resp: "+ resp);
+        // 传入状态过滤条件
+        return resp;
     }
 
     // ================= grab =================
@@ -82,20 +88,20 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
         if (!"OPEN".equals(task.getStatus())) {
-            throw new IllegalArgumentException("任务不可抢");
+            throw new ResourceConflictException("任务不可抢");
         }
-
+      
         if (task.getPublisherId() != null && task.getPublisherId().equals(userId)) {
-            throw new IllegalArgumentException("不能抢自己发布的任务");
+            throw new ResourceConflictException("不能抢自己发布的任务");
         }
 
         if (taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId)) {
-            throw new IllegalArgumentException("已经抢过该任务");
+            throw new ResourceConflictException("已经抢过该任务");
         }
 
         int updated = taskRepository.incrementIfNotFull(taskId);
         if (updated == 0) {
-            throw new IllegalArgumentException("任务已满");
+            throw new ResourceConflictException("任务已满");
         }
 
         try {
@@ -107,7 +113,10 @@ public class TaskServiceImpl implements TaskService {
 
             taskParticipantRepository.save(p);
 
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e){
+            taskRepository.decrementIfNotEmpty(taskId);
+            throw new ResourceConflictException("你已经抢过该任务！");
+        } catch (Exception e) {
             taskRepository.decrementIfNotEmpty(taskId);
             throw new IllegalArgumentException("已经抢过该任务");
         }
@@ -176,7 +185,15 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
         if (!userId.equals(task.getPublisherId())) {
-            throw new IllegalArgumentException("仅发布者可取消");
+            throw new ResourceConflictException("仅发布者可取消该任务");
+        }
+
+        String status = task.getStatus();
+        if ("FINISHED".equals(status)) {
+            throw new ResourceConflictException("任务已完成，无法取消");
+        }
+        if ("CANCELLED".equals(status)) {
+            throw new ResourceConflictException("任务已取消");
         }
 
         taskParticipantRepository.deleteByTaskId(taskId);
