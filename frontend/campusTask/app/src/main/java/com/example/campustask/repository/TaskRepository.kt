@@ -1,6 +1,7 @@
 package com.example.campustask.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.model.*
@@ -14,6 +15,8 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class TaskRepository {
+
+    val TAG="TaskRepository"
 
     fun mockGetAllTasks(): List<Task> {
         return FakeTaskDatabase.getAllTasks()
@@ -66,6 +69,7 @@ class TaskRepository {
 
         taskApi.listTasks(header, page, size).enqueue(object : Callback<BaseResponse<List<Task>>> {
             override fun onResponse(call: Call<BaseResponse<List<Task>>>, response: Response<BaseResponse<List<Task>>>) {
+                Log.d(TAG,"listTasks.response: "+response.toString())
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, response.body()?.data, null)
                 } else {
