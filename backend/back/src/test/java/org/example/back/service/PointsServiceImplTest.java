@@ -60,7 +60,7 @@ class PointsServiceImplTest {
 
         assertThatThrownBy(() -> pointsService.getUserPoints())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("用户 1 未找到");
+                .hasMessageContaining("用户不存在");
     }
 
     @Test

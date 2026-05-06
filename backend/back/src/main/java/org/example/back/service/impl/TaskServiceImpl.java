@@ -118,7 +118,7 @@ public class TaskServiceImpl implements TaskService {
             throw new ResourceConflictException("你已经抢过该任务！");
         } catch (Exception e) {
             taskRepository.decrementIfNotEmpty(taskId);
-            throw new IllegalArgumentException("已经抢过该任务");
+            throw new RuntimeException("系统异常，请稍后再试");
         }
 
         taskRepository.updateStatusIfFull(taskId);
@@ -139,13 +139,13 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
-        boolean ok = taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId);
-        if (!ok) {
-            throw new IllegalArgumentException("无权限完成任务");
-        }
+//        boolean ok = taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId);
+//        if (!ok) {
+//            throw new IllegalArgumentException("无权限完成任务");
+//        }
 
         if (!"IN_PROGRESS".equals(task.getStatus())) {
-            throw new IllegalArgumentException("任务状态非法");
+            throw new ResourceConflictException("任务状态非法");
         }
 
         task.setStatus("FINISHED");
