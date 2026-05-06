@@ -6,14 +6,10 @@ import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
-import org.example.back.entity.Task;
-import org.example.back.entity.TaskParticipant;
-import org.example.back.entity.User;
+import org.example.back.entity.*;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceNotFoundException;
-import org.example.back.repository.TaskParticipantRepository;
-import org.example.back.repository.TaskRepository;
-import org.example.back.repository.UserRepository;
+import org.example.back.repository.*;
 import org.example.back.service.PointsService;
 import org.example.back.service.TaskService;
 import org.springframework.beans.BeanUtils;
@@ -23,32 +19,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class TaskServiceImpl implements TaskService {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    @Autowired private TaskRepository taskRepository;
+    @Autowired private TaskParticipantRepository taskParticipantRepository;
+    @Autowired private PointsService pointsService;
+    @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private TaskParticipantRepository taskParticipantRepository;
-
-    @Autowired
-    private PointsService pointsService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    // ================= 创建任务 =================
+    // ================= create =================
     @Override
     @Transactional
     public Long createTask(TaskCreateRequest request) {
@@ -69,13 +55,9 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.save(task).getId();
     }
 
-    // ================= 列表 =================
+    // ================= list =================
     @Override
     public List<TaskVO> list(int page, int size) {
-
-        if (page < 0 || size <= 0 || size > 100) {
-            throw new IllegalArgumentException("分页参数非法");
-        }
 
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -86,7 +68,7 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
-    // ================= 抢任务 =================
+    // ================= grab =================
     @Override
     @Transactional
     public TaskVO grabTask(Long taskId) {
@@ -103,12 +85,12 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("任务不可抢");
         }
 
-        if (Objects.equals(task.getPublisherId(), userId)) {
+        if (task.getPublisherId() != null && task.getPublisherId().equals(userId)) {
             throw new IllegalArgumentException("不能抢自己发布的任务");
         }
 
         if (taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId)) {
-            throw new IllegalArgumentException("已抢过该任务");
+            throw new IllegalArgumentException("已经抢过该任务");
         }
 
         int updated = taskRepository.incrementIfNotFull(taskId);
@@ -117,28 +99,25 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
-            TaskParticipant participant = TaskParticipant.builder()
+            TaskParticipant p = TaskParticipant.builder()
                     .taskId(taskId)
                     .userId(userId)
                     .status("JOINED")
                     .build();
 
-            taskParticipantRepository.save(participant);
+            taskParticipantRepository.save(p);
 
         } catch (DataIntegrityViolationException e) {
             taskRepository.decrementIfNotEmpty(taskId);
-            throw new IllegalArgumentException("已抢过该任务");
+            throw new IllegalArgumentException("已经抢过该任务");
         }
 
         taskRepository.updateStatusIfFull(taskId);
 
-        Task updatedTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
-
-        return toVO(updatedTask);
+        return toVO(taskRepository.findById(taskId).get());
     }
 
-    // ================= 完成任务 =================
+    // ================= finish =================
     @Override
     @Transactional
     public void finishTask(Long taskId) {
@@ -151,10 +130,8 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
-        boolean isParticipant = taskParticipantRepository
-                .existsByTaskIdAndUserId(taskId, userId);
-
-        if (!isParticipant) {
+        boolean ok = taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId);
+        if (!ok) {
             throw new IllegalArgumentException("无权限完成任务");
         }
 
@@ -162,18 +139,15 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("任务状态非法");
         }
 
-        int updated = taskRepository.updateStatusToFinishedIfInProgress(taskId);
-        if (updated == 0) {
-            throw new IllegalArgumentException("任务已完成");
-        }
+        task.setStatus("FINISHED");
+        taskRepository.save(task);
 
         Integer reward = task.getRewardPoints();
         if (reward == null || reward <= 0) return;
 
-        List<TaskParticipant> participants =
-                taskParticipantRepository.findByTaskId(taskId);
+        List<TaskParticipant> list = taskParticipantRepository.findByTaskId(taskId);
 
-        for (TaskParticipant p : participants) {
+        for (TaskParticipant p : list) {
             if (!"JOINED".equals(p.getStatus())) continue;
 
             p.setStatus("FINISHED");
@@ -188,7 +162,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    // ================= 取消任务 =================
+    // ================= cancel =================
     @Override
     @Transactional
     public void cancelTask(Long taskId) {
@@ -201,27 +175,19 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
-        if (!Objects.equals(task.getPublisherId(), userId)) {
-            throw new IllegalArgumentException("无权限取消任务");
-        }
-
-        if ("FINISHED".equals(task.getStatus())) {
-            throw new IllegalArgumentException("任务已完成");
-        }
-
-        if ("CANCELLED".equals(task.getStatus())) {
-            throw new IllegalArgumentException("任务已取消");
+        if (!userId.equals(task.getPublisherId())) {
+            throw new IllegalArgumentException("仅发布者可取消");
         }
 
         taskParticipantRepository.deleteByTaskId(taskId);
 
-        task.setCurrentPeople(0);
         task.setStatus("CANCELLED");
+        task.setCurrentPeople(0);
 
         taskRepository.save(task);
     }
 
-    // ================= ⭐ 关键修复：myTaskHistory =================
+    // ================= history =================
     @Override
     public List<TaskVO> myTaskHistory() {
 
@@ -236,13 +202,9 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
-    // ================= 搜索 =================
+    // ================= search（关键修复点） =================
     @Override
     public List<TaskVO> findByTitle(String keywords) {
-
-        if (keywords == null || keywords.length() > 50) {
-            throw new IllegalArgumentException("关键词非法");
-        }
 
         return taskRepository.findByTitleContaining(keywords)
                 .stream()
@@ -250,43 +212,41 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
-    // ================= 详情 =================
+    // ================= detail =================
     @Override
     public TaskVO findById(Long id) {
 
-        Task task = taskRepository.findById(id)
+        Task t = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
-        return toVO(task);
+        return toVO(t);
     }
 
-    // ================= 统计 =================
+    // ================= stats =================
     @Override
     public HomeStatResp stats() {
 
-        HomeStatResp resp = new HomeStatResp();
-
-        List<Task> tasks = taskRepository.findAll();
+        HomeStatResp r = new HomeStatResp();
 
         int users = (int) userRepository.count();
-        int inProgress = 0, finished = 0;
+        int ing = 0, fin = 0;
 
-        for (Task task : tasks) {
-            if ("FINISHED".equals(task.getStatus())) finished++;
-            else if ("IN_PROGRESS".equals(task.getStatus())) inProgress++;
+        for (Task t : taskRepository.findAll()) {
+            if ("FINISHED".equals(t.getStatus())) fin++;
+            else if ("IN_PROGRESS".equals(t.getStatus())) ing++;
         }
 
-        resp.setInProgress(inProgress);
-        resp.setFinished(finished);
-        resp.setUsers(users);
+        r.setUsers(users);
+        r.setFinished(fin);
+        r.setInProgress(ing);
 
-        return resp;
+        return r;
     }
 
-    // ================= VO转换（安全版） =================
+    // ================= VO =================
     private TaskVO toVO(Task task) {
 
-        User publisher = userRepository.findById(task.getPublisherId())
+        User u = userRepository.findById(task.getPublisherId())
                 .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
 
         TaskVO vo = new TaskVO();
@@ -299,33 +259,38 @@ public class TaskServiceImpl implements TaskService {
         vo.setStatus(task.getStatus());
         vo.setType(task.getType());
         vo.setPublisherId(task.getPublisherId());
-        vo.setPublisherName(publisher.getUsername());
+        vo.setPublisherName(u.getUsername());
         vo.setRewardPoints(task.getRewardPoints());
 
-        vo.setCreatedAt(task.getCreatedAt() == null ? null :
-                task.getCreatedAt().atZone(ZoneId.systemDefault())
-                        .toInstant().toEpochMilli());
+        vo.setCreatedAt(task.getCreatedAt().atZone(ZoneId.systemDefault())
+                .toInstant().toEpochMilli());
 
-        vo.setDeadline(task.getDeadline() == null ? null :
-                task.getDeadline().atZone(ZoneId.systemDefault())
-                        .toInstant().toEpochMilli());
+        vo.setDeadline(task.getDeadline().atZone(ZoneId.systemDefault())
+                .toInstant().toEpochMilli());
 
         return vo;
     }
 
-    // ================= 时间解析 =================
-    private LocalDateTime parseDeadline(String deadlineStr) {
+    // ================= deadline =================
+    private LocalDateTime parseDeadline(String s) {
 
-        if (deadlineStr == null || deadlineStr.isBlank()) {
-            return null;
+        if (s == null || s.isBlank()) return null;
+
+        s = s.trim();
+
+        String[] patterns = {
+                "yyyy-MM-dd HH:mm:ss",
+                "yyyy-MM-dd HH:mm",
+        };
+
+        for (String p : patterns) {
+            try {
+                return LocalDateTime.parse(s, DateTimeFormatter.ofPattern(p));
+            } catch (Exception ignored) {}
         }
 
         try {
-            return LocalDateTime.parse(deadlineStr);
-        } catch (Exception ignored) {}
-
-        try {
-            return LocalDate.parse(deadlineStr).atStartOfDay();
+            return LocalDate.parse(s).atStartOfDay();
         } catch (Exception e) {
             throw new IllegalArgumentException("deadline格式错误");
         }
