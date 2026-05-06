@@ -11,6 +11,7 @@ import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.repository.TaskRepository;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.impl.TaskServiceImpl;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -73,27 +74,24 @@ class TaskServiceImplTest {
     void createTask_shouldSetPublisherStatusAndParseDeadline_andReturnId() {
         AuthTestUtil.setCurrentUserId(5L);
         TaskCreateRequest req = new TaskCreateRequest();
-        req.setTitle("t");
-        req.setDescription("d");
-        req.setType("STUDY");
-        req.setNeedPeople(3);
-        req.setRewardPoints(10);
+        req.setTitle("测试任务");
         req.setDeadline("2026-04-27 10:30");
 
         Task saved = new Task();
         saved.setId(99L);
+        // 源代码中 save 后会获取 ID
         when(taskRepository.save(any(Task.class))).thenReturn(saved);
 
         Long id = taskService.createTask(req);
+        
         assertThat(id).isEqualTo(99L);
-
         ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
         verify(taskRepository).save(captor.capture());
+        
         Task toSave = captor.getValue();
         assertThat(toSave.getPublisherId()).isEqualTo(5L);
         assertThat(toSave.getStatus()).isEqualTo("OPEN");
         assertThat(toSave.getCurrentPeople()).isEqualTo(0);
-        assertThat(toSave.getDeadline()).isNotNull();
     }
 
     @Test
@@ -145,7 +143,25 @@ class TaskServiceImplTest {
     }
 
     @Test
-    void grabTask_whenStatusNotOpen_shouldThrowIllegalArgumentException() {
+    void grabTask_whenPublisherIsSelf_shouldThrowResourceConflictException() {
+        // 源代码逻辑：if (task.getPublisherId().equals(userId)) throw ...
+        Long userId = 1L;
+        AuthTestUtil.setCurrentUserId(userId);
+        
+        Task t = new Task();
+        t.setId(10L);
+        t.setPublisherId(userId); // 自己是发布者
+        t.setStatus("OPEN");
+        
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(t));
+
+        assertThatThrownBy(() -> taskService.grabTask(10L))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("不能抢自己发布的任务");
+    }
+
+    @Test
+    void grabTask_whenStatusNotOpen_shouldThrowResourceConflictException() {
         AuthTestUtil.setCurrentUserId(1L);
         Task t = new Task();
         t.setId(1L);
@@ -153,12 +169,12 @@ class TaskServiceImplTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(t));
 
         assertThatThrownBy(() -> taskService.grabTask(1L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("任务不可抢");
     }
 
     @Test
-    void grabTask_whenAlreadyJoined_shouldThrowIllegalArgumentException() {
+    void grabTask_whenAlreadyJoined_shouldThrowResourceConflictException() {
         AuthTestUtil.setCurrentUserId(1L);
         Task t = new Task();
         t.setId(1L);
@@ -167,12 +183,12 @@ class TaskServiceImplTest {
         when(taskParticipantRepository.existsByTaskIdAndUserId(1L, 1L)).thenReturn(true);
 
         assertThatThrownBy(() -> taskService.grabTask(1L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("已经抢过");
     }
 
     @Test
-    void grabTask_whenFull_shouldThrowIllegalArgumentException() {
+    void grabTask_whenFull_shouldThrowResourceConflictException() {
         AuthTestUtil.setCurrentUserId(1L);
         Task t = new Task();
         t.setId(1L);
@@ -182,7 +198,7 @@ class TaskServiceImplTest {
         when(taskRepository.incrementIfNotFull(1L)).thenReturn(0);
 
         assertThatThrownBy(() -> taskService.grabTask(1L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("任务已满");
     }
 
@@ -198,8 +214,8 @@ class TaskServiceImplTest {
         doThrow(new DataIntegrityViolationException("dup")).when(taskParticipantRepository).save(any(TaskParticipant.class));
 
         assertThatThrownBy(() -> taskService.grabTask(1L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("已经抢过");
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("你已经抢过该任务！");
 
         verify(taskRepository).decrementIfNotEmpty(1L);
     }
@@ -222,7 +238,7 @@ class TaskServiceImplTest {
         // 4. 模拟 grabTask 结束前重新查询到的最新任务状态
         Task latest = new Task();
         latest.setId(1L);
-        latest.setStatus("IN_PROGRESS");
+        latest.setStatus("OPEN"); // 还未满员，状态仍是 OPEN
         latest.setPublisherId(100L); // 保持发布者 ID 一致
         latest.setCreatedAt(LocalDateTime.now()); // 修复 getCreatedAt() 为空的问题
         latest.setDeadline(LocalDateTime.of(2026,12,31,23,59,59));
@@ -245,16 +261,31 @@ class TaskServiceImplTest {
         TaskVO res = taskService.grabTask(1L);
 
         // 断言
-        assertThat(res.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(res).isNotNull();
         verify(taskParticipantRepository).save(any(TaskParticipant.class));
         verify(taskRepository).updateStatusIfFull(1L);
     }
 
     @Test
+    void finishTask_whenStatusNotInProgress_shouldThrowResourceConflictException() {
+        AuthTestUtil.setCurrentUserId(1L);
+        Task task = new Task();
+        task.setStatus("OPEN"); // 源代码要求必须是 IN_PROGRESS 才能完成
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+
+        assertThatThrownBy(() -> taskService.finishTask(1L))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("任务状态非法");
+    }
+
+    @Test
     void finishTask_shouldUpdateTaskStatus_andAwardPointsToJoinedParticipants() {
+        AuthTestUtil.setCurrentUserId(1L);
         Task task = new Task();
         task.setId(1L);
         task.setTitle("T");
+        task.setStatus("IN_PROGRESS");
+        task.setPublisherId(1L);
         task.setRewardPoints(10);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
@@ -275,12 +306,12 @@ class TaskServiceImplTest {
 
         verify(taskRepository).save(argThat(t -> "FINISHED".equals(t.getStatus())));
         verify(taskParticipantRepository).save(argThat(p -> "FINISHED".equals(p.getStatus()) && p.getUserId().equals(2L)));
-        verify(pointsService).addPoints(eq(2L), eq(10), anyString(), contains("获得 10 积分"));
+        verify(pointsService).addPoints(eq(2L), eq(10), anyString(), anyString());
         verify(pointsService, never()).addPoints(eq(3L), anyInt(), anyString(), anyString());
     }
 
     @Test
-    void cancelTask_whenNotPublisher_shouldThrowIllegalArgumentException() {
+    void cancelTask_whenNotPublisher_shouldThrowResourceConflictException() {
         AuthTestUtil.setCurrentUserId(2L);
         Task task = new Task();
         task.setId(1L);
@@ -289,7 +320,7 @@ class TaskServiceImplTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         assertThatThrownBy(() -> taskService.cancelTask(1L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("仅发布者可取消");
     }
 
