@@ -24,6 +24,13 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.notFound(ex.getMessage()));
     }
 
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceConflict(ResourceConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(409,ex.getMessage()));
+    }
+
 //    /**
 //     * 处理Spring MVC的资源未找到异常
 //     */
