@@ -25,7 +25,7 @@ public class TaskController {
 
     @GetMapping("/list")
     public ApiResponse<List<TaskVO>> list(@RequestParam int page,
-                       @RequestParam int size) {
+                                          @RequestParam int size) {
 //        AllTaskListResponse taskListResponse=new AllTaskListResponse();
         return ApiResponse.success(taskService.list(page, size));
     }
