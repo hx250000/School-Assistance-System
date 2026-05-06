@@ -28,8 +28,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,10 +58,6 @@ public class TaskServiceImpl implements TaskService {
             throw new AuthenticationException("用户未登录");
         }
 
-        if (request.getTitle() == null || request.getTitle().length() > 100) {
-            throw new IllegalArgumentException("标题非法");
-        }
-
         Task task = new Task();
         BeanUtils.copyProperties(request, task);
 
@@ -70,8 +66,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus("OPEN");
         task.setPublisherId(userId);
 
-        Task saved = taskRepository.save(task);
-        return saved.getId();
+        return taskRepository.save(task).getId();
     }
 
     // ================= 列表 =================
@@ -108,7 +103,7 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("任务不可抢");
         }
 
-        if (task.getPublisherId().equals(userId)) {
+        if (Objects.equals(task.getPublisherId(), userId)) {
             throw new IllegalArgumentException("不能抢自己发布的任务");
         }
 
@@ -116,7 +111,6 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("已抢过该任务");
         }
 
-        // 原子增加人数
         int updated = taskRepository.incrementIfNotFull(taskId);
         if (updated == 0) {
             throw new IllegalArgumentException("任务已满");
@@ -134,14 +128,14 @@ public class TaskServiceImpl implements TaskService {
         } catch (DataIntegrityViolationException e) {
             taskRepository.decrementIfNotEmpty(taskId);
             throw new IllegalArgumentException("已抢过该任务");
-        } catch (Exception e) {
-            taskRepository.decrementIfNotEmpty(taskId);
-            throw new RuntimeException("系统异常");
         }
 
         taskRepository.updateStatusIfFull(taskId);
 
-        return toVO(taskRepository.findById(taskId).get());
+        Task updatedTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
+
+        return toVO(updatedTask);
     }
 
     // ================= 完成任务 =================
@@ -157,38 +151,30 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
-        // 必须是参与者
         boolean isParticipant = taskParticipantRepository
                 .existsByTaskIdAndUserId(taskId, userId);
 
         if (!isParticipant) {
-            throw new IllegalArgumentException("无权限完成该任务");
+            throw new IllegalArgumentException("无权限完成任务");
         }
 
-        // 状态机控制
         if (!"IN_PROGRESS".equals(task.getStatus())) {
             throw new IllegalArgumentException("任务状态非法");
         }
 
-        // 原子更新状态（防重复完成）
         int updated = taskRepository.updateStatusToFinishedIfInProgress(taskId);
         if (updated == 0) {
             throw new IllegalArgumentException("任务已完成");
         }
 
         Integer reward = task.getRewardPoints();
-        if (reward == null || reward <= 0) {
-            return;
-        }
+        if (reward == null || reward <= 0) return;
 
         List<TaskParticipant> participants =
                 taskParticipantRepository.findByTaskId(taskId);
 
         for (TaskParticipant p : participants) {
-
-            if (!"JOINED".equals(p.getStatus())) {
-                continue;
-            }
+            if (!"JOINED".equals(p.getStatus())) continue;
 
             p.setStatus("FINISHED");
             taskParticipantRepository.save(p);
@@ -215,7 +201,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
-        if (!userId.equals(task.getPublisherId())) {
+        if (!Objects.equals(task.getPublisherId(), userId)) {
             throw new IllegalArgumentException("无权限取消任务");
         }
 
@@ -235,7 +221,7 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.save(task);
     }
 
-    // ================= 我的历史 =================
+    // ================= ⭐ 关键修复：myTaskHistory =================
     @Override
     public List<TaskVO> myTaskHistory() {
 
@@ -266,9 +252,9 @@ public class TaskServiceImpl implements TaskService {
 
     // ================= 详情 =================
     @Override
-    public TaskVO findById(Long taskId) {
+    public TaskVO findById(Long id) {
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
 
         return toVO(task);
@@ -297,7 +283,7 @@ public class TaskServiceImpl implements TaskService {
         return resp;
     }
 
-    // ================= 工具方法 =================
+    // ================= VO转换（安全版） =================
     private TaskVO toVO(Task task) {
 
         User publisher = userRepository.findById(task.getPublisherId())
@@ -316,44 +302,31 @@ public class TaskServiceImpl implements TaskService {
         vo.setPublisherName(publisher.getUsername());
         vo.setRewardPoints(task.getRewardPoints());
 
-        vo.setCreatedAt(task.getCreatedAt()
-                .atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli());
+        vo.setCreatedAt(task.getCreatedAt() == null ? null :
+                task.getCreatedAt().atZone(ZoneId.systemDefault())
+                        .toInstant().toEpochMilli());
 
-        vo.setDeadline(task.getDeadline()
-                .atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli());
+        vo.setDeadline(task.getDeadline() == null ? null :
+                task.getDeadline().atZone(ZoneId.systemDefault())
+                        .toInstant().toEpochMilli());
 
         return vo;
     }
 
+    // ================= 时间解析 =================
     private LocalDateTime parseDeadline(String deadlineStr) {
 
-        if (deadlineStr == null || deadlineStr.trim().isEmpty()) {
+        if (deadlineStr == null || deadlineStr.isBlank()) {
             return null;
         }
 
-        String s = deadlineStr.trim();
-
-        DateTimeFormatter[] formatters = new DateTimeFormatter[]{
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
-                DateTimeFormatter.ISO_LOCAL_DATE_TIME
-        };
-
-        for (DateTimeFormatter formatter : formatters) {
-            try {
-                return LocalDateTime.parse(s, formatter);
-            } catch (DateTimeParseException ignored) {
-            }
-        }
+        try {
+            return LocalDateTime.parse(deadlineStr);
+        } catch (Exception ignored) {}
 
         try {
-            LocalDate date = LocalDate.parse(s);
-            return date.atStartOfDay();
-        } catch (DateTimeParseException e) {
+            return LocalDate.parse(deadlineStr).atStartOfDay();
+        } catch (Exception e) {
             throw new IllegalArgumentException("deadline格式错误");
         }
     }
