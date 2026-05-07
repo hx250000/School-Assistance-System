@@ -143,7 +143,22 @@ class TaskRepository {
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, null)
                 } else {
-                    callback(false, response.body()?.message ?: "完成任务失败")
+                    var errorMsg = response.body()?.message
+                    // 2. 如果 body 是空的 (HTTP 状态码非 200，如 409)，从 errorBody 解析
+                    if (errorMsg == null) {
+                        val errorJson = response.errorBody()?.string() // 注意：string() 只能调用一次
+                        if (!errorJson.isNullOrBlank()) {
+                            try {
+                                // 使用 JSONObject 简单解析，或者用 Gson 解析成你的 BaseResponse 类
+                                val jsonObject = org.json.JSONObject(errorJson)
+                                errorMsg = jsonObject.optString("message", "完成任务失败")
+                            } catch (e: Exception) {
+                                errorMsg = "解析错误响应失败"
+                            }
+                        }
+                    }
+
+                    callback(false, errorMsg ?: "完成任务失败")
                 }
             }
 

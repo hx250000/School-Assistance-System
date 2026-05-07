@@ -1,6 +1,7 @@
 package com.example.campustask.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -11,10 +12,13 @@ import androidx.fragment.app.Fragment
 import com.example.campustask.R
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
+import com.example.campustask.repository.TaskRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
+
+    val TAG="MyTaskDetailFragment"
 
     companion object {
         private const val ARG_TASK_ID = "task_id"
@@ -90,12 +94,41 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
             parentFragmentManager.popBackStack()
         }
 
-        view.findViewById<Button>(R.id.btn_finish)?.setOnClickListener {
-            Toast.makeText(requireContext(), "任务完成", Toast.LENGTH_SHORT).show()
+        // 完成任务按钮
+        view.findViewById<Button>(R.id.btn_finish)?.setOnClickListener { btn ->
+            btn.isEnabled = false
+            TaskRepository().finishTask(requireContext(), task.taskId) { success, msg ->
+                if (!isAdded) return@finishTask
+                requireActivity().runOnUiThread {
+                    btn.isEnabled = true
+                    if (success) {
+                        Log.d(TAG,msg?:"success")
+                        Toast.makeText(requireContext(), "任务已完成", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.popBackStack()
+                    } else {
+                        Log.d(TAG,msg?:"error")
+                        Toast.makeText(requireContext(), msg ?: "完成任务失败", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
-        view.findViewById<Button>(R.id.btn_cancel)?.setOnClickListener {
-            Toast.makeText(requireContext(), "任务取消", Toast.LENGTH_SHORT).show()
+        // 取消任务按钮
+        view.findViewById<Button>(R.id.btn_cancel)?.setOnClickListener { btn ->
+            btn.isEnabled = false
+            TaskRepository().cancelTask(requireContext(), task.taskId) { success, msg ->
+                if (!isAdded) return@cancelTask
+                requireActivity().runOnUiThread {
+                    btn.isEnabled = true
+                    if (success) {
+                        Toast.makeText(requireContext(), "任务已取消", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.popBackStack()
+                    } else {
+                        Log.d(TAG,msg?:"取消任务失败")
+                        Toast.makeText(requireContext(), msg ?: "取消任务失败", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 

@@ -24,10 +24,10 @@ interface TaskApi {
     @POST("task/grab")
     fun grabTask(@Header("Authorization") token: String, @Body taskGrabRequest: GrabTaskRequest): Call<BaseResponse<Task>>
 
-    @POST("task/finish/{taskId}")
+    @POST("task/{taskId}/finish")
     fun finishTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Void>>
 
-    @POST("task/cancel/{taskId}")
+    @POST("task/{taskId}/cancel")
     fun cancelTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Void>>
 
     @GET("task/history")
