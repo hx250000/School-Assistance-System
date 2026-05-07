@@ -72,6 +72,15 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
         // ===== 任务ID =====
         view.findViewById<TextView>(R.id.tv_task_id)?.text = "任务ID: ${task.taskId}"
 
+        val tvTaskTag=view.findViewById<TextView>(R.id.tv_task_tag)
+        when (task.type) {
+            "GAME" -> tvTaskTag?.text = "🎮 游戏任务"
+            "STUDY" -> tvTaskTag?.text = "📚 学习任务"
+            "LIFE" -> tvTaskTag?.text = "☕ 生活任务"
+            "OTHER" -> tvTaskTag?.text = "🌟 其他任务"
+            else -> tvTaskTag?.text = "📝 任务详情" // 默认保底显示
+        }
+
         // ===== 进度 =====
         val progressText = "${task.currentPeople}/${task.needPeople}"
         view.findViewById<TextView>(R.id.tv_progress)?.text = progressText
@@ -85,9 +94,9 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
         view.findViewById<TextView>(R.id.tv_people)?.text = progressText
         view.findViewById<TextView>(R.id.tv_score)?.text = "+${task.rewardPoints}积分"
 
-        view.findViewById<TextView>(R.id.tv_time)?.text = formatTime(task.deadline)
+        view.findViewById<TextView>(R.id.tv_time)?.text = formatTime(task.createdAt)
 
-        view.findViewById<TextView>(R.id.tv_deadline)?.text = formatTime(task.createdAt)
+        view.findViewById<TextView>(R.id.tv_deadline)?.text = formatTime(task.deadline)
 
         // ===== 按钮 =====
         view.findViewById<ImageView>(R.id.btn_back)?.setOnClickListener {
