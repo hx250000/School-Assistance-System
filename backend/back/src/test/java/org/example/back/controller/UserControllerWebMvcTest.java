@@ -82,9 +82,9 @@ class UserControllerWebMvcTest {
         when(userService.getCurrentUser()).thenThrow(new AuthenticationException("用户未登录"));
 
         mockMvc.perform(get("/api/user/info"))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Authentication error")));
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("用户未登录")));
     }
 }
 

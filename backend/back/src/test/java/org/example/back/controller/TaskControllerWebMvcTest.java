@@ -93,7 +93,7 @@ class TaskControllerWebMvcTest {
     void finish_shouldReturnMessage() throws Exception {
         doNothing().when(taskService).finishTask(1L);
 
-        mockMvc.perform(post("/api/task/finish?taskId=1"))
+        mockMvc.perform(post("/api/task/1/finish"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("任务完成"));
@@ -104,7 +104,7 @@ class TaskControllerWebMvcTest {
         when(taskService.findById(eq(1L))).thenThrow(new ResourceNotFoundException("任务不存在！"));
 
         mockMvc.perform(get("/api/task/task?taskId=1"))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("任务不存在")));
     }
