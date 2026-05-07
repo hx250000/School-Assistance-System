@@ -91,9 +91,9 @@ public class TaskServiceImpl implements TaskService {
             throw new ResourceConflictException("任务不可抢");
         }
       
-        if (task.getPublisherId() != null && task.getPublisherId().equals(userId)) {
-            throw new ResourceConflictException("不能抢自己发布的任务");
-        }
+//        if (task.getPublisherId() != null && task.getPublisherId().equals(userId)) {
+//            throw new ResourceConflictException("不能抢自己发布的任务");
+//        }
 
         if (taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId)) {
             throw new ResourceConflictException("已经抢过该任务");
@@ -135,6 +135,8 @@ public class TaskServiceImpl implements TaskService {
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
         }
+
+        log.info("finishtask, taskId="+taskId+", userId="+userId);
 
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
@@ -183,6 +185,8 @@ public class TaskServiceImpl implements TaskService {
 
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
+
+        log.info("finishtask, taskId="+taskId+", userId="+userId);
 
         if (!userId.equals(task.getPublisherId())) {
             throw new ResourceConflictException("仅发布者可取消该任务");

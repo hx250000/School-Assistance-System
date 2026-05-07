@@ -36,14 +36,14 @@ public class TaskController {
         return ApiResponse.success(taskGrabbed);
     }
 
-    @PostMapping("/finish")
-    public ApiResponse<String> finish(@RequestParam Long taskId) {
+    @PostMapping("/{taskId}/finish")
+    public ApiResponse<String> finish(@PathVariable Long taskId) {
         taskService.finishTask(taskId);
         return ApiResponse.success("任务完成");
     }
 
-    @PostMapping("/cancel")
-    public ApiResponse<String> cancel(@RequestParam Long taskId) {
+    @PostMapping("/{taskId}/cancel")
+    public ApiResponse<String> cancel(@PathVariable Long taskId) {
         taskService.cancelTask(taskId);
         return ApiResponse.success("任务已取消");
     }
