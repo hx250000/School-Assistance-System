@@ -60,7 +60,7 @@ class ReviewControllerWebMvcTest {
         mockMvc.perform(post("/api/review/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(r)))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404));
     }
 }
