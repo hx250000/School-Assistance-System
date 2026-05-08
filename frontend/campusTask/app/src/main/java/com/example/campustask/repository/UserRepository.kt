@@ -1,6 +1,7 @@
 package com.example.campustask.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.campustask.model.*
 import com.example.campustask.model.request.LoginRequest
 import com.example.campustask.model.request.RegisterRequest
@@ -15,6 +16,7 @@ import retrofit2.Response
 
 class UserRepository {
 
+    private val TAG="UserRepository"
 
     // 登录接口
     fun login(phone: String, password: String, callback: (Boolean, String?) -> Unit) {
@@ -29,7 +31,8 @@ class UserRepository {
             }
 
             override fun onFailure(call: Call<BaseResponse<LoginResponse>>, t: Throwable) {
-                callback(false, t.message)
+                Log.d(TAG,t.message?:"网络连接失败")
+                callback(false, "网络异常，请稍后再试")
             }
         })
     }
@@ -71,7 +74,8 @@ class UserRepository {
             }
 
             override fun onFailure(call: Call<BaseResponse<UserInfo>>, t: Throwable) {
-                callback(false, null, t.message)
+                Log.d(TAG,t.message?:"网络连接失败")
+                callback(false, null, "网络异常，请稍后再试")
             }
         })
     }

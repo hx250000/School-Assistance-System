@@ -31,9 +31,22 @@ class ShopAdapter(private val list: List<ShopItem>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = list[position]
-        holder.title.text = item.title
-        holder.points.text = "${item.points}积分"
-        holder.img.setImageResource(item.imageRes)
+        holder.title.text = item.name
+        holder.points.text = "${item.price}积分"
+        
+        // 根据图片名称动态获取资源ID
+        val context = holder.itemView.context
+        val resourceId = context.resources.getIdentifier(
+            item.imageRes,
+            "drawable",
+            context.packageName
+        )
+        if (resourceId != 0) {
+            holder.img.setImageResource(resourceId)
+        } else {
+            // 如果找不到对应的图片资源，使用默认图片
+            holder.img.setImageResource(R.drawable.ic_avatar)
+        }
 
         holder.btn.setOnClickListener {
             Toast.makeText(holder.itemView.context, "兑换成功！", Toast.LENGTH_SHORT).show()

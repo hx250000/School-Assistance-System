@@ -15,19 +15,19 @@ class ShopFragmentTest {
     @Test
     fun shopItemTitleShouldNotBeEmpty() {
         val item = getMockShopList()[0]
-        assertTrue(item.title.isNotEmpty())
+        assertTrue(item.name.isNotEmpty())
     }
 
     @Test
     fun shopItemPointsShouldBePositive() {
         val item = getMockShopList()[0]
-        assertTrue(item.points > 0)
+        assertTrue(item.price > 0)
     }
 
     @Test
     fun negativePoints_shouldBeDetected() {
-        val item = ShopItem("异常商品", -100, 0)
-        assertTrue(item.points < 0)
+        val item = ShopItem(999,"异常商品", -100, 0,"","")
+        assertTrue(item.price < 0)
     }
 
     @Test
@@ -75,10 +75,10 @@ class ShopFragmentTest {
 
     private fun getMockShopList(): List<ShopItem> {
         return listOf(
-            ShopItem("星巴克咖啡券", 200, 1),
-            ShopItem("图书馆座位卡", 50, 2),
-            ShopItem("奶茶券", 100, 3),
-            ShopItem("校园代跑券", 80, 4)
+            ShopItem(1,"星巴克咖啡券", 200, 100,"星巴克咖啡券","sample_coffee"),
+            ShopItem(2,"图书馆座位卡", 50, 100,"图书馆座位卡","sample_book"),
+            ShopItem(3,"奶茶券", 100,100,"奶茶券", "sample_drink"),
+            ShopItem(4,"校园代跑券", 80, 100,"校园跑","sample_run")
         )
     }
 }

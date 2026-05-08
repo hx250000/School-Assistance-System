@@ -70,6 +70,7 @@ public class ShopServiceImpl implements ShopService {
         log.setUserId(userId);
         log.setChangeAmount(-item.getPrice());
         log.setTitle("兑换商品");
+        log.setDescription("兑换商品"+item.getId());
         pointsLogRepository.save(log);
 
         // 订单
@@ -92,6 +93,7 @@ public class ShopServiceImpl implements ShopService {
         newItem.setPrice(request.getPrice());
         newItem.setStock(request.getStock());
         newItem.setDescription(request.getDescription());
+        newItem.setImageRes(request.getImageRes());
 
         ShopItem save=shopItemRepository.save(newItem);
         return save.getId();
