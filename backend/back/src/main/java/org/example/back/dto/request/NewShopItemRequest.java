@@ -9,4 +9,5 @@ public class NewShopItemRequest {
     private Integer stock;
 
     private String description;
+    private String imageRes;
 }

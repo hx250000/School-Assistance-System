@@ -16,7 +16,7 @@ public class PointsController {
     @Autowired
     private PointsService pointsService;
 
-    @GetMapping("/info")
+    @GetMapping("/mypoints")
     public ApiResponse<Integer> getPoints() {
         return ApiResponse.success(pointsService.getUserPoints());
     }

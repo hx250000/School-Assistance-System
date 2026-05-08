@@ -30,4 +30,9 @@ public class ShopController {
     public ApiResponse<Long> addItem(@RequestBody NewShopItemRequest request) {
         return ApiResponse.success(shopService.addItem(request));
     }
+
+    @GetMapping("/exchange/count")
+    public ApiResponse<Long> count() {
+        return ApiResponse.success(shopService.exchangeCount());
+    }
 }

@@ -40,7 +40,7 @@ public class PointsServiceImpl implements PointsService {
         return user.getPoints();
     }
 
-    // ================= 安全加分（核心修复） =================
+    // ================= 安全加分 =================
     @Override
     @Transactional
     public void addPoints(Long userId,

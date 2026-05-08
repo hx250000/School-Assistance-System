@@ -17,4 +17,6 @@ public class ShopItem {
     private Integer stock;
 
     private String description;
+
+    private String imageRes;
 }
