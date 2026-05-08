@@ -11,7 +11,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 
 interface PointApi {
-    @GET("points/info")
+    @GET("points/mypoints")
     fun getMyPoints(@Header("Authorization") token: String): Call<BaseResponse<Int>>
 
     @GET("points/history")

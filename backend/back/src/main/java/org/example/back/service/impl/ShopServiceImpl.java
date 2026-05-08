@@ -13,6 +13,8 @@ import org.example.back.repository.ShopItemRepository;
 import org.example.back.repository.ShopRepository;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.ShopService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import java.util.List;
 @Service
 public class ShopServiceImpl implements ShopService {
 
+    private static final Logger log = LoggerFactory.getLogger(ShopServiceImpl.class);
     @Autowired
     private ShopItemRepository shopItemRepository;
 
@@ -99,5 +102,17 @@ public class ShopServiceImpl implements ShopService {
         return save.getId();
     }
 
-
+    @Override
+    public Long exchangeCount(){
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
+        String title="兑换商品";
+        long count=pointsLogRepository.countByUserIdAndTitle(userId,title);
+        log.info("exchangeCount: user={}, count={}", user.getId(), count);
+        return count;
+    }
 }

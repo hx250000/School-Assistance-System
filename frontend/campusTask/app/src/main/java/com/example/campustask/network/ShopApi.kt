@@ -12,4 +12,7 @@ interface ShopApi {
 
     @POST("shop/exchange")
     fun exchange(@Header("Authorization") token: String, @Query("itemId") itemId: Long): Call<BaseResponse<Long>>
+
+    @GET("shop/exchange/count")
+    fun getMyExchangeCount(@Header("Authorization") token: String): Call<BaseResponse<Int>>
 }

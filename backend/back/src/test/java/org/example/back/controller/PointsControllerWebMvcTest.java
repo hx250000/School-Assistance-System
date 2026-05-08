@@ -33,7 +33,7 @@ class PointsControllerWebMvcTest {
     void info_shouldReturnPoints() throws Exception {
         when(pointsService.getUserPoints()).thenReturn(123);
 
-        mockMvc.perform(get("/api/points/info"))
+        mockMvc.perform(get("/api/points/mypoints"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(123));

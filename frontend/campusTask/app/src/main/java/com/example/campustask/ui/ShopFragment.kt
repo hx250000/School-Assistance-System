@@ -1,7 +1,6 @@
 package com.example.campustask.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.model.ShopItem
 import com.example.campustask.adapter.ShopAdapter
+import com.example.campustask.repository.PointRepository
 import com.example.campustask.repository.ShopRepository
 
 class ShopFragment : Fragment() {
@@ -20,8 +20,9 @@ class ShopFragment : Fragment() {
     private  val TAG="ShopFragment"
     private lateinit var recyclerView: RecyclerView
     private lateinit var shopRepository: ShopRepository
+    private lateinit var pointRepository: PointRepository
     private lateinit var tvMypoints: TextView
-    private lateinit var tvExchangedCount: TextView
+    private lateinit var tvExchangeCount: TextView
 
     // Mock数据，保留作为备用
     private val mockList = listOf(
@@ -39,17 +40,18 @@ class ShopFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_shop, container, false)
 
         tvMypoints = view.findViewById(R.id.mypoints)
-        tvExchangedCount = view.findViewById(R.id.exchanged)
+        tvExchangeCount = view.findViewById(R.id.exchanged)
         recyclerView = view.findViewById(R.id.recyclerShop)
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
         shopRepository = ShopRepository()
+        pointRepository= PointRepository()
 
-        // 初始显示Mock数据
-
-        // 从后端获取商品数据
+        // 从后端获取数据
         fetchShopItems()
+        fetchMyPoints()
+        fetchMyExchangeCount()
 
         return view
     }
@@ -65,4 +67,24 @@ class ShopFragment : Fragment() {
             }
         }
     }
+    private fun fetchMyPoints(){
+        pointRepository.getMyCurrentPoints(requireContext()) { success, points, error ->
+            if (success && points != null) {
+                tvMypoints.text = "$points"
+            } else {
+                Toast.makeText(requireContext(), "无法获取积分信息", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun fetchMyExchangeCount(){
+        shopRepository.getMyExchangeCount(requireContext()) { success, counts, error ->
+            if (success && counts != null) {
+                tvExchangeCount.text = "${counts}次"
+            } else {
+                Toast.makeText(requireContext(), "无法获取兑换次数信息", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }
