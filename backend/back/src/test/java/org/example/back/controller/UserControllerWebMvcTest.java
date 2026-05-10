@@ -1,6 +1,7 @@
 package org.example.back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.back.config.SecurityConfig;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
 import org.example.back.dto.response.LoginResponse;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class})
 class UserControllerWebMvcTest {
 
     @Autowired

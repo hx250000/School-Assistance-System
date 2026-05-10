@@ -1,5 +1,6 @@
 package org.example.back.controller;
 
+import org.example.back.config.SecurityConfig;
 import org.example.back.dto.response.PointsHistoryResponse;
 import org.example.back.dto.response.UserPointsHistory;
 import org.example.back.exception.GlobalExceptionHandler;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PointsController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class})
 class PointsControllerWebMvcTest {
 
     @Autowired

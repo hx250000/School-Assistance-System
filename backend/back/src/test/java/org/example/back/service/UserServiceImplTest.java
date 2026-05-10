@@ -18,7 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.DigestUtils;
 
 import java.util.List;
@@ -37,6 +39,9 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl userService;
+
+    @Spy
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @AfterEach
     void tearDown() {
@@ -78,10 +83,10 @@ class UserServiceImplTest {
 
         assertThat(toSave.getUsername()).isEqualTo("user123");
         assertThat(toSave.getPhone()).isEqualTo("13812345678");
-        // 验证密码是否经过了 MD5 加密
-        assertThat(toSave.getPassword()).isEqualTo(md5("password123"));
+        assertThat(passwordEncoder.matches("password123", toSave.getPassword())).isTrue();
         assertThat(toSave.getPoints()).isEqualTo(0);
         assertThat(toSave.getCreditScore()).isEqualTo(100);
+        assertThat(toSave.getPswencp()).isEqualTo("bcrypt");
     }
 
     @Test
@@ -130,7 +135,8 @@ class UserServiceImplTest {
         req.setPassword("wrong_password");
 
         User user = new User();
-        user.setPassword(md5("correct_password")); // 数据库存的是加密后的
+        user.setPassword(passwordEncoder.encode("correct_password"));
+        user.setPswencp("bcrypt");
         when(userRepository.findByPhone("13800000000")).thenReturn(user);
 
         assertThatThrownBy(() -> userService.login(req))
@@ -147,7 +153,8 @@ class UserServiceImplTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("u1");
-        user.setPassword(md5("p123456")); // 模拟数据库中的加密密码
+        user.setPassword(passwordEncoder.encode("p123456"));
+        user.setPswencp("bcrypt");
         when(userRepository.findByPhone("13800000000")).thenReturn(user);
 
         LoginResponse resp = userService.login(req);
