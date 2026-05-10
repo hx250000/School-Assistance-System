@@ -1,6 +1,7 @@
 package org.example.back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.back.config.SecurityConfig;
 import org.example.back.entity.Review;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.exception.ResourceNotFoundException;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ReviewController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class})
 class ReviewControllerWebMvcTest {
 
     @Autowired

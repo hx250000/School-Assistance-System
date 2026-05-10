@@ -1,6 +1,7 @@
 package org.example.back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.back.config.SecurityConfig;
 import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.ShopService;
@@ -22,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ShopController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class})
 class ShopControllerWebMvcTest {
 
     @Autowired

@@ -10,6 +10,7 @@ import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.model.response.HomeStatResp
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
+import com.example.campustask.utils.ResponseHandler
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,10 +47,19 @@ class TaskRepository {
 
         taskApi.createTask(header, request).enqueue(object : Callback<BaseResponse<Long>> {
             override fun onResponse(call: Call<BaseResponse<Long>>, response: Response<BaseResponse<Long>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "创建任务失败")
+                    }
                 } else {
-                    callback(false, null, response.body()?.message ?: "创建任务失败")
+                    callback(false, null, body?.message ?: "创建任务失败")
                 }
             }
 
@@ -70,10 +80,19 @@ class TaskRepository {
         taskApi.listTasks(header, page, size).enqueue(object : Callback<BaseResponse<List<Task>>> {
             override fun onResponse(call: Call<BaseResponse<List<Task>>>, response: Response<BaseResponse<List<Task>>>) {
                 Log.d(TAG,"listTasks.response: "+response.toString())
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "获取任务列表失败")
+                    }
                 } else {
-                    callback(false, null, response.body()?.message ?: "获取任务列表失败")
+                    callback(false, null, body?.message ?: "获取任务列表失败")
                 }
             }
 
@@ -117,10 +136,19 @@ class TaskRepository {
 
         taskApi.grabTask(header, taskGrabRequest).enqueue(object : Callback<BaseResponse<Task>> {
             override fun onResponse(call: Call<BaseResponse<Task>>, response: Response<BaseResponse<Task>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "抢任务失败")
+                    }
                 } else {
-                    callback(false, null, response.body()?.message ?: "抢任务失败")
+                    callback(false, null, body?.message ?: "抢任务失败")
                 }
             }
 
@@ -140,25 +168,19 @@ class TaskRepository {
 
         taskApi.finishTask(header, taskId).enqueue(object : Callback<BaseResponse<Void>> {
             override fun onResponse(call: Call<BaseResponse<Void>>, response: Response<BaseResponse<Void>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, null)
+                    } else {
+                        callback(false, body.message ?: "完成任务失败")
+                    }
                 } else {
-                    var errorMsg = response.body()?.message
-                    // 2. 如果 body 是空的 (HTTP 状态码非 200，如 409)，从 errorBody 解析
-//                    if (errorMsg == null) {
-//                        val errorJson = response.errorBody()?.string() // 注意：string() 只能调用一次
-//                        if (!errorJson.isNullOrBlank()) {
-//                            try {
-//                                // 使用 JSONObject 简单解析，或者用 Gson 解析成你的 BaseResponse 类
-//                                val jsonObject = org.json.JSONObject(errorJson)
-//                                errorMsg = jsonObject.optString("message", "完成任务失败")
-//                            } catch (e: Exception) {
-//                                errorMsg = "解析错误响应失败"
-//                            }
-//                        }
-//                    }
-
-                    callback(false, errorMsg ?: "完成任务失败")
+                    callback(false, body?.message ?: "完成任务失败")
                 }
             }
 
@@ -178,10 +200,19 @@ class TaskRepository {
 
         taskApi.cancelTask(header, taskId).enqueue(object : Callback<BaseResponse<Void>> {
             override fun onResponse(call: Call<BaseResponse<Void>>, response: Response<BaseResponse<Void>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, null)
+                    } else {
+                        callback(false, body.message ?: "取消任务失败")
+                    }
                 } else {
-                    callback(false, response.body()?.message ?: "取消任务失败")
+                    callback(false, body?.message ?: "取消任务失败")
                 }
             }
 
@@ -201,10 +232,19 @@ class TaskRepository {
 
         taskApi.getMyTaskHistory(header).enqueue(object : Callback<BaseResponse<List<Task>>> {
             override fun onResponse(call: Call<BaseResponse<List<Task>>>, response: Response<BaseResponse<List<Task>>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "获取任务历史失败")
+                    }
                 } else {
-                    callback(false, null, response.body()?.message ?: "获取任务历史失败")
+                    callback(false, null, body?.message ?: "获取任务历史失败")
                 }
             }
 
@@ -224,10 +264,19 @@ class TaskRepository {
 
         taskApi.searchTasks(header, keywords).enqueue(object : Callback<BaseResponse<List<Task>>> {
             override fun onResponse(call: Call<BaseResponse<List<Task>>>, response: Response<BaseResponse<List<Task>>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "搜索任务失败")
+                    }
                 } else {
-                    callback(false, null, response.body()?.message ?: "搜索任务失败")
+                    callback(false, null, body?.message ?: "搜索任务失败")
                 }
             }
 
@@ -247,10 +296,19 @@ class TaskRepository {
 
         taskApi.getTaskById(header, taskId).enqueue(object : Callback<BaseResponse<Task>> {
             override fun onResponse(call: Call<BaseResponse<Task>>, response: Response<BaseResponse<Task>>) {
-                if (response.isSuccessful && response.body()?.code == 200) {
-                    callback(true, response.body()?.data, null)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "获取任务失败")
+                    }
                 } else {
-                    callback(false, null, response.body()?.message ?: "获取任务失败")
+                    callback(false, null, body?.message ?: "获取任务失败")
                 }
             }
 

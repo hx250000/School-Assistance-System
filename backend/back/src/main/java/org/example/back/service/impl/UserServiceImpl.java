@@ -17,13 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 用户注册
@@ -54,6 +58,8 @@ public class UserServiceImpl implements UserService {
         user.setPoints(0);
         user.setCreditScore(100);
 
+        user.setPswencp("bcrypt");//BCrypt
+
         // 保存到数据库（自动生成ID）
         User savedUser = userRepository.save(user);
 
@@ -71,10 +77,25 @@ public class UserServiceImpl implements UserService {
         // 改成根据手机号或用户名都可以登录
 //        User user = userRepository.findByUsernameOrPhone(request.getPhone(), request.getUsername());
         User user=userRepository.findByPhone(request.getPhone());
-        log.info("user login: " + request);
+        log.info("user login: " + request.getPhone());
 
-        if (user == null || !user.getPassword().equals(encryptPassword(request.getPassword()))) {
+        if (user == null ) {
             throw new AuthenticationException("用户名或密码错误!");
+        }
+
+        if (user.getPswencp()!=null&&user.getPswencp().equals("bcrypt")){
+            if(!matchesPassword(request.getPassword(), user.getPassword())){
+                throw new AuthenticationException("用户名或密码错误!");
+            }
+        }
+        else{//MD5
+            if(!matchesPasswordWithMd5(request.getPassword(), user.getPassword())){
+                throw new AuthenticationException("用户名或密码错误!");
+            }
+            log.info("using old encrypt, changing to new encrypt method:");
+            user.setPswencp("bcrypt");
+            user.setPassword(encryptPassword(request.getPassword()));
+            userRepository.save(user);
         }
 
         // 生成JWT
@@ -123,8 +144,17 @@ public class UserServiceImpl implements UserService {
     }
 
     public String encryptPassword(String password) {
+//        return org.springframework.util.DigestUtils.md5DigestAsHex(password.getBytes());
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean matchesPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public boolean matchesPasswordWithMd5(String rawPassword, String encodedPassword) {
         // 使用MD5进行加密（注意：MD5不适合用于生产环境中的密码存储）
-        return org.springframework.util.DigestUtils.md5DigestAsHex(password.getBytes());
+        return org.springframework.util.DigestUtils.md5DigestAsHex(rawPassword.getBytes()).equals(encodedPassword);
     }
 
     public void checkInformation(RegisterRequest userRegister){
@@ -132,7 +162,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceConflictException("用户信息不能为空！");
         }
 
-        log.info(userRegister.toString());
+        log.info("user resister: "+userRegister.getPhone());
 
         // 1. 用户名校验
         String username = userRegister.getUsername();

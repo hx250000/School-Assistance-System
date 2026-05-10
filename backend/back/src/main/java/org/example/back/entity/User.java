@@ -43,6 +43,9 @@ public class User {
     @Schema(description = "信用分", example = "90")
     private Integer creditScore;
 
+    @Column
+    private String pswencp;
+
     @Column(nullable = false)
     @Schema(description = "等级", example = "1")
     private Integer level;
@@ -58,5 +61,6 @@ public class User {
         if (this.points == null) this.points = 0;
         if (this.creditScore == null) this.creditScore = 100;
         if (this.level == null) this.level = 1;
+        if (this.pswencp == null) this.pswencp = "md5";
     }
 }

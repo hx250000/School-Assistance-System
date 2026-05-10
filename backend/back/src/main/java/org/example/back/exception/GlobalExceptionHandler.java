@@ -1,5 +1,6 @@
 package org.example.back.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.back.common.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -65,15 +66,18 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.OK)
                 .body(ApiResponse.error(401, ex.getMessage()));
     }
-//    /**
-//     * 处理资源冲突异常
-//     */
-//    @ExceptionHandler(ResourceConflictException.class)
-//    public ResponseEntity<ApiResponse<Void>> handleBusinessException(ResourceConflictException ex) {
-//        return ResponseEntity
-//                .status(HttpStatus.CONFLICT)
-//                .body(ApiResponse.error(409, ex.getMessage()));
-//    }
+
+    /**
+     * 处理JWT过期异常
+     */
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResponse<Void>> handleExpiredJwtException(ExpiredJwtException ex) {
+        log.info("ExpiredJwtException: {}", ex.toString());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(401,"登录状态失效，请重新登录"));
+    }
+
 
 
     /**
@@ -81,7 +85,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
-        log.info("Exception: {}", ex.getMessage());
+        log.info("Exception: {}", ex.toString());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.error(500, "服务器异常，请稍后再试" ));
