@@ -10,6 +10,7 @@ import com.example.campustask.model.response.LoginResponse
 import com.example.campustask.model.response.RegisterResponse
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
+import com.example.campustask.utils.ResponseHandler
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -66,8 +67,16 @@ class UserRepository {
         RetrofitClient.userApi.getMyInfo(header).enqueue(object : Callback<BaseResponse<UserInfo>> {
             override fun onResponse(call: Call<BaseResponse<UserInfo>>, response: Response<BaseResponse<UserInfo>>) {
                 val body = response.body()
-                if (response.isSuccessful && body?.code == 200) {
-                    callback(true, body.data, null) // 成功返回数据
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "用户信息获取失败")
+                    }
                 } else {
                     callback(false, null, body?.message ?: "用户信息获取失败")
                 }

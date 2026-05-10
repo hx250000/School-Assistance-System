@@ -7,6 +7,7 @@ import com.example.campustask.model.PointRecord
 import com.example.campustask.model.response.PointHistoryResponse
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
+import com.example.campustask.utils.ResponseHandler
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,10 +27,18 @@ class PointRepository {
         RetrofitClient.pointApi.getMyPointsHistory(header).enqueue(object : Callback<BaseResponse<PointHistoryResponse>> {
             override fun onResponse(call: Call<BaseResponse<PointHistoryResponse>>, response: Response<BaseResponse<PointHistoryResponse>>) {
                 val body = response.body()
-                if (response.isSuccessful && body?.code == 200) {
-                    callback(true, body.data, null) // 成功返回数据
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "获取积分记录失败")
+                    }
                 } else {
-                    callback(false, null, body?.message ?: "用户信息获取失败")
+                    callback(false, null, body?.message ?: "获取积分记录失败")
                 }
             }
 
@@ -50,10 +59,18 @@ class PointRepository {
         RetrofitClient.pointApi.getMyPoints(header).enqueue(object : Callback<BaseResponse<Int>> {
             override fun onResponse(call: Call<BaseResponse<Int>>, response: Response<BaseResponse<Int>>) {
                 val body = response.body()
-                if (response.isSuccessful && body?.code == 200) {
-                    callback(true, body.data, null) // 成功返回数据
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "获取积分失败")
+                    }
                 } else {
-                    callback(false, null, body?.message ?: "用户信息获取失败")
+                    callback(false, null, body?.message ?: "获取积分失败")
                 }
             }
 

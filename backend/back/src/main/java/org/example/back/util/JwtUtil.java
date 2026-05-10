@@ -9,7 +9,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String SECRET = "yourverylongsecretkeyshouldbeatleast32bytes";
-    private static final long EXPIRATION_TIME = 3600_000 * 24; // 24小时
+    private static final long EXPIRATION_TIME = 3600_000 * 24 ; // 24小时
 
     public static String generateToken(Long userId) {
         return Jwts.builder()
