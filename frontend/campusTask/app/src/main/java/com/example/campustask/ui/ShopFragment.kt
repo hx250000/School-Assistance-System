@@ -59,11 +59,27 @@ class ShopFragment : Fragment() {
     private fun fetchShopItems() {
         shopRepository.getShopItems { success, items, error ->
             if (success && items != null && items.isNotEmpty()) {
-                recyclerView.adapter = ShopAdapter(items)
+                recyclerView.adapter = ShopAdapter(items, object : ShopAdapter.OnExchangeListener {
+                    override fun onExchangeSuccess() {
+                        fetchMyPoints()
+                        fetchMyExchangeCount()
+                    }
+
+                    override fun onExchangeFailure(message: String) {
+                    }
+                })
             } else {
                 // 网络请求失败，继续使用Mock数据
                 Toast.makeText(requireContext(), "网络连接失败，使用默认数据", Toast.LENGTH_SHORT).show()
-                recyclerView.adapter = ShopAdapter(mockList)
+                recyclerView.adapter = ShopAdapter(mockList, object : ShopAdapter.OnExchangeListener {
+                    override fun onExchangeSuccess() {
+                        fetchMyPoints()
+                        fetchMyExchangeCount()
+                    }
+
+                    override fun onExchangeFailure(message: String) {
+                    }
+                })
             }
         }
     }

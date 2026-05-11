@@ -3,6 +3,7 @@ package org.example.back.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.back.config.SecurityConfig;
 import org.example.back.dto.request.NewShopItemRequest;
+import org.example.back.dto.request.ShopExchangeRequest;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.ShopService;
 import org.junit.jupiter.api.Test;
@@ -47,9 +48,13 @@ class ShopControllerWebMvcTest {
 
     @Test
     void exchange_shouldReturnOrderId() throws Exception {
+        ShopExchangeRequest req=new ShopExchangeRequest();
+        req.setItemId(1L);
         when(shopService.exchange(1L)).thenReturn(99L);
 
-        mockMvc.perform(post("/api/shop/exchange?itemId=1"))
+        mockMvc.perform(post("/api/shop/exchange")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(99));

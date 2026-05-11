@@ -3,6 +3,7 @@ package com.example.campustask.repository
 import android.content.Context
 import android.util.Log
 import com.example.campustask.model.ShopItem
+import com.example.campustask.model.request.ShopExchangeRequest
 import com.example.campustask.model.response.BaseResponse
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
@@ -42,7 +43,7 @@ class ShopRepository {
             return
         }
 
-        shopApi.exchange(header, itemId).enqueue(object : Callback<BaseResponse<Long>> {
+        shopApi.exchange(header, ShopExchangeRequest(itemId)).enqueue(object : Callback<BaseResponse<Long>> {
             override fun onResponse(call: Call<BaseResponse<Long>>, response: Response<BaseResponse<Long>>) {
                 val body = response.body()
                 if (response.isSuccessful && body != null) {

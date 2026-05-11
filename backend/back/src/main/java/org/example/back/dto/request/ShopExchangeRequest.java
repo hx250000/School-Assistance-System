@@ -1,2 +1,8 @@
-package org.example.back.dto.request;public class ShopExchangeRequest {
+package org.example.back.dto.request;
+
+import lombok.Data;
+
+@Data
+public class ShopExchangeRequest {
+    private Long itemId;
 }
