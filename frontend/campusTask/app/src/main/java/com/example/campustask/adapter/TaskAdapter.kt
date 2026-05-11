@@ -37,7 +37,7 @@ class TaskAdapter(
         // ===== 标题 =====
         holder.title.text = task.title
 
-        // ===== 人数（核心改造🔥）=====
+        // ===== 人数 =====
         holder.people.text = "${task.currentPeople}/${task.needPeople}人"
 
         // ===== 积分 =====

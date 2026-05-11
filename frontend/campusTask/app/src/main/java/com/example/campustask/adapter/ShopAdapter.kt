@@ -1,5 +1,6 @@
 package com.example.campustask.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +11,21 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
 import com.example.campustask.model.ShopItem
+import com.example.campustask.repository.ShopRepository
 
-class ShopAdapter(private val list: List<ShopItem>) :
+class ShopAdapter(
+    private val list: List<ShopItem>,
+    private val onExchangeListener: OnExchangeListener? = null
+) :
     RecyclerView.Adapter<ShopAdapter.ViewHolder>() {
+
+    interface OnExchangeListener {
+        fun onExchangeSuccess()
+        fun onExchangeFailure(message: String)
+    }
+
+    private lateinit var shopRepository: ShopRepository
+    private val TAG="ShopAdapter"
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val img = view.findViewById<ImageView>(R.id.imgProduct)
@@ -24,6 +37,7 @@ class ShopAdapter(private val list: List<ShopItem>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_shop, parent, false)
+        shopRepository=ShopRepository()
         return ViewHolder(view)
     }
 
@@ -49,7 +63,23 @@ class ShopAdapter(private val list: List<ShopItem>) :
         }
 
         holder.btn.setOnClickListener {
-            Toast.makeText(holder.itemView.context, "兑换成功！", Toast.LENGTH_SHORT).show()
+            holder.btn.isEnabled = false
+            holder.btn.alpha = 0.5f
+            Log.d(TAG, "btn enabled = ${holder.btn.isEnabled}")
+            shopRepository.exchangeItem(context, item.id) { success, _, error ->
+                holder.btn.post {
+                    holder.btn.isEnabled = true
+                    holder.btn.alpha=1f
+                    Log.d(TAG, "btn enabled = ${holder.btn.isEnabled}")
+                    if (success) {
+                        Toast.makeText(holder.itemView.context, "兑换成功！", Toast.LENGTH_SHORT).show()
+                        onExchangeListener?.onExchangeSuccess()
+                    } else {
+                        Toast.makeText(holder.itemView.context, error ?: "兑换失败", Toast.LENGTH_SHORT).show()
+                        onExchangeListener?.onExchangeFailure(error ?: "兑换失败")
+                    }
+                }
+            }
         }
     }
 }
