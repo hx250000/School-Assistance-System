@@ -116,6 +116,61 @@ class UserServiceImplTest {
     }
 
     @Test
+    void register_withEmptyUsername_shouldThrowException() {
+        RegisterRequest req = new RegisterRequest();
+        req.setUsername("");
+        req.setPhone("13812345678");
+        req.setPassword("password123");
+
+        assertThatThrownBy(() -> userService.register(req))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("用户名不能为空");
+    }
+
+    @Test
+    void register_withInvalidUsername_shouldThrowException() {
+        RegisterRequest req = new RegisterRequest();
+        req.setUsername("user@name"); // 包含非法字符
+        req.setPhone("13812345678");
+        req.setPassword("password123");
+
+        assertThatThrownBy(() -> userService.register(req))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("用户名只能包含字母、数字和下划线");
+    }
+
+    @Test
+    void register_withShortPassword_shouldThrowException() {
+        RegisterRequest req = new RegisterRequest();
+        req.setUsername("user123");
+        req.setPhone("13812345678");
+        req.setPassword("123"); // 太短
+
+        assertThatThrownBy(() -> userService.register(req))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("密码长度不能少于 6 位");
+    }
+
+    @Test
+    void login_withMd5Password_shouldConvertToBcrypt() {
+        LoginRequest req = new LoginRequest();
+        req.setPhone("13800000000");
+        req.setPassword("p123456");
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("u1");
+        user.setPassword(DigestUtils.md5DigestAsHex("p123456".getBytes()));
+        user.setPswencp("md5");
+        when(userRepository.findByPhone("13800000000")).thenReturn(user);
+
+        LoginResponse resp = userService.login(req);
+
+        assertThat(resp.getUserId()).isEqualTo(1L);
+        verify(userRepository).save(argThat(u -> "bcrypt".equals(u.getPswencp())));
+    }
+
+    @Test
     void login_whenUserNotFound_shouldThrowAuthenticationException() {
         LoginRequest req = new LoginRequest();
         req.setPhone("13800000000");

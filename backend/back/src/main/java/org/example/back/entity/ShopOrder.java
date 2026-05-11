@@ -18,6 +18,12 @@ public class ShopOrder {
     @Column(name = "item_id", nullable = false)
     private Long itemId;
 
+    @Column(name="item_price",nullable = false)
+    private Long price;
+
+    @Column(name="item_name",nullable = false)
+    private String itemName;
+
     private String status; // PAID / FINISHED
 
     @Column(name = "created_at", nullable = false, updatable = false)
