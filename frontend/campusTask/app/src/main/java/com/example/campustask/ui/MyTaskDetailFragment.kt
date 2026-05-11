@@ -103,6 +103,10 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
             parentFragmentManager.popBackStack()
         }
 
+        if (task.status == "FINISHED") {
+            view.findViewById<Button>(R.id.btn_finish)?.visibility = View.GONE
+            view.findViewById<Button>(R.id.btn_cancel)?.visibility = View.GONE
+        }
         // 完成任务按钮
         view.findViewById<Button>(R.id.btn_finish)?.setOnClickListener { btn ->
             btn.isEnabled = false
