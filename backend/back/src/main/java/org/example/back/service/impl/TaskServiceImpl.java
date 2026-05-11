@@ -95,9 +95,9 @@ public class TaskServiceImpl implements TaskService {
 //            throw new ResourceConflictException("不能抢自己发布的任务");
 //        }
 
-        if (taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId)) {
-            throw new ResourceConflictException("已经抢过该任务");
-        }
+//        if (taskParticipantRepository.existsByTaskIdAndUserId(taskId, userId)) {
+//            throw new ResourceConflictException("你已经抢过该任务！");
+//        }
 
         int updated = taskRepository.incrementIfNotFull(taskId);
         if (updated == 0) {
@@ -105,6 +105,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
+
             TaskParticipant p = TaskParticipant.builder()
                     .taskId(taskId)
                     .userId(userId)
@@ -112,13 +113,12 @@ public class TaskServiceImpl implements TaskService {
                     .build();
 
             taskParticipantRepository.save(p);
+            log.info("task participant: " + p);
 
         } catch (DataIntegrityViolationException e){
-            taskRepository.decrementIfNotEmpty(taskId);
+            //taskRepository.decrementIfNotEmpty(taskId);
+            log.info("Already have task participant: " + task);
             throw new ResourceConflictException("你已经抢过该任务！");
-        } catch (Exception e) {
-            taskRepository.decrementIfNotEmpty(taskId);
-            throw new RuntimeException("系统异常，请稍后再试");
         }
 
         taskRepository.updateStatusIfFull(taskId);

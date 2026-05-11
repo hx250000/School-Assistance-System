@@ -77,11 +77,66 @@ class PointsServiceImplTest {
     }
 
     @Test
+    void addPoints_whenParamsInvalid_shouldThrowException() {
+        assertThatThrownBy(() -> pointsService.addPoints(null, 10, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("非法积分操作");
+
+        assertThatThrownBy(() -> pointsService.addPoints(1L, null, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("非法积分操作");
+
+        assertThatThrownBy(() -> pointsService.addPoints(1L, 0, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("非法积分操作");
+    }
+
+    @Test
+    void addPoints_whenUserNotFound_shouldThrowException() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> pointsService.addPoints(1L, 10, "t", "d"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("用户不存在");
+    }
+
+    @Test
+    void addPoints_whenPointsNotEnough_shouldThrowException() {
+        User u = new User();
+        u.setId(2L);
+        u.setPoints(5);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+
+        assertThatThrownBy(() -> pointsService.addPoints(2L, -10, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("积分不足");
+    }
+
+    @Test
+    void addPoints_whenAlreadyExists_shouldBeIdempotent() {
+        User u = new User();
+        u.setId(2L);
+        u.setPoints(10);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+        
+        // 幂等性：已存在相同记录时不重复添加
+        when(pointsLogRepository.existsByUserIdAndTitleAndChangeAmount(2L, "签到奖励", 10))
+                .thenReturn(true);
+
+        pointsService.addPoints(2L, 10, "签到奖励", "每日签到");
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(pointsLogRepository, never()).save(any(PointsLog.class));
+    }
+
+    @Test
     void addPoints_shouldUpdateUserPoints_andWriteLog() {
         User u = new User();
         u.setId(2L);
         u.setPoints(10);
         when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+        when(pointsLogRepository.existsByUserIdAndTitleAndChangeAmount(2L, "t", 5))
+                .thenReturn(false);
 
         pointsService.addPoints(2L, 5, "t", "d");
 

@@ -19,4 +19,7 @@ public class ShopItem {
     private String description;
 
     private String imageRes;
+
+    @Version
+    private Long version;
 }

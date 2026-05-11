@@ -7,6 +7,7 @@ import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
@@ -53,20 +54,16 @@ public class ShopServiceImpl implements ShopService {
 
         ShopItem item = shopItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("商品不存在"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
 
-        if (user.getPoints() < item.getPrice()) {
-            throw new IllegalArgumentException("积分不足");
+        int stockUpdated = shopItemRepository.decreaseIfNotEmpty(itemId);
+        if (stockUpdated == 0) {
+            throw new ResourceConflictException("库存不足");
         }
 
-        if (item.getStock() == null || item.getStock() <= 0) {
-            throw new IllegalArgumentException("库存不足");
+        int updated = userRepository.decreasePoints(userId, item.getPrice());
+        if (updated == 0) {
+            throw new ResourceConflictException("积分不足");
         }
-
-        // 扣积分
-        user.setPoints(user.getPoints() - item.getPrice());
-        userRepository.save(user);
 
         // 写日志
         PointsLog log = new PointsLog();
@@ -80,13 +77,13 @@ public class ShopServiceImpl implements ShopService {
         ShopOrder order = new ShopOrder();
         order.setUserId(userId);
         order.setItemId(itemId);
+        order.setItemName(item.getName());
+        order.setPrice(Long.valueOf(item.getPrice()));
         order.setStatus("PAID");
-        shopRepository.save(order);
+        var res=shopRepository.save(order);
 
-        // 库存
-        item.setStock(item.getStock() - 1);
-        shopItemRepository.save(item);
-        return order.getId();
+        return res.getId();
+
     }
 
     @Override
