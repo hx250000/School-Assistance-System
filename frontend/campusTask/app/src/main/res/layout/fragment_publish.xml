@@ -31,7 +31,6 @@
                 android:text="让小伙伴来帮你吧 ✨"
                 android:textColor="#EAEAEA"
                 android:layout_marginTop="8dp"/>
-
         </LinearLayout>
 
         <!-- 卡片 -->
@@ -50,8 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="任务标题"
-                android:textStyle="bold"
-                android:textColor="@color/text_body"/>
+                android:textStyle="bold"/>
 
             <EditText
                 android:id="@+id/et_title"
@@ -68,8 +66,7 @@
                 android:layout_height="wrap_content"
                 android:text="任务类型"
                 android:textStyle="bold"
-                android:layout_marginTop="18dp"
-                android:textColor="@color/text_body"/>
+                android:layout_marginTop="18dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -81,26 +78,26 @@
                     android:id="@+id/type1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="生活"
                     android:padding="10dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_tag_selected"/>
+                    android:text="生活"
+                    android:background="@drawable/bg_tag_selected"
+                    android:layout_marginEnd="8dp"/>
 
                 <TextView
                     android:id="@+id/type2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="学习"
                     android:padding="10dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_tag"/>
+                    android:text="学习"
+                    android:background="@drawable/bg_tag"
+                    android:layout_marginEnd="8dp"/>
 
                 <TextView
                     android:id="@+id/type3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="游戏"
                     android:padding="10dp"
+                    android:text="游戏"
                     android:background="@drawable/bg_tag"/>
             </LinearLayout>
 
@@ -108,10 +105,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="需要人数"
-                android:textStyle="bold"
                 android:layout_marginTop="18dp"
-                android:textColor="@color/text_body"/>
+                android:text="需要人数"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -143,22 +139,34 @@
                     android:text="+"/>
             </LinearLayout>
 
-            <!-- ⭐ 奖励积分 -->
-
-            <EditText
-                android:id="@+id/et_deadline"
-                android:layout_width="336dp"
-                android:layout_height="wrap_content"
-                android:hint="截止时间 (格式: yyyy-MM-dd HH:mm:ss)"
-                android:inputType="text" />
-
+            <!-- ⭐ 截止时间（已修复版本） -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="奖励积分"
-                android:textStyle="bold"
                 android:layout_marginTop="18dp"
-                android:textColor="@color/text_body"/>
+                android:text="截止时间"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/et_deadline"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:text="请选择截止时间"
+                android:textColor="@android:color/black"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <!-- 积分 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="奖励积分"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -187,10 +195,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="任务描述"
-                android:textStyle="bold"
                 android:layout_marginTop="18dp"
-                android:textColor="@color/text_body"/>
+                android:text="任务描述"
+                android:textStyle="bold"/>
 
             <EditText
                 android:id="@+id/et_desc"
@@ -208,7 +215,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:text="✨ 发布任务"
-                android:textSize="16sp"
                 android:layout_marginTop="24dp"
                 android:background="@drawable/bg_btn_gradient"/>
 
