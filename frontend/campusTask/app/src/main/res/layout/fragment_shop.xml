@@ -75,7 +75,7 @@
                     android:id="@+id/mypoints"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="580"
+                    android:text="-"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.02"
@@ -101,7 +101,7 @@
                     android:id="@+id/exchanged"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3次"
+                    android:text="- 次"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"/>

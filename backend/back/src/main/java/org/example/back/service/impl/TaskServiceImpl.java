@@ -116,7 +116,6 @@ public class TaskServiceImpl implements TaskService {
             log.info("task participant: " + p);
 
         } catch (DataIntegrityViolationException e){
-            //taskRepository.decrementIfNotEmpty(taskId);
             log.info("Already have task participant: " + task);
             throw new ResourceConflictException("你已经抢过该任务！");
         }
@@ -223,7 +222,7 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
-    // ================= search（关键修复点） =================
+    // ================= search =================
     @Override
     public List<TaskVO> findByTitle(String keywords) {
 
@@ -250,16 +249,16 @@ public class TaskServiceImpl implements TaskService {
         HomeStatResp r = new HomeStatResp();
 
         int users = (int) userRepository.count();
-        int ing = 0, fin = 0;
+        int open = 0, fin = 0;
 
         for (Task t : taskRepository.findAll()) {
             if ("FINISHED".equals(t.getStatus())) fin++;
-            else if ("IN_PROGRESS".equals(t.getStatus())) ing++;
+            else if ("OPEN".equals(t.getStatus())) open++;
         }
 
         r.setUsers(users);
         r.setFinished(fin);
-        r.setInProgress(ing);
+        r.setInProgress(open);
 
         return r;
     }
