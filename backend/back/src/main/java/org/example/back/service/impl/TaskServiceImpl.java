@@ -222,6 +222,24 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
+    // ================= participated tasks =================
+    @Override
+    public List<TaskVO> myParticipatedTasks() {
+
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+
+        return taskParticipantRepository.findByUserId(userId)
+                .stream()
+                .map(p -> taskRepository.findById(p.getTaskId())
+                        .orElse(null))
+                .filter(task -> task != null)
+                .map(this::toVO)
+                .collect(Collectors.toList());
+    }
+
     // ================= search =================
     @Override
     public List<TaskVO> findByTitle(String keywords) {
