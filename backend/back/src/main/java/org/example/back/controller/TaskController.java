@@ -53,6 +53,11 @@ public class TaskController {
         return ApiResponse.success(taskService.myTaskHistory());
     }
 
+    @GetMapping("/joined")
+    public ApiResponse<List<TaskVO>> myParticipatedTasks() {
+        return ApiResponse.success(taskService.myParticipatedTasks());
+    }
+
     @GetMapping("/search")
     public ApiResponse<List<TaskVO>> search(@RequestParam String keyword) {
         return ApiResponse.success(taskService.findByTitle(keyword));

@@ -34,8 +34,9 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
         private const val ARG_TASK_STATUS = "task_status"
         private const val ARG_TASK_DEADLINE = "task_deadline"
         private const val ARG_TASK_CREATED_AT = "task_created_at"
+        private const val ARG_IS_JOINED_TASK = "is_joined_task"
 
-        fun newInstance(task: Task): MyTaskDetailFragment {
+        fun newInstance(task: Task, isJoinedTask: Boolean = false): MyTaskDetailFragment {
             val fragment = MyTaskDetailFragment()
 
             val bundle = Bundle().apply {
@@ -52,6 +53,7 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
                 putString(ARG_TASK_STATUS, task.status)
                 putLong(ARG_TASK_DEADLINE, task.deadline)
                 putLong(ARG_TASK_CREATED_AT, task.createdAt)
+                putBoolean(ARG_IS_JOINED_TASK, isJoinedTask)
             }
             fragment.arguments = bundle
             return fragment
@@ -103,7 +105,8 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
             parentFragmentManager.popBackStack()
         }
 
-        if (task.status == "FINISHED") {
+        val isJoinedTask = arguments?.getBoolean(ARG_IS_JOINED_TASK, false) ?: false
+        if (isJoinedTask || task.status == "FINISHED") {
             view.findViewById<Button>(R.id.btn_finish)?.visibility = View.GONE
             view.findViewById<Button>(R.id.btn_cancel)?.visibility = View.GONE
         }

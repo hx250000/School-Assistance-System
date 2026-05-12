@@ -223,7 +223,7 @@ class TaskRepository {
     }
 
     // 获取我的任务历史
-    fun getMyTaskHistory(context: Context, callback: (Boolean, List<Task>?, String?) -> Unit) {
+    fun getMyPublishedTaskHistory(context: Context, callback: (Boolean, List<Task>?, String?) -> Unit) {
         val header = AuthTokenStore.authorizationHeader(context)
         if (header == null) {
             callback(false, null, "用户未登录")
@@ -253,6 +253,40 @@ class TaskRepository {
             }
         })
     }
+
+    // 获取我参与的任务
+    fun getMyJoinedTaskHistory(context: Context, callback: (Boolean, List<Task>?, String?) -> Unit) {
+        val header = AuthTokenStore.authorizationHeader(context)
+        if (header == null) {
+            callback(false, null, "用户未登录")
+            return
+        }
+
+        taskApi.getMyJoinedTasks(header).enqueue(object : Callback<BaseResponse<List<Task>>> {
+            override fun onResponse(call: Call<BaseResponse<List<Task>>>, response: Response<BaseResponse<List<Task>>>) {
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "获取任务历史失败")
+                    }
+                } else {
+                    callback(false, null, body?.message ?: "获取任务历史失败")
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse<List<Task>>>, t: Throwable) {
+                callback(false, null, t.message)
+            }
+        })
+    }
+
+
 
     // 搜索任务
     fun searchTasks(context: Context, keywords: String, callback: (Boolean, List<Task>?, String?) -> Unit) {
