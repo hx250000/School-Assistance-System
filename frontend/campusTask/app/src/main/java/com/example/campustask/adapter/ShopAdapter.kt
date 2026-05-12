@@ -31,6 +31,7 @@ class ShopAdapter(
         val img = view.findViewById<ImageView>(R.id.imgProduct)
         val title = view.findViewById<TextView>(R.id.tvTitle)
         val points = view.findViewById<TextView>(R.id.tvPoints)
+        val stock = view.findViewById<TextView>(R.id.tvStock)
         val btn = view.findViewById<Button>(R.id.btnExchange)
     }
 
@@ -47,6 +48,7 @@ class ShopAdapter(
         val item = list[position]
         holder.title.text = item.name
         holder.points.text = "${item.price}积分"
+        holder.stock.text = "库存：${item.stock}件"
         
         // 根据图片名称动态获取资源ID
         val context = holder.itemView.context
