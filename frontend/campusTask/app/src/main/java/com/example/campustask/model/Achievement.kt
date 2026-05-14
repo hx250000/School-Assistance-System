@@ -1,8 +1,14 @@
 package com.example.campustask.model
+
+import java.time.LocalDateTime
+
 data class Achievement(
+    val id: Long,
     val title: String,
-    val desc: String,
-    val current: Int,
-    val total: Int,
-    val iconRes: Int
+    val description: String,
+    val currentProgress: Int,
+    val totalProgress: Int,
+    val iconUrl: String,
+    val isUnlocked: Boolean,
+    val unlockedAt: Long?
 )

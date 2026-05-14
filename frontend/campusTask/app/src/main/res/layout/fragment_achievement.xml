@@ -59,16 +59,17 @@
                     android:id="@+id/tvProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3 / 8"
+                    android:text="- / -"
                     android:textColor="@color/text_title"
                     android:textSize="30sp"
                     android:textStyle="bold"
                     android:layout_marginTop="6dp"/>
 
                 <TextView
+                    android:id="@+id/tvUnlocked"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="已解锁 3 个徽章，继续加油 💪"
+                    android:text="已解锁 - 个徽章，继续加油 💪"
                     android:textColor="@color/text_desc"
                     android:textSize="12sp"
                     android:layout_marginTop="2dp"/>
