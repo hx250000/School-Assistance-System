@@ -10,16 +10,18 @@ import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
+import org.example.back.repository.LoginRecordRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.AchievementService;
 import org.example.back.service.UserService;
 import org.example.back.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.LocalDate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.transaction.Transactional;
 
@@ -32,6 +34,12 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LoginRecordRepository loginRecordRepository;
+
+    @Autowired
+    private AchievementService achievementService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -62,6 +70,9 @@ public class UserServiceImpl implements UserService {
 
         // 保存到数据库（自动生成ID）
         User savedUser = userRepository.save(user);
+        
+        // 初始化用户成就记录
+        achievementService.initializeUserAchievements(savedUser.getId());
 
         RegisterResponse registerResponse = new RegisterResponse();
         registerResponse.setUsername(savedUser.getUsername());
@@ -97,6 +108,18 @@ public class UserServiceImpl implements UserService {
             user.setPassword(encryptPassword(request.getPassword()));
             userRepository.save(user);
         }
+
+        // 记录登录日期，用于连续登录成就统计
+        LocalDate today = LocalDate.now();
+        if (loginRecordRepository.findByUserIdAndLoginDate(user.getId(), today).isEmpty()) {
+            org.example.back.entity.LoginRecord loginRecord = new org.example.back.entity.LoginRecord();
+            loginRecord.setUserId(user.getId());
+            loginRecord.setLoginDate(today);
+            loginRecordRepository.save(loginRecord);
+        }
+
+        // 重新计算当前用户成就进度
+        achievementService.recalculateUserAchievements(user.getId());
 
         // 生成JWT
         String token = JwtUtil.generateToken(user.getId());

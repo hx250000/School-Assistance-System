@@ -60,7 +60,7 @@ public class PointsServiceImpl implements PointsService {
             throw new IllegalArgumentException("积分不足");
         }
 
-        // ================= 幂等关键点（核心） =================
+        // ================= 幂等关键点 =================
         // 👉 同一个 title + userId + changeAmount 只能记录一次
         boolean exists = pointsLogRepository
                 .existsByUserIdAndTitleAndChangeAmount(userId, title, points);
