@@ -9,7 +9,9 @@ import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
+import org.example.back.repository.LoginRecordRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.AchievementService;
 import org.example.back.service.impl.UserServiceImpl;
 import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +38,12 @@ class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private LoginRecordRepository loginRecordRepository;
+
+    @Mock
+    private AchievementService achievementService;
 
     @InjectMocks
     private UserServiceImpl userService;

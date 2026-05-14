@@ -50,6 +50,9 @@ class TaskServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private AchievementService achievementService;
+
     @InjectMocks
     private TaskServiceImpl taskService;
 

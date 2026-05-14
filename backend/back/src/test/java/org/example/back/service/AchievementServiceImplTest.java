@@ -51,6 +51,9 @@ class AchievementServiceImplTest {
     @Mock
     private LoginRecordRepository loginRecordRepository;
 
+    @Mock
+    private PointsService pointsService;
+
     @InjectMocks
     private AchievementServiceImpl achievementService;
 
