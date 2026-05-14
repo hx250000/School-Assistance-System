@@ -15,6 +15,8 @@ public interface TaskParticipantRepository extends JpaRepository<TaskParticipant
     List<TaskParticipant> findByUserId(Long userId);
     boolean existsByTaskIdAndUserId(Long taskId, Long userId);
 
+    long countByUserIdAndStatus(Long userId, String status);
+
     @Modifying
     @Query("DELETE FROM TaskParticipant p WHERE p.taskId = :taskId")
     void deleteByTaskId(@Param("taskId") Long taskId);

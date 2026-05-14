@@ -13,6 +13,7 @@ import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.*;
+import org.example.back.service.AchievementService;
 import org.example.back.service.PointsService;
 import org.example.back.service.TaskService;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +35,7 @@ public class TaskServiceImpl implements TaskService {
     @Autowired private TaskRepository taskRepository;
     @Autowired private TaskParticipantRepository taskParticipantRepository;
     @Autowired private PointsService pointsService;
+    @Autowired private AchievementService achievementService;
     @Autowired private UserRepository userRepository;
 
     // ================= create =================
@@ -55,7 +56,9 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus("OPEN");
         task.setPublisherId(userId);
 
-        return taskRepository.save(task).getId();
+        Long taskId = taskRepository.save(task).getId();
+        achievementService.recalculateUserAchievements(userId);
+        return taskId;
     }
 
     // ================= list =================
@@ -64,13 +67,13 @@ public class TaskServiceImpl implements TaskService {
         log.info("list tasks, page={}, size={}",page,size);
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
+        // 传入状态过滤条件
         List<TaskVO> resp=taskRepository.findAllByStatus("OPEN", pageable)
                 .getContent()
                 .stream()
                 .map(this::toVO)
                 .collect(Collectors.toList());
         log.info("list resp: "+ resp);
-        // 传入状态过滤条件
         return resp;
     }
 
@@ -169,6 +172,8 @@ public class TaskServiceImpl implements TaskService {
                     "完成任务",
                     "完成任务 " + task.getTitle()
             );
+
+            achievementService.recalculateUserAchievements(p.getUserId());
         }
     }
 

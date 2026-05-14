@@ -70,8 +70,9 @@ public class ShopServiceImpl implements ShopService {
         log.setUserId(userId);
         log.setChangeAmount(-item.getPrice());
         log.setTitle("兑换商品");
-        log.setDescription("兑换商品"+item.getId());
+        log.setDescription("兑换商品"+item.getName());
         pointsLogRepository.save(log);
+
 
         // 订单
         ShopOrder order = new ShopOrder();
