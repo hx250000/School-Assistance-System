@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -219,14 +220,17 @@ public class AchievementServiceImpl implements AchievementService {
 
             response.setCurrentProgress(ua.getCurrentProgress());
             response.setIsUnlocked(ua.getIsUnlocked());
-            response.setUnlockedAt(ua.getUnlockedAt());
-
-            if (ua.getIsUnlocked()) {
+            //response.setUnlockedAt(ua.getUnlockedAt().toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
+            if (ua.getIsUnlocked() && ua.getUnlockedAt() != null) {
+                // 只有解锁了且时间不为空才转换
+                response.setUnlockedAt(ua.getUnlockedAt().toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
                 unlocked++;
+            } else {
+                // 未解锁时设为 null
+                response.setUnlockedAt(null);
             }
 
             userAchievementResponses.add(response);
-
         }
 
         overview.setUnlockedCount(unlocked);
