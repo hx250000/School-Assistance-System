@@ -4,3 +4,4 @@ htmlReport/
 .idea/
 *.class
 application.yml
+.env
