@@ -11,7 +11,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static String SECRET;
+    private static String SECRET="yourverylongsecretkeyshouldbeatleast32bytes";
     private static long EXPIRATION_TIME = 3600_000 * 24 ; // 24小时
 
     @Value("${campus.jwt.secret}")
