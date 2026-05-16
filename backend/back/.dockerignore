@@ -1,0 +1,9 @@
+target/
+logs/
+htmlReport/
+.idea/
+*.class
+.vscode/
+.git/
+.gitignore
+*.md
