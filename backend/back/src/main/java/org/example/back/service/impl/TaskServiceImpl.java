@@ -16,6 +16,7 @@ import org.example.back.repository.*;
 import org.example.back.service.AchievementService;
 import org.example.back.service.PointsService;
 import org.example.back.service.TaskService;
+import org.example.back.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,6 +38,9 @@ public class TaskServiceImpl implements TaskService {
     @Autowired private PointsService pointsService;
     @Autowired private AchievementService achievementService;
     @Autowired private UserRepository userRepository;
+    @Autowired private UserService userService;
+
+    private static final int PENALTY_POINTS = 5;
 
     // ================= create =================
     @Override
@@ -188,28 +192,43 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在: " + taskId));
 
-        log.info("finishtask, taskId="+taskId+", userId="+userId);
+        TaskParticipant participant = taskParticipantRepository
+                .findByTaskIdAndUserId(taskId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("当前用户未加入该任务"));
 
-        if (!userId.equals(task.getPublisherId())) {
-            throw new ResourceConflictException("仅发布者可取消该任务");
+        if ("FINISHED".equals(participant.getStatus())) {
+            throw new ResourceConflictException("已完成的参与记录不能取消");
+        }
+        if ("CANCELLED".equals(participant.getStatus())) {
+            throw new ResourceConflictException("已取消的参与记录无法重复取消");
         }
 
-        String status = task.getStatus();
-        if ("FINISHED".equals(status)) {
-            throw new ResourceConflictException("任务已完成，无法取消");
+        // 标记参与记录为已取消
+        participant.setStatus("CANCELLED");
+        taskParticipantRepository.save(participant);
+
+        // 减少已参与人数（防止负值）
+        if (task.getCurrentPeople() == null) {
+            task.setCurrentPeople(0);
+        } else if (task.getCurrentPeople() > 0) {
+            task.setCurrentPeople(task.getCurrentPeople() - 1);
         }
-        if ("CANCELLED".equals(status)) {
-            throw new ResourceConflictException("任务已取消");
-        }
-
-        taskParticipantRepository.deleteByTaskId(taskId);
-
-        task.setStatus("CANCELLED");
-        task.setCurrentPeople(0);
-
         taskRepository.save(task);
+
+        // 在任务开始前 24 小时内取消，扣除 5 点信用分（针对接任务的人）
+        if (task.getDeadline() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime cutoff = task.getDeadline().minusHours(24);
+            if (!now.isBefore(cutoff)) { // now >= cutoff 说明在 24 小时内取消
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+                int newScore = Math.max(0, (user.getCreditScore() == null ? 0 : user.getCreditScore()) - 5);
+                user.setCreditScore(newScore);
+                userRepository.save(user);
+            }
+        }
     }
 
     // ================= history =================

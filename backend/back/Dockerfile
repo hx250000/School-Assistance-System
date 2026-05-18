@@ -8,7 +8,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # ---------- Stage 2: runtime ----------
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
 RUN useradd -m -u 1001 appuser && chown -R appuser /app
