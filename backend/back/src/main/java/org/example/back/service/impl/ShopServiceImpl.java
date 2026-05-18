@@ -7,12 +7,15 @@ import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
 import org.example.back.repository.ShopRepository;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.ShopService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import java.util.List;
 @Service
 public class ShopServiceImpl implements ShopService {
 
+    private static final Logger log = LoggerFactory.getLogger(ShopServiceImpl.class);
     @Autowired
     private ShopItemRepository shopItemRepository;
 
@@ -50,39 +54,37 @@ public class ShopServiceImpl implements ShopService {
 
         ShopItem item = shopItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("商品不存在"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
 
-        if (user.getPoints() < item.getPrice()) {
-            throw new IllegalArgumentException("积分不足");
+        int stockUpdated = shopItemRepository.decreaseIfNotEmpty(itemId);
+        if (stockUpdated == 0) {
+            throw new ResourceConflictException("库存不足");
         }
 
-        if (item.getStock() == null || item.getStock() <= 0) {
-            throw new IllegalArgumentException("库存不足");
+        int updated = userRepository.decreasePoints(userId, item.getPrice());
+        if (updated == 0) {
+            throw new ResourceConflictException("积分不足");
         }
-
-        // 扣积分
-        user.setPoints(user.getPoints() - item.getPrice());
-        userRepository.save(user);
 
         // 写日志
         PointsLog log = new PointsLog();
         log.setUserId(userId);
         log.setChangeAmount(-item.getPrice());
         log.setTitle("兑换商品");
+        log.setDescription("兑换商品"+item.getName());
         pointsLogRepository.save(log);
+
 
         // 订单
         ShopOrder order = new ShopOrder();
         order.setUserId(userId);
         order.setItemId(itemId);
+        order.setItemName(item.getName());
+        order.setPrice(Long.valueOf(item.getPrice()));
         order.setStatus("PAID");
-        shopRepository.save(order);
+        var res=shopRepository.save(order);
 
-        // 库存
-        item.setStock(item.getStock() - 1);
-        shopItemRepository.save(item);
-        return order.getId();
+        return res.getId();
+
     }
 
     @Override
@@ -92,10 +94,23 @@ public class ShopServiceImpl implements ShopService {
         newItem.setPrice(request.getPrice());
         newItem.setStock(request.getStock());
         newItem.setDescription(request.getDescription());
+        newItem.setImageRes(request.getImageRes());
 
         ShopItem save=shopItemRepository.save(newItem);
         return save.getId();
     }
 
-
+    @Override
+    public Long exchangeCount(){
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
+        String title="兑换商品";
+        long count=pointsLogRepository.countByUserIdAndTitle(userId,title);
+        log.info("exchangeCount: user={}, count={}", user.getId(), count);
+        return count;
+    }
 }

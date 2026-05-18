@@ -1,6 +1,7 @@
 package org.example.back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.back.config.SecurityConfig;
 import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.TaskVO;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = TaskController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class})
 class TaskControllerWebMvcTest {
 
     @Autowired
@@ -61,22 +62,22 @@ class TaskControllerWebMvcTest {
     @Test
     void list_shouldReturnArray() throws Exception {
         TaskVO vo = new TaskVO();
-        vo.setId(1L);
+        vo.setTaskId(1L);
         vo.setTitle("a");
         when(taskService.list(0, 10)).thenReturn(List.of(vo));
 
         mockMvc.perform(get("/api/task/list?page=0&size=10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data[0].id").value(1));
+                .andExpect(jsonPath("$.data[0].taskId").value(1));
     }
 
     @Test
     void grab_shouldReturnTask() throws Exception {
-        org.example.back.entity.Task t = new org.example.back.entity.Task();
-        t.setId(1L);
-        t.setStatus("OPEN");
-        when(taskService.grabTask(1L)).thenReturn(t);
+        TaskVO vo = new TaskVO();
+        vo.setTaskId(1L);
+        vo.setStatus("OPEN");
+        when(taskService.grabTask(1L)).thenReturn(vo);
 
         GrabTaskRequest req = new GrabTaskRequest();
         req.setTaskId(1L);
@@ -86,14 +87,14 @@ class TaskControllerWebMvcTest {
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.id").value(1));
+                .andExpect(jsonPath("$.data.taskId").value(1));
     }
 
     @Test
     void finish_shouldReturnMessage() throws Exception {
         doNothing().when(taskService).finishTask(1L);
 
-        mockMvc.perform(post("/api/task/finish?taskId=1"))
+        mockMvc.perform(post("/api/task/1/finish"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("任务完成"));
@@ -104,7 +105,7 @@ class TaskControllerWebMvcTest {
         when(taskService.findById(eq(1L))).thenThrow(new ResourceNotFoundException("任务不存在！"));
 
         mockMvc.perform(get("/api/task/task?taskId=1"))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("任务不存在")));
     }

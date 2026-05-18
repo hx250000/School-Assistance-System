@@ -1,13 +1,16 @@
 package org.example.back.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "shop_order")
-public class ShopOrder {
+@Table(name = "login_record")
+public class LoginRecord {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -15,22 +18,16 @@ public class ShopOrder {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "item_id", nullable = false)
-    private Long itemId;
-
-    @Column(name="item_price",nullable = false)
-    private Long price;
-
-    @Column(name="item_name",nullable = false)
-    private String itemName;
-
-    private String status; // PAID / FINISHED
+    @Column(name = "login_date", nullable = false)
+    private LocalDate loginDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 }

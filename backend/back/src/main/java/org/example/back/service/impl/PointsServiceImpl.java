@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
 import java.util.List;
 
 @Service
@@ -26,6 +25,7 @@ public class PointsServiceImpl implements PointsService {
     @Autowired
     private PointsLogRepository pointsLogRepository;
 
+    // ================= 查询积分 =================
     @Override
     public Integer getUserPoints() {
 
@@ -35,24 +35,42 @@ public class PointsServiceImpl implements PointsService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        String.format("用户 %d 未找到", userId)
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
+
         return user.getPoints();
     }
 
+    // ================= 安全加分 =================
     @Override
     @Transactional
-    public void addPoints(Long userId, Integer points,String title,String desc) {
+    public void addPoints(Long userId,
+                          Integer points,
+                          String title,
+                          String desc) {
+
+        if (userId == null || points == null || points == 0) {
+            throw new IllegalArgumentException("非法积分操作");
+        }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        String.format("用户 %d 未找到", userId)
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在"));
+
+        // ❗ 防止异常负分过大
+        if (user.getPoints() + points < 0) {
+            throw new IllegalArgumentException("积分不足");
+        }
+
+        // ================= 幂等关键点 =================
+        // 👉 同一个 title + userId + changeAmount 只能记录一次
+        boolean exists = pointsLogRepository
+                .existsByUserIdAndTitleAndChangeAmount(userId, title, points);
+
+        if (exists) {
+            return; // ❗ 防刷积分
+        }
 
         user.setPoints(user.getPoints() + points);
-
-        userRepository.save(user); 
+        userRepository.save(user);
 
         PointsLog log = new PointsLog();
         log.setUserId(userId);
@@ -63,18 +81,18 @@ public class PointsServiceImpl implements PointsService {
         pointsLogRepository.save(log);
     }
 
-    //添加积分记录查询功能
+    // ================= 积分历史 =================
     @Override
-    public PointsHistoryResponse getMyPointsHistory(){
+    public PointsHistoryResponse getMyPointsHistory() {
+
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
         }
 
-        //获取所有记录
-        List<PointsLog> logs = pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        List<PointsLog> logs =
+                pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
-        // 2. 转换为 DTO 列表
         List<UserPointsHistory> historyList = logs.stream()
                 .map(log -> new UserPointsHistory(
                         log.getChangeAmount(),
@@ -84,35 +102,21 @@ public class PointsServiceImpl implements PointsService {
                 ))
                 .toList();
 
-        // 3. 计算累计增加和减少
         int increase = logs.stream()
-                .filter(log -> log.getChangeAmount() > 0)
+                .filter(l -> l.getChangeAmount() > 0)
                 .mapToInt(PointsLog::getChangeAmount)
                 .sum();
 
         int decrease = logs.stream()
-                .filter(log -> log.getChangeAmount() < 0)
+                .filter(l -> l.getChangeAmount() < 0)
                 .mapToInt(PointsLog::getChangeAmount)
                 .sum();
 
-        // 4. 封装返回
         PointsHistoryResponse response = new PointsHistoryResponse();
         response.setPointsHistoryList(historyList);
         response.setIncreasePoints(increase);
         response.setDecreasePoints(decrease);
 
-        System.out.println("response: " + response);
-
         return response;
-
-//        return pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId)
-//                .stream()
-//                .map(log -> new UserPointsHistory(
-//                        log.getChangeAmount(),
-//                        log.getTitle(),
-//                        log.getDescription(),
-//                        log.getCreatedAt()
-//                ))
-//                .collect(Collectors.toList());
     }
 }

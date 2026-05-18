@@ -8,14 +8,19 @@ import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
+import org.example.back.repository.LoginRecordRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.AchievementService;
 import org.example.back.service.UserService;
 import org.example.back.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.LocalDate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -30,22 +35,44 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LoginRecordRepository loginRecordRepository;
+
+    @Autowired
+    private AchievementService achievementService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     /**
      * 用户注册
      */
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
+        checkInformation(registerRequest);
         User user = new User();
+        boolean exists=userRepository.existsByUsernameOrPhone(
+                registerRequest.getUsername(),
+                registerRequest.getPhone());
+        if(exists){
+            throw new ResourceConflictException("用户名或电话号码已被使用！");
+        }
+        String password = encryptPassword(registerRequest.getPassword());
         user.setUsername(registerRequest.getUsername());
-        user.setPassword(registerRequest.getPassword());
+        user.setPassword(password);
         user.setPhone(registerRequest.getPhone());
         // 初始化积分和信用分
         user.setPoints(0);
         user.setCreditScore(100);
 
+        user.setPswencp("bcrypt");//BCrypt
+
         // 保存到数据库（自动生成ID）
         User savedUser = userRepository.save(user);
+        
+        // 初始化用户成就记录
+        achievementService.initializeUserAchievements(savedUser.getId());
 
         RegisterResponse registerResponse = new RegisterResponse();
         registerResponse.setUsername(savedUser.getUsername());
@@ -61,11 +88,38 @@ public class UserServiceImpl implements UserService {
         // 改成根据手机号或用户名都可以登录
 //        User user = userRepository.findByUsernameOrPhone(request.getPhone(), request.getUsername());
         User user=userRepository.findByPhone(request.getPhone());
-        log.info("user login: " + request);
+        log.info("user login: " + request.getPhone());
 
-        if (user == null || !user.getPassword().equals(request.getPassword())) {
-            throw new AuthenticationException("用户名或密码错误");
+        if (user == null ) {
+            throw new AuthenticationException("用户名或密码错误!");
         }
+
+        if (user.getPswencp()!=null&&user.getPswencp().equals("bcrypt")){
+            if(!matchesPassword(request.getPassword(), user.getPassword())){
+                throw new AuthenticationException("用户名或密码错误!");
+            }
+        }
+        else{//MD5
+            if(!matchesPasswordWithMd5(request.getPassword(), user.getPassword())){
+                throw new AuthenticationException("用户名或密码错误!");
+            }
+            log.info("using old encrypt, changing to new encrypt method:");
+            user.setPswencp("bcrypt");
+            user.setPassword(encryptPassword(request.getPassword()));
+            userRepository.save(user);
+        }
+
+        // 记录登录日期，用于连续登录成就统计
+        LocalDate today = LocalDate.now();
+        if (loginRecordRepository.findByUserIdAndLoginDate(user.getId(), today).isEmpty()) {
+            org.example.back.entity.LoginRecord loginRecord = new org.example.back.entity.LoginRecord();
+            loginRecord.setUserId(user.getId());
+            loginRecord.setLoginDate(today);
+            loginRecordRepository.save(loginRecord);
+        }
+
+        // 重新计算当前用户成就进度
+        achievementService.recalculateUserAchievements(user.getId());
 
         // 生成JWT
         String token = JwtUtil.generateToken(user.getId());
@@ -111,4 +165,56 @@ public class UserServiceImpl implements UserService {
         }
         return vos;
     }
+
+    public String encryptPassword(String password) {
+//        return org.springframework.util.DigestUtils.md5DigestAsHex(password.getBytes());
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean matchesPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public boolean matchesPasswordWithMd5(String rawPassword, String encodedPassword) {
+        // 使用MD5进行加密（注意：MD5不适合用于生产环境中的密码存储）
+        return org.springframework.util.DigestUtils.md5DigestAsHex(rawPassword.getBytes()).equals(encodedPassword);
+    }
+
+    public void checkInformation(RegisterRequest userRegister){
+        if (userRegister == null) {
+            throw new ResourceConflictException("用户信息不能为空！");
+        }
+
+        log.info("user resister: "+userRegister.getPhone());
+
+        // 1. 用户名校验
+        String username = userRegister.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            throw new ResourceConflictException("用户名不能为空！");
+        }
+
+        if (!username.matches("^[a-zA-Z0-9_]+$")) {
+            throw new ResourceConflictException("用户名只能包含字母、数字和下划线！");
+        }
+
+        // 2. 密码校验
+        String password = userRegister.getPassword();
+        if (password == null || password.trim().isEmpty()) {
+            throw new ResourceConflictException("密码不能为空！");
+        }
+        if (password.length() < 6) {
+            throw new ResourceConflictException("密码长度不能少于 6 位！");
+        }
+
+        // 3. 手机号校验（中国大陆）
+        String phone = userRegister.getPhone();
+        if (phone == null || phone.trim().isEmpty()) {
+            throw new ResourceConflictException("手机号不能为空！");
+        }
+        if (!phone.matches("^1[3-9]\\d{9}$")) {
+            throw new ResourceConflictException("手机号格式不正确！");
+        }
+
+    }
+
 }

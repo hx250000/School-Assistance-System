@@ -3,5 +3,7 @@ logs/
 htmlReport/
 .idea/
 *.class
-application.yml
-.env
+.vscode/
+.git/
+.gitignore
+*.md

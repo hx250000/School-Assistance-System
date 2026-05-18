@@ -1,5 +1,6 @@
 package org.example.back.service;
 
+import org.example.back.dto.response.PointsHistoryResponse;
 import org.example.back.dto.response.UserPointsHistory;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.User;
@@ -59,7 +60,7 @@ class PointsServiceImplTest {
 
         assertThatThrownBy(() -> pointsService.getUserPoints())
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("用户 1 未找到");
+                .hasMessageContaining("用户不存在");
     }
 
     @Test
@@ -76,11 +77,66 @@ class PointsServiceImplTest {
     }
 
     @Test
+    void addPoints_whenParamsInvalid_shouldThrowException() {
+        assertThatThrownBy(() -> pointsService.addPoints(null, 10, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("非法积分操作");
+
+        assertThatThrownBy(() -> pointsService.addPoints(1L, null, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("非法积分操作");
+
+        assertThatThrownBy(() -> pointsService.addPoints(1L, 0, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("非法积分操作");
+    }
+
+    @Test
+    void addPoints_whenUserNotFound_shouldThrowException() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> pointsService.addPoints(1L, 10, "t", "d"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("用户不存在");
+    }
+
+    @Test
+    void addPoints_whenPointsNotEnough_shouldThrowException() {
+        User u = new User();
+        u.setId(2L);
+        u.setPoints(5);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+
+        assertThatThrownBy(() -> pointsService.addPoints(2L, -10, "t", "d"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("积分不足");
+    }
+
+    @Test
+    void addPoints_whenAlreadyExists_shouldBeIdempotent() {
+        User u = new User();
+        u.setId(2L);
+        u.setPoints(10);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+        
+        // 幂等性：已存在相同记录时不重复添加
+        when(pointsLogRepository.existsByUserIdAndTitleAndChangeAmount(2L, "签到奖励", 10))
+                .thenReturn(true);
+
+        pointsService.addPoints(2L, 10, "签到奖励", "每日签到");
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(pointsLogRepository, never()).save(any(PointsLog.class));
+    }
+
+    @Test
     void addPoints_shouldUpdateUserPoints_andWriteLog() {
         User u = new User();
         u.setId(2L);
         u.setPoints(10);
         when(userRepository.findById(2L)).thenReturn(Optional.of(u));
+        when(pointsLogRepository.existsByUserIdAndTitleAndChangeAmount(2L, "t", 5))
+                .thenReturn(false);
 
         pointsService.addPoints(2L, 5, "t", "d");
 
@@ -108,33 +164,53 @@ class PointsServiceImplTest {
 
     @Test
     void getMyPointsHistory_shouldMapLogsToHistoryDTOs() {
+        // 1. 模拟当前登录用户
         AuthTestUtil.setCurrentUserId(3L);
 
+        // 2. 准备模拟数据（注意：UserPointsHistory 构造函数会将 LocalDateTime 转为 String）
+        LocalDateTime time1 = LocalDateTime.of(2026, 1, 1, 10, 30);
         PointsLog l1 = new PointsLog();
         l1.setId(1L);
         l1.setUserId(3L);
         l1.setChangeAmount(10);
-        l1.setTitle("a");
-        l1.setDescription("da");
-        l1.setCreatedAt(LocalDateTime.of(2026, 1, 1, 0, 0));
+        l1.setTitle("签到奖励");
+        l1.setDescription("每日签到获得积分");
+        l1.setCreatedAt(time1);
 
+        LocalDateTime time2 = LocalDateTime.of(2026, 1, 2, 15, 45);
         PointsLog l2 = new PointsLog();
         l2.setId(2L);
         l2.setUserId(3L);
         l2.setChangeAmount(-5);
-        l2.setTitle("b");
-        l2.setDescription("db");
-        l2.setCreatedAt(LocalDateTime.of(2026, 1, 2, 0, 0));
+        l2.setTitle("兑换商品");
+        l2.setDescription("消耗积分兑换挂件");
+        l2.setCreatedAt(time2);
 
+        // 模拟仓库返回：按时间降序（l2 在前，l1 在后）[cite: 1, 2]
         when(pointsLogRepository.findByUserIdOrderByCreatedAtDesc(3L)).thenReturn(List.of(l2, l1));
 
-        List<UserPointsHistory> list = pointsService.getMyPointsHistory();
+        // 3. 执行被测方法[cite: 2]
+        PointsHistoryResponse response = pointsService.getMyPointsHistory();
 
-        assertThat(list).hasSize(2);
-        assertThat(list.get(0).getId()).isEqualTo(2L);
-        assertThat(list.get(0).getChangeAmount()).isEqualTo(-5);
-        assertThat(list.get(0).getTitle()).isEqualTo("b");
-        assertThat(list.get(1).getId()).isEqualTo(1L);
+        // 4. 验证返回的统计数据
+        assertThat(response).isNotNull();
+        assertThat(response.getIncreasePoints()).isEqualTo(10); // 10[cite: 2, 3]
+        assertThat(response.getDecreasePoints()).isEqualTo(-5); // -5[cite: 2, 3]
+
+        // 5. 验证明细列表内容[cite: 3, 4]
+        List<UserPointsHistory> historyList = response.getPointsHistoryList();
+        assertThat(historyList).hasSize(2);
+
+        // 验证第一条记录（l2：减少5分）
+        UserPointsHistory h1 = historyList.get(0);
+        assertThat(h1.getChangeAmount()).isEqualTo(-5);
+        assertThat(h1.getTitle()).isEqualTo("兑换商品");
+        // 验证时间格式化是否正确（yyyy-MM-dd HH:mm）
+        assertThat(h1.getTime()).isEqualTo("2026-01-02 15:45");
+
+        // 验证第二条记录（l1：增加10分）
+        UserPointsHistory h2 = historyList.get(1);
+        assertThat(h2.getChangeAmount()).isEqualTo(10);
+        assertThat(h2.getTime()).isEqualTo("2026-01-01 10:30");
     }
 }
-

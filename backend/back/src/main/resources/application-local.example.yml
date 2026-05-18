@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:mysql://localhost:3306/(db_name)?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: 
+    password: 
 
   jpa:
     hibernate:
@@ -20,10 +20,9 @@ management:
     prometheus:
       enabled: true
 
-server:
-  port: 8080
-
 campus:
   jwt:
     secret: yourverylongsecretkeyshouldbeatleast512bytes
-    expiration: 86400000
+    expiration: 86400000 # 3600,000*24s
+
+

@@ -8,5 +8,16 @@ import java.util.List;
 
 @Repository
 public interface PointsLogRepository extends JpaRepository<PointsLog, Long> {
+
+    // ================= 积分历史 =================
     List<PointsLog> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    // ================= 幂等防刷 =================
+    boolean existsByUserIdAndTitleAndChangeAmount(
+            Long userId,
+            String title,
+            Integer changeAmount
+    );
+
+    int countByUserIdAndTitle(Long userId, String title);
 }

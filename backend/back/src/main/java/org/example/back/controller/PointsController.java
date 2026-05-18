@@ -1,6 +1,7 @@
 package org.example.back.controller;
 
 import org.example.back.common.ApiResponse;
+import org.example.back.dto.response.PointsHistoryResponse;
 import org.example.back.service.PointsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,8 @@ public class PointsController {
     @Autowired
     private PointsService pointsService;
 
-    @GetMapping("/info")
-    public ApiResponse getPoints() {
+    @GetMapping("/mypoints")
+    public ApiResponse<Integer> getPoints() {
         return ApiResponse.success(pointsService.getUserPoints());
     }
 
@@ -24,7 +25,7 @@ public class PointsController {
      * 查看个人积分信息
      */
     @GetMapping("/history")
-    public ApiResponse getMyPointsHistory() {
+    public ApiResponse<PointsHistoryResponse> getMyPointsHistory() {
         return ApiResponse.success(pointsService.getMyPointsHistory());
     }
 }

@@ -12,4 +12,6 @@ public interface ShopService {
     Long exchange(Long itemId);
 
     Long addItem(NewShopItemRequest request);
+
+    Long exchangeCount();
 }

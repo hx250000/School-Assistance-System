@@ -5,6 +5,7 @@ import org.example.back.entity.User;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.ReviewRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.AchievementService;
 import org.example.back.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AchievementService achievementService;
 
     @Override
     public String createReview(Review review) {
@@ -36,6 +40,10 @@ public class ReviewServiceImpl implements ReviewService {
         user.setCreditScore(newScore);
 
         userRepository.save(user);
+
+        // 重新计算被评价用户的成就进度
+        achievementService.recalculateUserAchievements(review.getToUserId());
+
         return review.toString();
     }
 }

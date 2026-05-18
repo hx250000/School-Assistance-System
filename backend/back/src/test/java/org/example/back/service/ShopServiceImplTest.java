@@ -6,6 +6,7 @@ import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
 import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
+import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
@@ -79,55 +80,40 @@ class ShopServiceImplTest {
     }
 
     @Test
-    void exchange_whenUserNotFound_shouldThrowResourceNotFoundException() {
-        AuthTestUtil.setCurrentUserId(1L);
-        when(shopItemRepository.findById(5L)).thenReturn(Optional.of(new ShopItem()));
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> shopService.exchange(5L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("用户不存在");
-    }
-
-    @Test
-    void exchange_whenPointsNotEnough_shouldThrowIllegalArgumentException() {
+    void exchange_whenPointsNotEnough_shouldThrowResourceConflictException() {
         AuthTestUtil.setCurrentUserId(1L);
 
         ShopItem item = new ShopItem();
         item.setId(5L);
         item.setPrice(100);
         item.setStock(10);
-
-        User user = new User();
-        user.setId(1L);
-        user.setPoints(99);
+        item.setImageRes("img");
+        item.setDescription("desc");
 
         when(shopItemRepository.findById(5L)).thenReturn(Optional.of(item));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(shopItemRepository.decreaseIfNotEmpty(5L)).thenReturn(1);
+        when(userRepository.decreasePoints(1L, 100)).thenReturn(0);
 
         assertThatThrownBy(() -> shopService.exchange(5L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("积分不足");
     }
 
     @Test
-    void exchange_whenOutOfStock_shouldThrowIllegalArgumentException() {
+    void exchange_whenOutOfStock_shouldThrowResourceConflictException() {
         AuthTestUtil.setCurrentUserId(1L);
 
         ShopItem item = new ShopItem();
         item.setId(5L);
         item.setPrice(100);
         item.setStock(0);
-
-        User user = new User();
-        user.setId(1L);
-        user.setPoints(200);
+        item.setImageRes("img");
+        item.setDescription("desc");
 
         when(shopItemRepository.findById(5L)).thenReturn(Optional.of(item));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> shopService.exchange(5L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("库存不足");
     }
 
@@ -139,29 +125,26 @@ class ShopServiceImplTest {
         item.setId(5L);
         item.setPrice(100);
         item.setStock(2);
-
-        User user = new User();
-        user.setId(1L);
-        user.setPoints(150);
+        item.setImageRes("img");
+        item.setDescription("desc");
 
         ShopOrder savedOrder = new ShopOrder();
         savedOrder.setId(99L);
 
         when(shopItemRepository.findById(5L)).thenReturn(Optional.of(item));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.decreasePoints(1L, 100)).thenReturn(1);
         when(shopRepository.save(any(ShopOrder.class))).thenAnswer(invocation -> {
             ShopOrder order = invocation.getArgument(0);
             order.setId(99L);
             return order;
         });
+        when(shopItemRepository.decreaseIfNotEmpty(5L)).thenReturn(1);
 
         Long orderId = shopService.exchange(5L);
 
         assertThat(orderId).isEqualTo(99L);
 
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getPoints()).isEqualTo(50);
+        verify(userRepository, times(1)).decreasePoints(1L, 100);
 
         ArgumentCaptor<PointsLog> logCaptor = ArgumentCaptor.forClass(PointsLog.class);
         verify(pointsLogRepository).save(logCaptor.capture());
@@ -173,9 +156,88 @@ class ShopServiceImplTest {
         assertThat(orderCaptor.getValue().getItemId()).isEqualTo(5L);
         assertThat(orderCaptor.getValue().getStatus()).isEqualTo("PAID");
 
-        ArgumentCaptor<ShopItem> itemCaptor = ArgumentCaptor.forClass(ShopItem.class);
-        verify(shopItemRepository).save(itemCaptor.capture());
-        assertThat(itemCaptor.getValue().getStock()).isEqualTo(1);
+        verify(shopItemRepository, times(1)).decreaseIfNotEmpty(5L);
+    }
+
+    @Test
+    void exchange_whenStockDecreaseFails_shouldNotDeductPoints() {
+        AuthTestUtil.setCurrentUserId(1L);
+
+        ShopItem item = new ShopItem();
+        item.setId(5L);
+        item.setPrice(100);
+        item.setStock(0);
+        item.setImageRes("img");
+        item.setDescription("desc");
+
+        when(shopItemRepository.findById(5L)).thenReturn(Optional.of(item));
+        when(shopItemRepository.decreaseIfNotEmpty(5L)).thenReturn(0); // 库存扣减失败
+
+        assertThatThrownBy(() -> shopService.exchange(5L))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("库存不足");
+
+        verify(userRepository, never()).decreasePoints(anyLong(), anyInt());
+    }
+
+    @Test
+    void exchange_whenPointsDeductFails_shouldThrowException() {
+        AuthTestUtil.setCurrentUserId(1L);
+
+        ShopItem item = new ShopItem();
+        item.setId(5L);
+        item.setPrice(100);
+        item.setStock(2);
+        item.setImageRes("img");
+        item.setDescription("desc");
+
+        when(shopItemRepository.findById(5L)).thenReturn(Optional.of(item));
+        when(shopItemRepository.decreaseIfNotEmpty(5L)).thenReturn(1);
+        when(userRepository.decreasePoints(1L, 100)).thenReturn(0); // 积分扣减失败
+
+        assertThatThrownBy(() -> shopService.exchange(5L))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasMessageContaining("积分不足");
+
+        verify(userRepository, times(1)).decreasePoints(1L, 100);
+        verify(pointsLogRepository, never()).save(any(PointsLog.class));
+        verify(shopRepository, never()).save(any(ShopOrder.class));
+    }
+
+    @Test
+    void exchangeCount_whenNotLoggedIn_shouldThrowAuthenticationException() {
+        AuthTestUtil.clear();
+
+        assertThatThrownBy(() -> shopService.exchangeCount())
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessageContaining("用户未登录");
+    }
+
+    @Test
+    void exchangeCount_whenUserNotFound_shouldThrowResourceNotFoundException() {
+        AuthTestUtil.setCurrentUserId(99L);
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> shopService.exchangeCount())
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("用户不存在");
+    }
+
+    @Test
+    void exchangeCount_whenSuccess_shouldReturnCount() {
+        AuthTestUtil.setCurrentUserId(1L);
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("test");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(pointsLogRepository.countByUserIdAndTitle(1L, "兑换商品")).thenReturn(5);
+
+        Long count = shopService.exchangeCount();
+
+        assertThat(count).isEqualTo(5L);
+        verify(pointsLogRepository, times(1)).countByUserIdAndTitle(1L, "兑换商品");
     }
 
     @Test
@@ -185,6 +247,7 @@ class ShopServiceImplTest {
         req.setPrice(10);
         req.setStock(1);
         req.setDescription("d");
+        req.setImageRes("img");
 
         ShopItem saved = new ShopItem();
         saved.setId(7L);

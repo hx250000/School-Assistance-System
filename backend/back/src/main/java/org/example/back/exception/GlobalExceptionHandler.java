@@ -1,5 +1,7 @@
 package org.example.back.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.example.back.common.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * 全局异常处理器
  * 统一处理API异常，返回标准格式的错误响应
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -19,9 +22,18 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+        log.info("ResourceNotFoundException: {}", ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.OK)
                 .body(ApiResponse.notFound(ex.getMessage()));
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceConflict(ResourceConflictException ex) {
+        log.info("ResourceConflictException: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(409,ex.getMessage()));
     }
 
 //    /**
@@ -40,7 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.OK)
                 .body(ApiResponse.badRequest(ex.getMessage()));
     }
 
@@ -49,19 +61,23 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponse<Void>> handleAuthException(AuthenticationException ex) {
+        log.info("Authentication exception"+ ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error(401, "Authentication error: " + ex.getMessage()));
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(401, ex.getMessage()));
     }
-//    /**
-//     * 处理资源冲突异常
-//     */
-//    @ExceptionHandler(ResourceConflictException.class)
-//    public ResponseEntity<ApiResponse<Void>> handleBusinessException(ResourceConflictException ex) {
-//        return ResponseEntity
-//                .status(HttpStatus.CONFLICT)
-//                .body(ApiResponse.error(409, ex.getMessage()));
-//    }
+
+    /**
+     * 处理JWT过期异常
+     */
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResponse<Void>> handleExpiredJwtException(ExpiredJwtException ex) {
+        log.info("ExpiredJwtException: {}", ex.toString());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(401,"登录状态失效，请重新登录"));
+    }
+
 
 
     /**
@@ -69,8 +85,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
+        log.info("Exception: {}", ex.toString());
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(500, "Internal server error: " + ex.getMessage()));
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(500, "服务器异常，请稍后再试" ));
     }
 }

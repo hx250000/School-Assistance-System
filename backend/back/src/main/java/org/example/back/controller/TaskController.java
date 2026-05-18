@@ -3,10 +3,13 @@ package org.example.back.controller;
 import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
-import org.example.back.entity.Task;
+import org.example.back.dto.response.HomeStatResp;
+import org.example.back.dto.response.TaskVO;
 import org.example.back.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/task")
@@ -16,46 +19,57 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/create")
-    public ApiResponse create(@RequestBody TaskCreateRequest request) {
+    public ApiResponse<Long> create(@RequestBody TaskCreateRequest request) {
         return ApiResponse.success(taskService.createTask(request));
     }
 
     @GetMapping("/list")
-    public ApiResponse list(@RequestParam int page,
-                       @RequestParam int size) {
+    public ApiResponse<List<TaskVO>> list(@RequestParam int page,
+                                          @RequestParam int size) {
+//        AllTaskListResponse taskListResponse=new AllTaskListResponse();
         return ApiResponse.success(taskService.list(page, size));
     }
 
     @PostMapping("/grab")
-    public ApiResponse grab(@RequestBody GrabTaskRequest request) {
-        Task taskGrabbed=taskService.grabTask(request.getTaskId());
+    public ApiResponse<TaskVO> grab(@RequestBody GrabTaskRequest request) {
+        TaskVO taskGrabbed=taskService.grabTask(request.getTaskId());
         return ApiResponse.success(taskGrabbed);
     }
 
-    @PostMapping("/finish")
-    public ApiResponse finish(@RequestParam Long taskId) {
+    @PostMapping("/{taskId}/finish")
+    public ApiResponse<String> finish(@PathVariable Long taskId) {
         taskService.finishTask(taskId);
         return ApiResponse.success("任务完成");
     }
 
-    @PostMapping("/cancel")
-    public ApiResponse cancel(@RequestParam Long taskId) {
+    @PostMapping("/{taskId}/cancel")
+    public ApiResponse<String> cancel(@PathVariable Long taskId) {
         taskService.cancelTask(taskId);
         return ApiResponse.success("任务已取消");
     }
 
     @GetMapping("/history")
-    public ApiResponse myTaskHistory() {
+    public ApiResponse<List<TaskVO>> myTaskHistory() {
         return ApiResponse.success(taskService.myTaskHistory());
     }
 
+    @GetMapping("/joined")
+    public ApiResponse<List<TaskVO>> myParticipatedTasks() {
+        return ApiResponse.success(taskService.myParticipatedTasks());
+    }
+
     @GetMapping("/search")
-    public ApiResponse search(@RequestParam String keyword) {
+    public ApiResponse<List<TaskVO>> search(@RequestParam String keyword) {
         return ApiResponse.success(taskService.findByTitle(keyword));
     }
 
     @GetMapping("/task")
-    public ApiResponse getTaskById(@RequestParam Long taskId) {
+    public ApiResponse<TaskVO> getTaskById(@RequestParam Long taskId) {
         return ApiResponse.success(taskService.findById(taskId));
+    }
+
+    @GetMapping("/stats")
+    public ApiResponse<HomeStatResp> homeStats(){
+        return ApiResponse.success(taskService.stats());
     }
 }
