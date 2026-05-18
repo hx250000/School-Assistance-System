@@ -30,11 +30,25 @@ class AchievementAdapter(private val list: List<Achievement>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = list[position]
         holder.title.text = item.title
-        holder.desc.text = item.desc
-        holder.count.text = "${item.current}/${item.total}"
-        holder.progress.max = item.total
-        holder.progress.progress = item.current
-        holder.icon.setImageResource(item.iconRes)
+        holder.desc.text = item.description
+        holder.count.text = "${item.currentProgress}/${item.totalProgress}"
+        holder.progress.max = item.totalProgress
+        holder.progress.progress = item.currentProgress
+//        holder.icon.setImageResource(item.iconUrl)
+
+        // 根据图片名称动态获取资源ID
+        val context = holder.itemView.context
+        val resourceId = context.resources.getIdentifier(
+            item.iconUrl,
+            "drawable",
+            context.packageName
+        )
+        if (resourceId != 0) {
+            holder.icon.setImageResource(resourceId)
+        } else {
+            // 如果找不到对应的图片资源，使用默认图片
+            holder.icon.setImageResource(R.drawable.ic_launcher_foreground)
+        }
     }
 
     override fun getItemCount() = list.size

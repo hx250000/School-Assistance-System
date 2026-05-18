@@ -25,5 +25,5 @@ server:
 
 campus:
   jwt:
-    secret: yourverylongsecretkeyshouldbeatleast512bytes
-    expiration: 86400000
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}

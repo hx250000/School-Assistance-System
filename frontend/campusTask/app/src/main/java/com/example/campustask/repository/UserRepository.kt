@@ -1,6 +1,7 @@
 package com.example.campustask.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.campustask.model.*
 import com.example.campustask.model.request.LoginRequest
 import com.example.campustask.model.request.RegisterRequest
@@ -9,12 +10,14 @@ import com.example.campustask.model.response.LoginResponse
 import com.example.campustask.model.response.RegisterResponse
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
+import com.example.campustask.utils.ResponseHandler
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class UserRepository {
 
+    private val TAG="UserRepository"
 
     // 登录接口
     fun login(phone: String, password: String, callback: (Boolean, String?) -> Unit) {
@@ -29,7 +32,8 @@ class UserRepository {
             }
 
             override fun onFailure(call: Call<BaseResponse<LoginResponse>>, t: Throwable) {
-                callback(false, t.message)
+                Log.d(TAG,t.message?:"网络连接失败")
+                callback(false, "网络异常，请稍后再试")
             }
         })
     }
@@ -63,15 +67,24 @@ class UserRepository {
         RetrofitClient.userApi.getMyInfo(header).enqueue(object : Callback<BaseResponse<UserInfo>> {
             override fun onResponse(call: Call<BaseResponse<UserInfo>>, response: Response<BaseResponse<UserInfo>>) {
                 val body = response.body()
-                if (response.isSuccessful && body?.code == 200) {
-                    callback(true, body.data, null) // 成功返回数据
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "用户信息获取失败")
+                    }
                 } else {
                     callback(false, null, body?.message ?: "用户信息获取失败")
                 }
             }
 
             override fun onFailure(call: Call<BaseResponse<UserInfo>>, t: Throwable) {
-                callback(false, null, t.message)
+                Log.d(TAG,t.message?:"网络连接失败")
+                callback(false, null, "网络异常，请稍后再试")
             }
         })
     }

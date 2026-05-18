@@ -200,14 +200,14 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@android:drawable/ic_menu_recent_history"/>
+                        android:src="@android:drawable/ic_menu_recent_history" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="任务历史"
                         android:textSize="12sp"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
                 </LinearLayout>
 
                 <!-- 积分明细 -->
@@ -224,14 +224,14 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@android:drawable/ic_menu_info_details"/>
+                        android:src="@android:drawable/ic_menu_info_details" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="积分明细"
                         android:textSize="12sp"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
                 </LinearLayout>
 
                 <!-- 我的成就 -->
@@ -248,14 +248,14 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@android:drawable/ic_menu_myplaces"/>
+                        android:src="@android:drawable/ic_menu_myplaces" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="我的成就"
                         android:textSize="12sp"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
                 </LinearLayout>
 
                 <!-- 夜间模式 -->
@@ -272,14 +272,14 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@android:drawable/ic_menu_manage"/>
+                        android:src="@android:drawable/ic_menu_manage" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="夜间模式"
                         android:textSize="12sp"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -293,6 +293,7 @@
             android:background="@drawable/bg_white_card"
             android:orientation="vertical">
 
+            <!-- 消息通知 -->
             <LinearLayout
                 android:id="@+id/item_msg"
                 android:layout_width="match_parent"
@@ -304,9 +305,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="消息通知"
-                    android:textColor="@color/text_body"/>
+                    android:textColor="@color/text_body" />
             </LinearLayout>
 
+            <!-- 我的成就 -->
             <LinearLayout
                 android:id="@+id/item_achievement"
                 android:layout_width="match_parent"
@@ -318,21 +320,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="我的成就"
-                    android:textColor="@color/text_body"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/item_exchange"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="兑换记录"
-                    android:textColor="@color/text_body"/>
+                    android:textColor="@color/text_body" />
             </LinearLayout>
 
         </LinearLayout>
@@ -345,6 +333,7 @@
             android:background="@drawable/bg_white_card"
             android:orientation="vertical">
 
+            <!-- 切换主题 -->
             <LinearLayout
                 android:id="@+id/item_theme"
                 android:layout_width="match_parent"
@@ -356,21 +345,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="切换主题"
-                    android:textColor="@color/text_body"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/item_setting"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="设置"
-                    android:textColor="@color/text_body"/>
+                    android:textColor="@color/text_body" />
             </LinearLayout>
 
         </LinearLayout>

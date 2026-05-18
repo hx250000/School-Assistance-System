@@ -1,7 +1,10 @@
 package com.example.campustask.model
 
 data class ShopItem(
-    val title: String,
-    val points: Int,
-    val imageRes: Int
+    val id: Long,
+    val name: String,
+    val price: Int,
+    val stock: Int,
+    val description: String,
+    val imageRes: String
 )

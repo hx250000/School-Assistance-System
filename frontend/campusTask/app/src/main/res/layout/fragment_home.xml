@@ -38,6 +38,7 @@
 
         <!-- 搜索框 -->
         <EditText
+            android:id="@+id/et_search"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
@@ -45,7 +46,10 @@
             android:hint="搜索你想要的任务..."
             android:paddingStart="16dp"
             android:textColor="@color/text_body"
-            android:textColorHint="@color/text_hint"/>
+            android:textColorHint="@color/text_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:singleLine="true"/>
 
         <!-- 数据卡片 -->
         <LinearLayout
@@ -65,9 +69,10 @@
                 android:layout_marginEnd="8dp">
 
                 <TextView
+                    android:id="@+id/inprogress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="6"
+                    android:text="-"
                     android:textSize="20sp"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold"/>
@@ -75,7 +80,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="进行中"
+                    android:text="开放中"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp"/>
             </LinearLayout>
@@ -91,9 +96,10 @@
                 android:layout_marginEnd="8dp">
 
                 <TextView
+                    android:id="@+id/finished"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="156"
+                    android:text="-"
                     android:textSize="20sp"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold"/>
@@ -116,9 +122,10 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/users"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="89"
+                    android:text="-"
                     android:textSize="20sp"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold"/>

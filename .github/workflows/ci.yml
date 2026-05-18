@@ -1,0 +1,92 @@
+name: Project CI
+
+on:
+  push:
+    branches: [main, develop, hx]
+  pull_request:
+    branches: [main]
+
+jobs:
+  Android-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
+
+
+      # 进入真正 Android 项目目录
+      - name: Make gradlew executable
+        run: chmod +x frontend/campusTask/gradlew
+
+      - name: Lint Android
+        run: |
+          cd frontend/campusTask
+          ./gradlew lint    
+
+      - name: Run unit tests
+        run: |
+          cd frontend/campusTask
+          ./gradlew test
+
+      - name: Build APK
+        run: |
+          cd frontend/campusTask
+          ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: campusTask-debug-apk
+          path: frontend/campusTask/app/build/outputs/apk/debug/*.apk
+
+  Backend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Build backend
+        run: |
+          cd backend/back
+          mvn clean test package
+
+      - name: Upload Backend JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/back/target/*.jar
+      
+      - name: Lint backend
+        run: |
+          cd backend/back
+          mvn spotless:check
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: backend/back/target/site/jacoco/jacoco.xml
+          flags: backend

@@ -8,6 +8,17 @@ CampusTask 是一个面向大学校园场景的互助任务平台。
 
 该项目采用 **Android + SpringBoot** 的前后端分离架构，旨在实现一个简单但完整的校园任务撮合平台，并探索积分经济系统和用户信用评价机制。
 
+项目地址：https://github.com/hx250000/School-Assistance-System，并可通过docker部署。
+
+CI:
+[![CI](https://github.com/hx250000/School-Assistance-System/actions/workflows/ci.yml/badge.svg)](https://github.com/hx250000/School-Assistance-System/actions)
+
+Backend Coverage:
+[![Backend Coverage](https://codecov.io/gh/hx250000/School-Assistance-System/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/hx250000/School-Assistance-System)
+
+Frontend Coverage:
+[![Frontend Coverage](https://codecov.io/gh/hx250000/School-Assistance-System/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/hx250000/School-Assistance-System)
+
 ---
 
 ## 项目目标

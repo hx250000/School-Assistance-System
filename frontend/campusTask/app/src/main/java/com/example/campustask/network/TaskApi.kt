@@ -1,8 +1,10 @@
 package com.example.campustask.network
 
 import com.example.campustask.model.Task
+import com.example.campustask.model.request.GrabTaskRequest
 import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.model.response.BaseResponse
+import com.example.campustask.model.response.HomeStatResp
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Call
@@ -19,21 +21,27 @@ interface TaskApi {
     @GET("task/list")
     fun listTasks(@Header("Authorization") token: String, @Query("page") page: Int, @Query("size") size: Int): Call<BaseResponse<List<Task>>>
 
-    @POST("task/grab/{taskId}")
-    fun grabTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Task>>
+    @POST("task/grab")
+    fun grabTask(@Header("Authorization") token: String, @Body taskGrabRequest: GrabTaskRequest): Call<BaseResponse<Task>>
 
-    @POST("task/finish/{taskId}")
+    @POST("task/{taskId}/finish")
     fun finishTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Void>>
 
-    @POST("task/cancel/{taskId}")
+    @POST("task/{taskId}/cancel")
     fun cancelTask(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Void>>
 
-    @GET("task/my-history")
+    @GET("task/history")
     fun getMyTaskHistory(@Header("Authorization") token: String): Call<BaseResponse<List<Task>>>
 
+    @GET("task/joined")
+    fun getMyJoinedTasks(@Header("Authorization") token: String): Call<BaseResponse<List<Task>>>
+
     @GET("task/search")
-    fun searchTasks(@Header("Authorization") token: String, @Query("title") keywords: String): Call<BaseResponse<List<Task>>>
+    fun searchTasks(@Header("Authorization") token: String, @Query("keyword") keywords: String): Call<BaseResponse<List<Task>>>
 
     @GET("task/{taskId}")
     fun getTaskById(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<Task>>
+
+    @GET("task/stats")
+    fun stats(): Call<BaseResponse<HomeStatResp>>
 }
