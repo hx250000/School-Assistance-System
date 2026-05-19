@@ -182,6 +182,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     // ================= cancel =================
+    // java
     @Override
     @Transactional
     public void cancelTask(Long taskId) {
@@ -194,42 +195,52 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在: " + taskId));
 
-        TaskParticipant participant = taskParticipantRepository
-                .findByTaskIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("当前用户未加入该任务"));
-
-        if ("FINISHED".equals(participant.getStatus())) {
-            throw new ResourceConflictException("已完成的参与记录不能取消");
-        }
-        if ("CANCELLED".equals(participant.getStatus())) {
-            throw new ResourceConflictException("已取消的参与记录无法重复取消");
+        // 只有任务发起者可以取消
+        if (!userId.equals(task.getPublisherId())) {
+            throw new ResourceConflictException("无权限取消任务");
         }
 
-        // 标记参与记录为已取消
-        participant.setStatus("CANCELLED");
-        taskParticipantRepository.save(participant);
-
-        // 减少已参与人数（防止负值）
-        if (task.getCurrentPeople() == null) {
-            task.setCurrentPeople(0);
-        } else if (task.getCurrentPeople() > 0) {
-            task.setCurrentPeople(task.getCurrentPeople() - 1);
+        if ("FINISHED".equals(task.getStatus())) {
+            throw new ResourceConflictException("已完成的任务不能取消");
         }
-        taskRepository.save(task);
+        if ("CANCELLED".equals(task.getStatus())) {
+            throw new ResourceConflictException("任务已取消");
+        }
 
-        // 在任务开始前 24 小时内取消，扣除 5 点信用分（针对接任务的人）
-        if (task.getDeadline() != null) {
+        // 查找所有参与记录
+        List<TaskParticipant> participants = taskParticipantRepository.findByTaskId(taskId);
+
+        // 如果已有接单人，则可能需要对发起者扣分（在距离任务开始 24 小时内取消）
+        boolean hasJoined = participants.stream()
+                .anyMatch(p -> "JOINED".equals(p.getStatus()));
+
+        if (hasJoined && task.getDeadline() != null) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime cutoff = task.getDeadline().minusHours(24);
-            if (!now.isBefore(cutoff)) { // now >= cutoff 说明在 24 小时内取消
-                User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
-                int newScore = Math.max(0, (user.getCreditScore() == null ? 0 : user.getCreditScore()) - 5);
-                user.setCreditScore(newScore);
-                userRepository.save(user);
+            if (!now.isBefore(cutoff)) { // now >= cutoff，视为在 24 小时内取消
+                User publisher = userRepository.findById(task.getPublisherId())
+                        .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + task.getPublisherId()));
+                int current = publisher.getCreditScore() == null ? 0 : publisher.getCreditScore();
+                publisher.setCreditScore(Math.max(0, current - PENALTY_POINTS));
+                userRepository.save(publisher);
+                achievementService.recalculateUserAchievements(publisher.getId());
             }
         }
+
+        // 将所有 JOINED 的参与记录标记为 CANCELLED
+        for (TaskParticipant p : participants) {
+            if ("JOINED".equals(p.getStatus())) {
+                p.setStatus("CANCELLED");
+                taskParticipantRepository.save(p);
+            }
+        }
+
+        // 更新任务状态与人数并保存
+        task.setStatus("CANCELLED");
+        task.setCurrentPeople(0);
+        taskRepository.save(task);
     }
+
 
     // ================= history =================
     @Override
