@@ -197,7 +197,7 @@ public class TaskServiceImpl implements TaskService {
 
         // 只有任务发起者可以取消
         if (!userId.equals(task.getPublisherId())) {
-            throw new ResourceConflictException("无权限取消任务");
+            throw new ResourceConflictException("仅发布者可取消该任务");
         }
 
         if ("FINISHED".equals(task.getStatus())) {
