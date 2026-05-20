@@ -187,7 +187,7 @@ class TaskServiceImplTest {
 
         assertThatThrownBy(() -> taskService.cancelTask(1L))
                 .isInstanceOf(ResourceConflictException.class)
-                .hasMessageContaining("任务已完成，无法取消");
+                .hasMessageContaining("已完成的任务不能取消");
     }
 
     @Test
@@ -216,8 +216,6 @@ class TaskServiceImplTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         taskService.cancelTask(1L);
-
-        verify(taskParticipantRepository).deleteByTaskId(1L);
         
         ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
         verify(taskRepository).save(captor.capture());
