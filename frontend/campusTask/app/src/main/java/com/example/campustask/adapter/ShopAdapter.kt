@@ -15,6 +15,7 @@ import com.example.campustask.repository.ShopRepository
 
 class ShopAdapter(
     private val list: List<ShopItem>,
+    private val isMock: Boolean=false,
     private val onExchangeListener: OnExchangeListener? = null
 ) :
     RecyclerView.Adapter<ShopAdapter.ViewHolder>() {
@@ -64,21 +65,34 @@ class ShopAdapter(
             holder.img.setImageResource(R.drawable.ic_avatar)
         }
 
-        holder.btn.setOnClickListener {
+        // 如果是 Mock 数据，直接禁用按钮并调低透明度
+        if (isMock) {
             holder.btn.isEnabled = false
-            holder.btn.alpha = 0.5f
-            Log.d(TAG, "btn enabled = ${holder.btn.isEnabled}")
-            shopRepository.exchangeItem(context, item.id) { success, _, error ->
-                holder.btn.post {
-                    holder.btn.isEnabled = true
-                    holder.btn.alpha=1f
-                    Log.d(TAG, "btn enabled = ${holder.btn.isEnabled}")
-                    if (success) {
-                        Toast.makeText(holder.itemView.context, "兑换成功！", Toast.LENGTH_SHORT).show()
-                        onExchangeListener?.onExchangeSuccess()
-                    } else {
-                        Toast.makeText(holder.itemView.context, error ?: "兑换失败", Toast.LENGTH_SHORT).show()
-                        onExchangeListener?.onExchangeFailure(error ?: "兑换失败")
+            holder.btn.alpha = 0.5f // 置灰视觉效果
+            holder.btn.text = "暂不可兑换" // 让提示更清晰
+            holder.btn.setOnClickListener(null) // 移除点击事件
+        } else {
+            // 恢复正常状态，防止 RecyclerView 复用 ViewHolder 导致按钮状态混乱
+            holder.btn.isEnabled = true
+            holder.btn.alpha = 1.0f
+            holder.btn.text = "兑换"
+
+            holder.btn.setOnClickListener {
+                holder.btn.isEnabled = false
+                holder.btn.alpha = 0.5f
+                Log.d(TAG, "btn enabled = ${holder.btn.isEnabled}")
+                shopRepository.exchangeItem(context, item.id) { success, _, error ->
+                    holder.btn.post {
+                        holder.btn.isEnabled = true
+                        holder.btn.alpha = 1f
+                        Log.d(TAG, "btn enabled = ${holder.btn.isEnabled}")
+                        if (success) {
+                            Toast.makeText(holder.itemView.context, "兑换成功！", Toast.LENGTH_SHORT).show()
+                            onExchangeListener?.onExchangeSuccess()
+                        } else {
+                            Toast.makeText(holder.itemView.context, error ?: "兑换失败", Toast.LENGTH_SHORT).show()
+                            onExchangeListener?.onExchangeFailure(error ?: "兑换失败")
+                        }
                     }
                 }
             }

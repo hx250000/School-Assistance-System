@@ -1,6 +1,7 @@
 package com.example.campustask.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,26 +59,37 @@ class ShopFragment : Fragment() {
 
     private fun fetchShopItems() {
         shopRepository.getShopItems { success, items, error ->
-            if (success && items != null && items.isNotEmpty()) {
-                recyclerView.adapter = ShopAdapter(items, object : ShopAdapter.OnExchangeListener {
+            if (success && items != null ) {
+                Log.d(TAG,"items="+items)
+                if(items.isEmpty()){
+                    Toast.makeText(requireContext(), "商店里还没有商品哦", Toast.LENGTH_SHORT).show()
+                }
+                recyclerView.adapter = ShopAdapter(items, false,object : ShopAdapter.OnExchangeListener {
                     override fun onExchangeSuccess() {
+                        fetchShopItems()
                         fetchMyPoints()
                         fetchMyExchangeCount()
                     }
 
                     override fun onExchangeFailure(message: String) {
+                        Log.d(TAG,message)
+                        Toast.makeText(requireContext(), "商品兑换失败，请再试一次", Toast.LENGTH_SHORT).show()
                     }
                 })
             } else {
                 // 网络请求失败，继续使用Mock数据
+                Log.d(TAG,"items="+items+", error="+error)
                 Toast.makeText(requireContext(), "网络连接失败，使用默认数据", Toast.LENGTH_SHORT).show()
-                recyclerView.adapter = ShopAdapter(mockList, object : ShopAdapter.OnExchangeListener {
+                recyclerView.adapter = ShopAdapter(mockList, true,object : ShopAdapter.OnExchangeListener {
                     override fun onExchangeSuccess() {
+                        fetchShopItems()
                         fetchMyPoints()
                         fetchMyExchangeCount()
                     }
 
                     override fun onExchangeFailure(message: String) {
+                        Log.d(TAG,message)
+                        Toast.makeText(requireContext(), "商品兑换失败，请再试一次", Toast.LENGTH_SHORT).show()
                     }
                 })
             }
