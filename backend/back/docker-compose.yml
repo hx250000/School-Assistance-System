@@ -1,13 +1,14 @@
+version: '3.8'
 services:
 
   mysql:
     image: mysql:8
     container_name: mysql-container
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ryx050609
+      MYSQL_DATABASE: newschool
     ports:
-      - "${MYSQL_PORT}:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     command:
@@ -32,11 +33,9 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/newschool?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ryx050609
     volumes:
       - ./logs:/app/logs
     depends_on:
@@ -45,13 +44,6 @@ services:
     networks:
       - campus-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    env_file:
-      - .env
 
 networks:
   campus-network:

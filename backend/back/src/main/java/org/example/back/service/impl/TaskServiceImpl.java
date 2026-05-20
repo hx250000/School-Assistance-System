@@ -186,7 +186,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public void cancelTask(Long taskId) {
-
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
