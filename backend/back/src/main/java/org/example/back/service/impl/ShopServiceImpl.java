@@ -40,7 +40,9 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public List<ShopItem> listItems() {
-        return shopItemRepository.findAll();
+        var res=shopItemRepository.findAll();
+        log.info("shopitems= "+res);
+        return res;
     }
 
     @Override
