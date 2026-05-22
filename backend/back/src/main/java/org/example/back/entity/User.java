@@ -46,6 +46,9 @@ public class User {
     @Column
     private String pswencp;
 
+    @Column
+    private String avatarUrl;
+
     @Column(nullable = false)
     @Schema(description = "等级", example = "1")
     private Integer level;
@@ -61,6 +64,9 @@ public class User {
         if (this.points == null) this.points = 0;
         if (this.creditScore == null) this.creditScore = 100;
         if (this.level == null) this.level = 1;
-        if (this.pswencp == null) this.pswencp = "md5";
+        if (this.pswencp == null) this.pswencp = "bcrypt";
+        if (this.avatarUrl == null) {
+            this.avatarUrl = "uploads/avatars/default-avatar.png";
+        }
     }
 }

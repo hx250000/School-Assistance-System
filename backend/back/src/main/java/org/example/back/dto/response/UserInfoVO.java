@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 public class UserInfoVO {
     private Long id;
     private String username;
-    private String phone;       // 原来是 email，现在改成 phone
+    private String phone;
+    private String avatarUrl;
     private Integer points;
     private Integer creditScore;
     private Integer level;

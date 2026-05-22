@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 //import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
@@ -76,6 +77,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.error(401,"登录状态失效，请重新登录"));
+    }
+
+    /**
+     * 处理异常
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        log.info("MaxUploadSizeExceededException: {}", ex.toString());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(409,"选择的图片体积过大，请选择小于4MB的图片"));
     }
 
 

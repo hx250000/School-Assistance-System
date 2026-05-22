@@ -3,6 +3,7 @@ package org.example.back.service.impl;
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
+import org.example.back.dto.response.AvatarUploadResponse;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
@@ -13,6 +14,7 @@ import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.LoginRecordRepository;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.AchievementService;
+import org.example.back.service.FileStorageService;
 import org.example.back.service.UserService;
 import org.example.back.util.JwtUtil;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private AchievementService achievementService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -62,7 +68,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(registerRequest.getUsername());
         user.setPassword(password);
         user.setPhone(registerRequest.getPhone());
-        // 初始化积分和信用分
+        // 初始化积分和信用分和头像
         user.setPoints(0);
         user.setCreditScore(100);
 
@@ -164,6 +170,29 @@ public class UserServiceImpl implements UserService {
             vos.add(vo);
         }
         return vos;
+    }
+
+    @Override
+    @Transactional
+    public AvatarUploadResponse uploadAvatar(MultipartFile file) {
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("用户 " + userId + " 不存在"));
+
+        // 保存文件到本地 uploads/avatars/ 目
+        String url=fileStorageService.storeFile(file,"avatars");
+
+        user.setAvatarUrl(url);
+        userRepository.save(user);
+
+        AvatarUploadResponse response=new AvatarUploadResponse();
+        response.setUserId(userId);
+        response.setAvatarUrl(url);
+
+        return response;
     }
 
     public String encryptPassword(String password) {

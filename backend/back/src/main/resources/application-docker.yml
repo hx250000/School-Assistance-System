@@ -9,6 +9,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 4MB      # 单个文件最大限制
+      max-request-size: 10MB   # 单次请求总大小限制
+
 management:
   endpoints:
     web:
