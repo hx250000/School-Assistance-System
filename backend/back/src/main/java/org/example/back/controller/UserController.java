@@ -3,7 +3,7 @@ package org.example.back.controller;
 import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
-import org.example.back.dto.response.AvatarUploadResponse;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
@@ -53,7 +53,7 @@ public class UserController {
 
     @Operation(summary = "上传用户头像")
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<AvatarUploadResponse> uploadAvatar(@RequestPart("file") MultipartFile file) {
+    public ApiResponse<FileUploadResponse> uploadAvatar(@RequestPart("file") MultipartFile file) {
         return ApiResponse.success(userService.uploadAvatar(file));
     }
 }

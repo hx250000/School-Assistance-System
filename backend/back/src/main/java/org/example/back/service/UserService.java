@@ -2,7 +2,7 @@ package org.example.back.service;
 
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
-import org.example.back.dto.response.AvatarUploadResponse;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
@@ -20,5 +20,5 @@ public interface UserService {
 
     List<UserInfoVO> getAllUsersInfo();
 
-    AvatarUploadResponse uploadAvatar(MultipartFile file);
+    FileUploadResponse uploadAvatar(MultipartFile file);
 }

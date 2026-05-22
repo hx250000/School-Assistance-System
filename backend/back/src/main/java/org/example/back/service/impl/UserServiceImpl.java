@@ -3,7 +3,7 @@ package org.example.back.service.impl;
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
-import org.example.back.dto.response.AvatarUploadResponse;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public AvatarUploadResponse uploadAvatar(MultipartFile file) {
+    public FileUploadResponse uploadAvatar(MultipartFile file) {
         Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
         if (userId == null) {
             throw new AuthenticationException("用户未登录");
@@ -188,9 +188,9 @@ public class UserServiceImpl implements UserService {
         user.setAvatarUrl(url);
         userRepository.save(user);
 
-        AvatarUploadResponse response=new AvatarUploadResponse();
-        response.setUserId(userId);
-        response.setAvatarUrl(url);
+        FileUploadResponse response=new FileUploadResponse();
+        response.setType("userAvatar");
+        response.setFileUrl(url);
 
         return response;
     }
