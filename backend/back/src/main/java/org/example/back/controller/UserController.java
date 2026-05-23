@@ -29,8 +29,8 @@ public class UserController {
 
     @Operation(summary = "用户注册", description = "注册新用户账号")
     @PostMapping("/register")
-    public ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest RR) {
-        return ApiResponse.success(userService.register(RR));
+    public ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
+        return ApiResponse.success(userService.register(registerRequest));
     }
 
     @Operation(summary = "用户登录", description = "登录并返回 token")
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @Operation(summary = "上传用户头像")
-    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/info/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<FileUploadResponse> uploadAvatar(@RequestPart("file") MultipartFile file) {
         return ApiResponse.success(userService.uploadAvatar(file));
     }
