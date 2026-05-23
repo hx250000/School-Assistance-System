@@ -5,3 +5,4 @@ htmlReport/
 *.class
 application.yml
 .env
+uploads/

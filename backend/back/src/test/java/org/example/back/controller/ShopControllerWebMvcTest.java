@@ -5,6 +5,7 @@ import org.example.back.config.SecurityConfig;
 import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.dto.request.ShopExchangeRequest;
 import org.example.back.exception.GlobalExceptionHandler;
+import org.example.back.service.FileStorageService;
 import org.example.back.service.ShopService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ class ShopControllerWebMvcTest {
 
     @MockBean
     private ShopService shopService;
+
+    @MockBean
+    private FileStorageService fileStorageService;
 
     @Test
     void items_shouldReturnArray() throws Exception {

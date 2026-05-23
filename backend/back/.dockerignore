@@ -7,3 +7,4 @@ htmlReport/
 .git/
 .gitignore
 *.md
+uploads/

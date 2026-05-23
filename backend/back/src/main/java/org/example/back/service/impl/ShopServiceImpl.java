@@ -2,6 +2,7 @@ package org.example.back.service.impl;
 
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.NewShopItemRequest;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
@@ -13,12 +14,14 @@ import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
 import org.example.back.repository.ShopRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.FileStorageService;
 import org.example.back.service.ShopService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,6 +29,9 @@ import java.util.List;
 public class ShopServiceImpl implements ShopService {
 
     private static final Logger log = LoggerFactory.getLogger(ShopServiceImpl.class);
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @Autowired
     private ShopItemRepository shopItemRepository;
 
@@ -114,5 +120,15 @@ public class ShopServiceImpl implements ShopService {
         long count=pointsLogRepository.countByUserIdAndTitle(userId,title);
         log.info("exchangeCount: user={}, count={}", user.getId(), count);
         return count;
+    }
+
+    // 复用文件存储服务，把图片存入 uploads/shop/ 目录下
+    @Override
+    public FileUploadResponse uploadShopitemImage(MultipartFile file) {
+        String url=fileStorageService.storeFile(file,"shopitem");
+        FileUploadResponse response=new FileUploadResponse();
+        response.setType("shopitem");
+        response.setFileUrl(url);
+        return response;
     }
 }
