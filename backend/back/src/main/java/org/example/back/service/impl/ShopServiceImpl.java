@@ -122,7 +122,7 @@ public class ShopServiceImpl implements ShopService {
         return count;
     }
 
-    // 🌟 复用文件存储服务，把图片存入 uploads/shop/ 目录下
+    // 复用文件存储服务，把图片存入 uploads/shop/ 目录下
     @Override
     public FileUploadResponse uploadShopitemImage(MultipartFile file) {
         String url=fileStorageService.storeFile(file,"shopitem");
