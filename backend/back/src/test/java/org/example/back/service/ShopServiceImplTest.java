@@ -1,6 +1,7 @@
 package org.example.back.service;
 
 import org.example.back.dto.request.NewShopItemRequest;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.entity.PointsLog;
 import org.example.back.entity.ShopItem;
 import org.example.back.entity.ShopOrder;
@@ -12,6 +13,7 @@ import org.example.back.repository.PointsLogRepository;
 import org.example.back.repository.ShopItemRepository;
 import org.example.back.repository.ShopRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.FileStorageService;
 import org.example.back.service.impl.ShopServiceImpl;
 import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -44,6 +46,9 @@ class ShopServiceImplTest {
 
     @Mock
     private ShopRepository shopRepository;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private ShopServiceImpl shopService;
@@ -254,6 +259,18 @@ class ShopServiceImplTest {
         when(shopItemRepository.save(any(ShopItem.class))).thenReturn(saved);
 
         assertThat(shopService.addItem(req)).isEqualTo(7L);
+    }
+
+    @Test
+    void uploadShopitemImage_shouldReturnFileUploadResponse() {
+        when(fileStorageService.storeFile(any(), eq("shopitem"))).thenReturn("uploads/shopitem/test.jpg");
+
+        FileUploadResponse response = shopService.uploadShopitemImage(null);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getType()).isEqualTo("shopitem");
+        assertThat(response.getFileUrl()).isEqualTo("uploads/shopitem/test.jpg");
+        verify(fileStorageService, times(1)).storeFile(any(), eq("shopitem"));
     }
 }
 
