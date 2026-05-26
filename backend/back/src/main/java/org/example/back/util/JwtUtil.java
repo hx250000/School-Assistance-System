@@ -17,13 +17,11 @@ public class JwtUtil {
     @Value("${campus.jwt.secret}")
     public void setSecret(String secret) {
         SECRET = secret;
-        System.out.println("Secret: " + SECRET);
     }
 
     @Value("${campus.jwt.expiration}")
     public void setExpiration(long expiration) {
         EXPIRATION_TIME = expiration;
-        System.out.println("EXPIRATION: " + EXPIRATION_TIME);
     }
 
     public static String generateToken(Long userId) {
