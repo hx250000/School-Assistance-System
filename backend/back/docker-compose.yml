@@ -37,6 +37,11 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_API_SECRET: ${AI_API_SECRET}
+      AI_API_URL: ${AI_API_URL}
+      AI_MODEL: ${AI_MODEL}
+      AI_TEMPLATE: ${AI_TEMPLATE}
     volumes:
       - ./logs:/app/logs
     depends_on:

@@ -90,7 +90,13 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(409,"选择的图片体积过大，请选择小于4MB的图片"));
     }
 
-
+    @ExceptionHandler(AiException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAiException(AiException ex) {
+        log.info("AiException: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.error(503,ex.getMessage()));
+    }
 
     /**
      * 处理所有未捕获的异常

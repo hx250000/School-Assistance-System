@@ -284,4 +284,23 @@ class UserServiceImplTest {
         assertThat(vos.get(0).getId()).isEqualTo(1L);
         assertThat(vos.get(1).getId()).isEqualTo(2L);
     }
+
+    @Test
+    void uploadAvatar_whenNotLoggedIn_shouldThrowAuthenticationException() {
+        AuthTestUtil.clear();
+
+        assertThatThrownBy(() -> userService.uploadAvatar(null))
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessageContaining("用户未登录");
+    }
+
+    @Test
+    void uploadAvatar_whenUserNotFound_shouldThrowResourceNotFoundException() {
+        AuthTestUtil.setCurrentUserId(99L);
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.uploadAvatar(null))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("用户 99 不存在");
+    }
 }

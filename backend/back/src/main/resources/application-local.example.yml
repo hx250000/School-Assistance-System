@@ -31,4 +31,12 @@ campus:
     secret: yourverylongsecretkeyshouldbeatleast512bytes
     expiration: 86400000 # 3600,000*24s
 
+ai:
+  api-key:
+  api-secret:
+  api-url: https://spark-api-open.xf-yun.com/v1/chat/completions
+  model: "lite"
+  template:
+
+
 
