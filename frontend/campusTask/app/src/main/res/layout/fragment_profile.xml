@@ -25,6 +25,7 @@
                 android:gravity="center_vertical">
 
                 <ImageView
+                    android:id="@+id/img_avatar"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:src="@drawable/ic_avatar"
@@ -54,9 +55,21 @@
                         android:textColor="@color/text_on_primary" />
 
                 </LinearLayout>
+
+                <!-- ⭐ 新增：切换头像按钮 -->
+                <ImageView
+                    android:id="@+id/btn_avatar_edit"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="10dp"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:background="@drawable/bg_card_transparent"
+                    android:padding="5dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
 
-            <!-- 积分卡 -->
+            <!-- ================= 积分卡 ================= -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -186,7 +199,6 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <!-- 任务历史 -->
                 <LinearLayout
                     android:id="@+id/btn_history"
                     android:layout_width="0dp"
@@ -210,7 +222,6 @@
                         android:textColor="@color/text_body" />
                 </LinearLayout>
 
-                <!-- 积分明细 -->
                 <LinearLayout
                     android:id="@+id/btn_points"
                     android:layout_width="0dp"
@@ -234,7 +245,6 @@
                         android:textColor="@color/text_body" />
                 </LinearLayout>
 
-                <!-- 我的成就 -->
                 <LinearLayout
                     android:id="@+id/btn_achievement"
                     android:layout_width="0dp"
@@ -258,7 +268,6 @@
                         android:textColor="@color/text_body" />
                 </LinearLayout>
 
-                <!-- 夜间模式 -->
                 <LinearLayout
                     android:id="@+id/btn_dark"
                     android:layout_width="0dp"
@@ -293,7 +302,6 @@
             android:background="@drawable/bg_white_card"
             android:orientation="vertical">
 
-            <!-- 消息通知 -->
             <LinearLayout
                 android:id="@+id/item_msg"
                 android:layout_width="match_parent"
@@ -302,13 +310,12 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="消息通知"
-                    android:textColor="@color/text_body" />
+                    android:textColor="@color/text_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
-            <!-- 我的成就 -->
             <LinearLayout
                 android:id="@+id/item_achievement"
                 android:layout_width="match_parent"
@@ -317,10 +324,10 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="我的成就"
-                    android:textColor="@color/text_body" />
+                    android:textColor="@color/text_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -333,7 +340,6 @@
             android:background="@drawable/bg_white_card"
             android:orientation="vertical">
 
-            <!-- 切换主题 -->
             <LinearLayout
                 android:id="@+id/item_theme"
                 android:layout_width="match_parent"
@@ -342,10 +348,10 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="切换主题"
-                    android:textColor="@color/text_body" />
+                    android:textColor="@color/text_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
         </LinearLayout>
