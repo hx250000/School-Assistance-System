@@ -1,16 +1,23 @@
 package com.example.campustask.repository
 
 import android.content.Context
+import android.database.Cursor
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
-import com.example.campustask.model.*
+import com.example.campustask.model.UserInfo
 import com.example.campustask.model.request.LoginRequest
 import com.example.campustask.model.request.RegisterRequest
 import com.example.campustask.model.response.BaseResponse
+import com.example.campustask.model.response.FileUploadResponse
 import com.example.campustask.model.response.LoginResponse
 import com.example.campustask.model.response.RegisterResponse
 import com.example.campustask.network.RetrofitClient
 import com.example.campustask.utils.AuthTokenStore
 import com.example.campustask.utils.ResponseHandler
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -87,6 +94,62 @@ class UserRepository {
                 callback(false, null, "网络异常，请稍后再试")
             }
         })
+    }
+
+    fun uploadAvatar(context: Context, uri: Uri, callback: (Boolean, FileUploadResponse?, String?) -> Unit) {
+        val header = AuthTokenStore.authorizationHeader(context)
+        if (header == null) {
+            callback(false, null, "用户未登录")
+            return
+        }
+
+        val resolver = context.contentResolver
+        val inputStream = resolver.openInputStream(uri)
+        if (inputStream == null) {
+            callback(false, null, "无法读取图片文件")
+            return
+        }
+
+        val bytes = inputStream.use { it.readBytes() }
+        val contentType = resolver.getType(uri) ?: "image/jpeg"
+        val fileName = getFileName(context, uri)
+        val requestBody = bytes.toRequestBody(contentType.toMediaTypeOrNull())
+        val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
+
+        RetrofitClient.fileApi.uploadUserAvatar(header, part).enqueue(object : Callback<BaseResponse<FileUploadResponse>> {
+            override fun onResponse(call: Call<BaseResponse<FileUploadResponse>>, response: Response<BaseResponse<FileUploadResponse>>) {
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        callback(true, body.data, null)
+                    } else {
+                        callback(false, null, body.message ?: "上传头像失败")
+                    }
+                } else {
+                    callback(false, null, body?.message ?: "上传头像失败")
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse<FileUploadResponse>>, t: Throwable) {
+                Log.d(TAG, t.message ?: "网络连接失败")
+                callback(false, null, t.message ?: "网络异常，请稍后再试")
+            }
+        })
+    }
+
+    private fun getFileName(context: Context, uri: Uri): String {
+        var name = "avatar.jpg"
+        val cursor: Cursor? = context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                name = it.getString(it.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+            }
+        }
+        return name
     }
 
     // ===========================

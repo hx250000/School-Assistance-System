@@ -1,12 +1,13 @@
 package com.example.campustask.utils
 
 import com.example.campustask.R
+import com.example.campustask.network.RetrofitClient
 
 object FileUrlResolver {
 
-    // 统一管理后端的 Base URL。
-    // 以后如果换成局域网 IP、公网服务器或者阿里云 OSS，只需要改这一行
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    // 统一管理后端的 Base URL。与 RetrofitClient 使用相同基础地址。
+    // 如果你在真机上运行，请将 RetrofitClient.BASE_URL 改成你电脑的局域网地址，例如 http://192.168.1.100:8080/api/
+    private val BASE_URL = RetrofitClient.BASE_URL.removeSuffix("api/")
 
     /**
      * 将后端返回的相对路径转换为可直接访问的完整 URL

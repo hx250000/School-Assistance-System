@@ -19,7 +19,7 @@ interface FileApi {
 
     // 上传用户头像（需要携带 Token 认证）
     @Multipart
-    @POST("user/avatar")
+    @POST("user/info/avatar")
     fun uploadUserAvatar(
         @Header("Authorization") token: String,
         @Part file: MultipartBody.Part
