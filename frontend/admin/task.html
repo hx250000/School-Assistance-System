@@ -3,97 +3,96 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<title>任务管理</title>
+    <title>任务管理</title>
 
-<style>
+    <style>
+        table {
 
-table{
+            width: 100%;
+            border-collapse: collapse;
 
-width:100%;
-border-collapse: collapse;
+        }
 
-}
+        td,
+        th {
 
-td,th{
+            border: 1px solid #ccc;
+            padding: 8px;
 
-border:1px solid #ccc;
-padding:8px;
-
-}
-
-</style>
+        }
+    </style>
 
 </head>
 
 
 <body>
 
-<h2>任务管理</h2>
+    <h2>任务管理</h2>
 
 
-搜索：
+    搜索：
 
-<input id="keyword">
+    <input id="keyword">
 
-<button onclick="search()">
+    <button onclick="search()">
 
-搜索
+        搜索
 
-</button>
-
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>ID</th>
-<th>标题</th>
-<th>奖励</th>
-<th>状态</th>
-<th>操作</th>
-
-</tr>
-
-</thead>
-
-<tbody id="table"></tbody>
-
-</table>
+    </button>
 
 
+    <table>
 
-<script>
+        <thead>
 
-const BASE=
-"http://localhost:8080/api/task";
+            <tr>
 
+                <th>ID</th>
+                <th>标题</th>
+                <th>奖励</th>
+                <th>状态</th>
+                <th>操作</th>
 
-async function load(){
+            </tr>
 
-let res=
-await fetch(
-BASE+"/list?page=1&size=50"
-);
+        </thead>
 
-let data=
-await res.json();
+        <tbody id="table"></tbody>
 
-show(data.data);
-
-}
+    </table>
 
 
-function show(tasks){
 
-let html="";
+    <script>
 
-tasks.forEach(t=>{
+        const BASE =
+            "http://localhost:8080/api/task";
 
-html+=`
+
+        async function load() {
+
+            let res =
+                await fetch(
+                    BASE + "/list?page=1&size=50"
+                );
+
+            let data =
+                await res.json();
+
+            show(data.data);
+
+        }
+
+
+        function show(tasks) {
+
+            let html = "";
+
+            tasks.forEach(t => {
+
+                html += `
 
 <tr>
 
@@ -128,77 +127,78 @@ onclick="cancel(${t.id})">
 
 `;
 
-});
+            });
 
-document.getElementById(
-"table"
-).innerHTML=html;
+            document.getElementById(
+                "table"
+            ).innerHTML = html;
 
-}
-
-
-
-async function finish(id){
-
-await fetch(
-
-BASE+"/"+id+"/finish",
-
-{method:"POST"}
-
-);
-
-load();
-
-}
+        }
 
 
 
-async function cancel(id){
+        async function finish(id) {
 
-await fetch(
+            await fetch(
 
-BASE+"/"+id+"/cancel",
+                BASE + "/" + id + "/finish",
 
-{method:"POST"}
+                { method: "POST" }
 
-);
+            );
 
-load();
+            load();
 
-}
-
-
-
-async function search(){
-
-let keyword=
-document.getElementById(
-"keyword"
-).value;
+        }
 
 
-let res=
-await fetch(
 
-BASE+
-"/search?keyword="
-+keyword
+        async function cancel(id) {
 
-);
+            await fetch(
 
-let data=
-await res.json();
+                BASE + "/" + id + "/cancel",
 
-show(data.data);
+                { method: "POST" }
 
-}
+            );
+
+            load();
+
+        }
 
 
-load();
 
-</script>
+        async function search() {
+
+            let keyword =
+                document.getElementById(
+                    "keyword"
+                ).value;
+
+
+            let res =
+                await fetch(
+
+                    BASE +
+                    "/search?keyword="
+                    + keyword
+
+                );
+
+            let data =
+                await res.json();
+
+            show(data.data);
+
+        }
+
+
+        load();
+
+    </script>
 
 
 </body>
+
 </html>

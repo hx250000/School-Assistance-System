@@ -1,7 +1,10 @@
 package org.example.back.service.impl;
 
+import lombok.extern.java.Log;
 import org.example.back.exception.ResourceConflictException;
 import org.example.back.service.FileStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +22,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     private static final List<String> ALLOWED_EXTENSIONS = List.of("image/jpeg", "image/png", "image/gif");
     // 最大 8MB
     private static final long MAX_FILE_SIZE = 4 * 1024 * 1024;
+    private static final Logger log = LoggerFactory.getLogger(FileStorageServiceImpl.class);
 
     @Override
     public String storeFile(MultipartFile file, String subDir) {
@@ -55,9 +59,11 @@ public class FileStorageServiceImpl implements FileStorageService {
 
             // 5. 写入本地文件系统
             Files.copy(file.getInputStream(), targetLocation);
+            String returnPath = "uploads/" + subDir + "/" + newFilename;
+            log.info("save file to {}", returnPath);
 
             // 6. 返回相对访问路径（供前端组合成完整 URL）
-            return "uploads/" + subDir + "/" + newFilename;
+            return returnPath;
 
         } catch (IOException e) {
             throw new RuntimeException("图片上传失败，请重试", e);

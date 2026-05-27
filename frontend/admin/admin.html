@@ -1,123 +1,122 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<title>校园任务后台管理</title>
+    <meta charset="UTF-8">
+    <title>校园任务后台管理</title>
 
-<style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial;
-}
+        body {
+            display: flex;
+            height: 100vh;
+        }
 
-body{
-    display:flex;
-    height:100vh;
-}
+        /* 左侧菜单 */
 
-/* 左侧菜单 */
+        .sidebar {
 
-.sidebar{
+            width: 220px;
+            background: #222;
+            color: white;
+            padding: 20px;
+        }
 
-    width:220px;
-    background:#222;
-    color:white;
-    padding:20px;
-}
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
 
-.sidebar h2{
-    margin-bottom:30px;
-}
+        .menu-btn {
 
-.menu-btn{
+            display: block;
+            width: 100%;
 
-    display:block;
-    width:100%;
+            padding: 15px;
 
-    padding:15px;
+            border: none;
 
-    border:none;
+            background: none;
 
-    background:none;
+            color: white;
 
-    color:white;
+            text-align: left;
 
-    text-align:left;
+            cursor: pointer;
 
-    cursor:pointer;
+            margin-bottom: 10px;
+        }
 
-    margin-bottom:10px;
-}
+        .menu-btn:hover {
 
-.menu-btn:hover{
-
-    background:#444;
-}
-
-
-/* 右边 */
-
-.content{
-
-    flex:1;
-
-    padding:30px;
-
-    overflow:auto;
-}
+            background: #444;
+        }
 
 
-.page{
+        /* 右边 */
 
-display:none;
+        .content {
 
-}
+            flex: 1;
 
-.active{
+            padding: 30px;
 
-display:block;
-
-}
-
-
-table{
-
-width:100%;
-
-border-collapse: collapse;
-
-margin-top:20px;
-}
-
-table td,
-table th{
-
-border:1px solid #ccc;
-
-padding:10px;
-
-}
+            overflow: auto;
+        }
 
 
-button{
+        .page {
 
-padding:8px 12px;
+            display: none;
 
-cursor:pointer;
+        }
 
-margin:5px;
-}
+        .active {
 
-input{
+            display: block;
 
-padding:8px;
-margin:5px;
-}
+        }
 
-</style>
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 20px;
+        }
+
+        table td,
+        table th {
+
+            border: 1px solid #ccc;
+
+            padding: 10px;
+
+        }
+
+
+        button {
+
+            padding: 8px 12px;
+
+            cursor: pointer;
+
+            margin: 5px;
+        }
+
+        input {
+
+            padding: 8px;
+            margin: 5px;
+        }
+    </style>
 
 </head>
 
@@ -125,247 +124,235 @@ margin:5px;
 <body>
 
 
-<div class="sidebar">
+    <div class="sidebar">
 
-<h2>后台管理</h2>
+        <h2>后台管理</h2>
 
-<button
-class="menu-btn"
-onclick="showPage('user')">
+        <button class="menu-btn" onclick="showPage('user')">
 
-用户管理
+            用户管理
 
-</button>
+        </button>
 
 
-<button
-class="menu-btn"
-onclick="showPage('task')">
+        <button class="menu-btn" onclick="showPage('task')">
 
-任务管理
+            任务管理
 
-</button>
+        </button>
 
 
-<button
-class="menu-btn"
-onclick="showPage('shop')">
+        <button class="menu-btn" onclick="showPage('shop')">
 
-商城管理
+            商城管理
 
-</button>
+        </button>
 
 
-</div>
+    </div>
 
 
 
-<div class="content">
+    <div class="content">
 
 
-<!-- 用户 -->
+        <!-- 用户 -->
 
-<div
-id="user"
-class="page active">
+        <div id="user" class="page active">
 
-<h2>用户管理</h2>
+            <h2>用户管理</h2>
 
-<button onclick="loadUsers()">
+            <button onclick="loadUsers()">
 
-刷新用户
+                刷新用户
 
-</button>
+            </button>
 
 
-<table>
+            <table>
 
-<thead>
+                <thead>
 
-<tr>
+                    <tr>
 
-<th>ID</th>
-<th>用户名</th>
-<th>积分</th>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>积分</th>
 
-</tr>
+                    </tr>
 
-</thead>
+                </thead>
 
-<tbody id="userTable">
+                <tbody id="userTable">
 
-</tbody>
+                </tbody>
 
-</table>
+            </table>
 
-</div>
+        </div>
 
 
 
-<!-- 任务 -->
+        <!-- 任务 -->
 
-<div
-id="task"
-class="page">
+        <div id="task" class="page">
 
-<h2>任务管理</h2>
+            <h2>任务管理</h2>
 
 
-搜索：
+            搜索：
 
-<input id="keyword">
+            <input id="keyword">
 
-<button onclick="searchTask()">
+            <button onclick="searchTask()">
 
-搜索
+                搜索
 
-</button>
+            </button>
 
 
-<table>
+            <table>
 
-<thead>
+                <thead>
 
-<tr>
+                    <tr>
 
-<th>ID</th>
+                        <th>ID</th>
 
-<th>标题</th>
+                        <th>标题</th>
 
-<th>状态</th>
+                        <th>状态</th>
 
-<th>操作</th>
+                        <th>操作</th>
 
-</tr>
+                    </tr>
 
-</thead>
+                </thead>
 
-<tbody id="taskTable">
+                <tbody id="taskTable">
 
-</tbody>
+                </tbody>
 
-</table>
+            </table>
 
-</div>
+        </div>
 
 
 
 
-<!-- 商城 -->
+        <!-- 商城 -->
 
-<div
-id="shop"
-class="page">
+        <div id="shop" class="page">
 
 
-<h2>商城管理</h2>
+            <h2>商城管理</h2>
 
 
-名称:
+            名称:
 
-<input id="name">
+            <input id="name">
 
 
-积分:
+            积分:
 
-<input id="point">
+            <input id="point">
 
 
-库存:
+            库存:
 
-<input id="stock">
+            <input id="stock">
 
 
-<button onclick="addItem()">
+            <button onclick="addItem()">
 
-添加商品
+                添加商品
 
-</button>
+            </button>
 
 
 
-<table>
+            <table>
 
-<thead>
+                <thead>
 
-<tr>
+                    <tr>
 
-<th>ID</th>
+                        <th>ID</th>
 
-<th>商品</th>
+                        <th>商品</th>
 
-<th>积分</th>
+                        <th>积分</th>
 
-<th>库存</th>
+                        <th>库存</th>
 
-</tr>
+                    </tr>
 
-</thead>
+                </thead>
 
-<tbody id="shopTable">
+                <tbody id="shopTable">
 
-</tbody>
+                </tbody>
 
-</table>
+            </table>
 
-</div>
+        </div>
 
 
 
-</div>
+    </div>
 
 
 
-<script>
+    <script>
 
-const USER=
-"http://localhost:8080/api/user";
+        const USER =
+            "http://localhost:8080/api/user";
 
-const TASK=
-"http://localhost:8080/api/task";
+        const TASK =
+            "http://localhost:8080/api/task";
 
-const SHOP=
-"http://localhost:8080/api/shop";
+        const SHOP =
+            "http://localhost:8080/api/shop";
 
 
 
-function showPage(id){
+        function showPage(id) {
 
-document
-.querySelectorAll(".page")
+            document
+                .querySelectorAll(".page")
 
-.forEach(
+                .forEach(
 
-p=>p.style.display="none"
+                    p => p.style.display = "none"
 
-);
+                );
 
-document.getElementById(
-id
-).style.display="block";
+            document.getElementById(
+                id
+            ).style.display = "block";
 
-}
+        }
 
 
 
-/**************
-用户
-**************/
+        /**************
+        用户
+        **************/
 
 
-async function loadUsers(){
+        async function loadUsers() {
 
-let res=
-await fetch(USER+"/all");
+            let res =
+                await fetch(USER + "/all");
 
-let data=
-await res.json();
+            let data =
+                await res.json();
 
-let html="";
+            let html = "";
 
-data.data.forEach(u=>{
+            data.data.forEach(u => {
 
-html+=`
+                html += `
 
 <tr>
 
@@ -379,47 +366,47 @@ html+=`
 
 `;
 
-});
+            });
 
 
-userTable.innerHTML=
-html;
+            userTable.innerHTML =
+                html;
 
-}
-
-
-
-/**************
-任务
-**************/
-
-
-async function loadTask(){
-
-let res=
-await fetch(
-
-TASK+
-"/list?page=1&size=50"
-
-);
-
-let data=
-await res.json();
-
-renderTask(data.data);
-
-}
+        }
 
 
 
-function renderTask(tasks){
+        /**************
+        任务
+        **************/
 
-let html="";
 
-tasks.forEach(t=>{
+        async function loadTask() {
 
-html+=`
+            let res =
+                await fetch(
+
+                    TASK +
+                    "/list?page=1&size=50"
+
+                );
+
+            let data =
+                await res.json();
+
+            renderTask(data.data);
+
+        }
+
+
+
+        function renderTask(tasks) {
+
+            let html = "";
+
+            tasks.forEach(t => {
+
+                html += `
 
 <tr>
 
@@ -453,108 +440,108 @@ onclick="cancelTask(${t.id})">
 
 `;
 
-});
+            });
 
-taskTable.innerHTML=
-html;
+            taskTable.innerHTML =
+                html;
 
-}
-
-
-
-async function finishTask(id){
-
-await fetch(
-
-TASK+
-"/"+id+
-"/finish",
-
-{
-
-method:"POST"
-
-});
-
-loadTask();
-
-}
+        }
 
 
 
-async function cancelTask(id){
+        async function finishTask(id) {
 
-await fetch(
+            await fetch(
 
-TASK+
-"/"+id+
-"/cancel",
+                TASK +
+                "/" + id +
+                "/finish",
 
-{
+                {
 
-method:"POST"
+                    method: "POST"
 
-});
+                });
 
-loadTask();
+            loadTask();
 
-}
-
-
-
-async function searchTask(){
-
-let keyword=
-document.getElementById(
-"keyword"
-).value;
-
-
-let res=
-await fetch(
-
-TASK+
-"/search?keyword="
-+keyword
-
-);
-
-let data=
-await res.json();
-
-renderTask(
-data.data
-);
-
-}
+        }
 
 
 
-/**************
-商城
-**************/
+        async function cancelTask(id) {
+
+            await fetch(
+
+                TASK +
+                "/" + id +
+                "/cancel",
+
+                {
+
+                    method: "POST"
+
+                });
+
+            loadTask();
+
+        }
 
 
-async function loadShop(){
 
-let res=
-await fetch(
+        async function searchTask() {
 
-SHOP+
-"/items"
+            let keyword =
+                document.getElementById(
+                    "keyword"
+                ).value;
 
-);
 
-let data=
-await res.json();
+            let res =
+                await fetch(
 
-let html="";
+                    TASK +
+                    "/search?keyword="
+                    + keyword
 
-data.data.forEach(
+                );
 
-i=>{
+            let data =
+                await res.json();
 
-html+=`
+            renderTask(
+                data.data
+            );
+
+        }
+
+
+
+        /**************
+        商城
+        **************/
+
+
+        async function loadShop() {
+
+            let res =
+                await fetch(
+
+                    SHOP +
+                    "/items"
+
+                );
+
+            let data =
+                await res.json();
+
+            let html = "";
+
+            data.data.forEach(
+
+                i => {
+
+                    html += `
 
 <tr>
 
@@ -570,72 +557,73 @@ html+=`
 
 `;
 
-});
+                });
 
-shopTable.innerHTML=
-html;
+            shopTable.innerHTML =
+                html;
 
-}
-
-
-
-async function addItem(){
-
-let body={
-
-name:
-name.value,
-
-point:
-point.value,
-
-stock:
-stock.value
-
-};
-
-
-await fetch(
-
-SHOP+
-"/items",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":
-"application/json"
-
-},
-
-body:
-JSON.stringify(
-body
-)
-
-});
-
-
-loadShop();
-
-}
+        }
 
 
 
-/* 初始化 */
+        async function addItem() {
 
-loadUsers();
+            let body = {
 
-loadTask();
+                name:
+                    name.value,
 
-loadShop();
+                point:
+                    point.value,
+
+                stock:
+                    stock.value
+
+            };
 
 
-</script>
+            await fetch(
+
+                SHOP +
+                "/items",
+
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            body
+                        )
+
+                });
+
+
+            loadShop();
+
+        }
+
+
+
+        /* 初始化 */
+
+        loadUsers();
+
+        loadTask();
+
+        loadShop();
+
+
+    </script>
 
 
 </body>
+
 </html>
