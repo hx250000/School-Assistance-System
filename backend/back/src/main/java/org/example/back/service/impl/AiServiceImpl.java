@@ -54,6 +54,9 @@ public class AiServiceImpl implements AiService {
     public AiGenerateResponse generateTaskDescription(AiGenerateRequest aiGenerateRequest) {
         String taskType=aiGenerateRequest.getType();
         String taskTitle=aiGenerateRequest.getTitle();
+        if(taskTitle==null||taskTitle.isBlank()){
+            throw new IllegalArgumentException("请输入任务标题");
+        }
         // 构建 Prompt
         String prompt = buildPrompt(taskTitle, taskType);
         // 调用 LLM API
