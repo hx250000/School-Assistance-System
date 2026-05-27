@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -73,14 +74,14 @@ class PointsFragment : Fragment(R.layout.fragment_points) {
                 // 通知适配器刷新
                 adapter.notifyDataSetChanged()
             } else {
-                // 这里可以弹个 Toast 提示错误
-                // Toast.makeText(requireContext(), errorMsg ?: "获取失败", Toast.LENGTH_SHORT).show()
+                // 提示错误
+                Toast.makeText(requireContext(), errorMsg ?: "积分记录获取失败", Toast.LENGTH_SHORT).show()
 
                 // 如果后端还没通，暂时保留模拟数据
                 pointList.clear()
                 pointList.addAll(getMockData())
-                increasePoints=177
-                decreasePoints=-700
+                increasePoints=0
+                decreasePoints=0
 
                 updatePointsUI(increasePoints,decreasePoints)
                 adapter.notifyDataSetChanged()

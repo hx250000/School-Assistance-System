@@ -9,7 +9,9 @@ import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
+import org.example.back.repository.LoginRecordRepository;
 import org.example.back.repository.UserRepository;
+import org.example.back.service.AchievementService;
 import org.example.back.service.impl.UserServiceImpl;
 import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +38,12 @@ class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private LoginRecordRepository loginRecordRepository;
+
+    @Mock
+    private AchievementService achievementService;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -275,5 +283,24 @@ class UserServiceImplTest {
         assertThat(vos).hasSize(2);
         assertThat(vos.get(0).getId()).isEqualTo(1L);
         assertThat(vos.get(1).getId()).isEqualTo(2L);
+    }
+
+    @Test
+    void uploadAvatar_whenNotLoggedIn_shouldThrowAuthenticationException() {
+        AuthTestUtil.clear();
+
+        assertThatThrownBy(() -> userService.uploadAvatar(null))
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessageContaining("用户未登录");
+    }
+
+    @Test
+    void uploadAvatar_whenUserNotFound_shouldThrowResourceNotFoundException() {
+        AuthTestUtil.setCurrentUserId(99L);
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.uploadAvatar(null))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("用户 99 不存在");
     }
 }

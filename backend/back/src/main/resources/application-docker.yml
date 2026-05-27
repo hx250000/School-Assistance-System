@@ -9,5 +9,34 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 4MB      # 单个文件最大限制
+      max-request-size: 10MB   # 单次请求总大小限制
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+
 server:
   port: 8080
+
+campus:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
+
+ai:
+  api-key: ${AI_API_KEY}
+  api-secret: ${AI_API_SECRET}
+  api-url: ${AI_API_URL:https://spark-api-open.xf-yun.com/v1/chat/completions}
+  model: ${AI_MODEL:lite}
+  template: ${AI_TEMPLATE:}

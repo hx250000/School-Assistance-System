@@ -44,6 +44,10 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
+    // Glide 图片加载库
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
+
     // Emoji 兼容
     implementation("androidx.emoji2:emoji2-bundled:1.6.0")
 

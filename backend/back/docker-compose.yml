@@ -1,14 +1,13 @@
-version: '3.8'
 services:
-  
+
   mysql:
     image: mysql:8
-    container_name: campusdbs
+    container_name: mysql-container
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: campusdb
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - "3307:3306"
+      - "${MYSQL_PORT}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     command:
@@ -17,12 +16,12 @@ services:
     networks:
       - campus-network
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p123456 || exit 1"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -pryx050609 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
     restart: unless-stopped
-  
+
   back:
     build:
       context: .
@@ -33,9 +32,16 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/campusdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_API_SECRET: ${AI_API_SECRET}
+      AI_API_URL: ${AI_API_URL}
+      AI_MODEL: ${AI_MODEL}
+      AI_TEMPLATE: ${AI_TEMPLATE}
     volumes:
       - ./logs:/app/logs
     depends_on:
@@ -44,7 +50,13 @@ services:
     networks:
       - campus-network
     restart: unless-stopped
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    env_file:
+      - .env
 
 networks:
   campus-network:
@@ -53,4 +65,3 @@ networks:
 volumes:
   mysql-data:
     driver: local
-  

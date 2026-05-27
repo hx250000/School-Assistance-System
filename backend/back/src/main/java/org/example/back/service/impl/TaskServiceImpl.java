@@ -13,8 +13,10 @@ import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.*;
+import org.example.back.service.AchievementService;
 import org.example.back.service.PointsService;
 import org.example.back.service.TaskService;
+import org.example.back.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,11 @@ public class TaskServiceImpl implements TaskService {
     @Autowired private TaskRepository taskRepository;
     @Autowired private TaskParticipantRepository taskParticipantRepository;
     @Autowired private PointsService pointsService;
+    @Autowired private AchievementService achievementService;
     @Autowired private UserRepository userRepository;
+    @Autowired private UserService userService;
+
+    private static final int PENALTY_POINTS = 5;
 
     // ================= create =================
     @Override
@@ -55,7 +60,9 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus("OPEN");
         task.setPublisherId(userId);
 
-        return taskRepository.save(task).getId();
+        Long taskId = taskRepository.save(task).getId();
+        achievementService.recalculateUserAchievements(userId);
+        return taskId;
     }
 
     // ================= list =================
@@ -64,13 +71,13 @@ public class TaskServiceImpl implements TaskService {
         log.info("list tasks, page={}, size={}",page,size);
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
+        // 传入状态过滤条件
         List<TaskVO> resp=taskRepository.findAllByStatus("OPEN", pageable)
                 .getContent()
                 .stream()
                 .map(this::toVO)
                 .collect(Collectors.toList());
         log.info("list resp: "+ resp);
-        // 传入状态过滤条件
         return resp;
     }
 
@@ -116,7 +123,6 @@ public class TaskServiceImpl implements TaskService {
             log.info("task participant: " + p);
 
         } catch (DataIntegrityViolationException e){
-            //taskRepository.decrementIfNotEmpty(taskId);
             log.info("Already have task participant: " + task);
             throw new ResourceConflictException("你已经抢过该任务！");
         }
@@ -170,10 +176,13 @@ public class TaskServiceImpl implements TaskService {
                     "完成任务",
                     "完成任务 " + task.getTitle()
             );
+
+            achievementService.recalculateUserAchievements(p.getUserId());
         }
     }
 
     // ================= cancel =================
+    // java
     @Override
     @Transactional
     public void cancelTask(Long taskId) {
@@ -184,29 +193,54 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在: " + taskId));
 
-        log.info("finishtask, taskId="+taskId+", userId="+userId);
-
+        // 只有任务发起者可以取消
         if (!userId.equals(task.getPublisherId())) {
             throw new ResourceConflictException("仅发布者可取消该任务");
         }
 
-        String status = task.getStatus();
-        if ("FINISHED".equals(status)) {
-            throw new ResourceConflictException("任务已完成，无法取消");
+        if ("FINISHED".equals(task.getStatus())) {
+            throw new ResourceConflictException("已完成的任务不能取消");
         }
-        if ("CANCELLED".equals(status)) {
+        if ("CANCELLED".equals(task.getStatus())) {
             throw new ResourceConflictException("任务已取消");
         }
 
-        taskParticipantRepository.deleteByTaskId(taskId);
+        // 查找所有参与记录
+        List<TaskParticipant> participants = taskParticipantRepository.findByTaskId(taskId);
 
+        // 如果已有接单人，则可能需要对发起者扣分（在距离任务开始 24 小时内取消）
+        boolean hasJoined = participants.stream()
+                .anyMatch(p -> "JOINED".equals(p.getStatus()));
+
+        if (hasJoined && task.getDeadline() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime cutoff = task.getDeadline().minusHours(24);
+            if (!now.isBefore(cutoff)) { // now >= cutoff，视为在 24 小时内取消
+                User publisher = userRepository.findById(task.getPublisherId())
+                        .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + task.getPublisherId()));
+                int current = publisher.getCreditScore() == null ? 0 : publisher.getCreditScore();
+                publisher.setCreditScore(Math.max(0, current - PENALTY_POINTS));
+                userRepository.save(publisher);
+                achievementService.recalculateUserAchievements(publisher.getId());
+            }
+        }
+
+        // 将所有 JOINED 的参与记录标记为 CANCELLED
+        for (TaskParticipant p : participants) {
+            if ("JOINED".equals(p.getStatus())) {
+                p.setStatus("CANCELLED");
+                taskParticipantRepository.save(p);
+            }
+        }
+
+        // 更新任务状态与人数并保存
         task.setStatus("CANCELLED");
         task.setCurrentPeople(0);
-
         taskRepository.save(task);
     }
+
 
     // ================= history =================
     @Override
@@ -223,7 +257,25 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
-    // ================= search（关键修复点） =================
+    // ================= participated tasks =================
+    @Override
+    public List<TaskVO> myParticipatedTasks() {
+
+        Long userId = JwtAuthenticationInterceptor.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthenticationException("用户未登录");
+        }
+
+        return taskParticipantRepository.findByUserId(userId)
+                .stream()
+                .map(p -> taskRepository.findById(p.getTaskId())
+                        .orElse(null))
+                .filter(task -> task != null)
+                .map(this::toVO)
+                .collect(Collectors.toList());
+    }
+
+    // ================= search =================
     @Override
     public List<TaskVO> findByTitle(String keywords) {
 
@@ -250,16 +302,16 @@ public class TaskServiceImpl implements TaskService {
         HomeStatResp r = new HomeStatResp();
 
         int users = (int) userRepository.count();
-        int ing = 0, fin = 0;
+        int open = 0, fin = 0;
 
         for (Task t : taskRepository.findAll()) {
             if ("FINISHED".equals(t.getStatus())) fin++;
-            else if ("IN_PROGRESS".equals(t.getStatus())) ing++;
+            else if ("OPEN".equals(t.getStatus())) open++;
         }
 
         r.setUsers(users);
         r.setFinished(fin);
-        r.setInProgress(ing);
+        r.setInProgress(open);
 
         return r;
     }

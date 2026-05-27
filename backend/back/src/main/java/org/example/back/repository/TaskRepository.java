@@ -42,7 +42,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     """)
     int updateStatusIfFull(@Param("taskId") Long taskId);
 
-    // ================= ✅ 防重复完成（你缺的） =================
+    // ================= 防重复完成 =================
     @Modifying
     @Query("""
         UPDATE Task t
@@ -55,6 +55,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // ================= 查询 =================
 
     List<Task> findByStatus(String status);
+
+    long countByPublisherId(Long publisherId);
 
     List<Task> findByPublisherId(Long publisherId);
 

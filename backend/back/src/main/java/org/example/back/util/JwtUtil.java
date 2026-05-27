@@ -3,13 +3,26 @@ package org.example.back.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
-    private static final String SECRET = "yourverylongsecretkeyshouldbeatleast32bytes";
-    private static final long EXPIRATION_TIME = 3600_000 * 24 ; // 24小时
+    private static String SECRET="yourverylongsecretkeyshouldbeatleast32bytes";
+    private static long EXPIRATION_TIME = 3600_000 * 24 ; // 24小时
+
+    @Value("${campus.jwt.secret}")
+    public void setSecret(String secret) {
+        SECRET = secret;
+    }
+
+    @Value("${campus.jwt.expiration}")
+    public void setExpiration(long expiration) {
+        EXPIRATION_TIME = expiration;
+    }
 
     public static String generateToken(Long userId) {
         return Jwts.builder()

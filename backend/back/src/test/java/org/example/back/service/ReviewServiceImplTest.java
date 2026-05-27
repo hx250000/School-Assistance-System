@@ -28,6 +28,9 @@ class ReviewServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private AchievementService achievementService;
+
     @InjectMocks
     private ReviewServiceImpl reviewService;
 

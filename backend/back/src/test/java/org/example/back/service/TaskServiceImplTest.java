@@ -50,6 +50,9 @@ class TaskServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private AchievementService achievementService;
+
     @InjectMocks
     private TaskServiceImpl taskService;
 
@@ -184,7 +187,7 @@ class TaskServiceImplTest {
 
         assertThatThrownBy(() -> taskService.cancelTask(1L))
                 .isInstanceOf(ResourceConflictException.class)
-                .hasMessageContaining("任务已完成，无法取消");
+                .hasMessageContaining("已完成的任务不能取消");
     }
 
     @Test
@@ -213,8 +216,6 @@ class TaskServiceImplTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         taskService.cancelTask(1L);
-
-        verify(taskParticipantRepository).deleteByTaskId(1L);
         
         ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
         verify(taskRepository).save(captor.capture());
@@ -419,6 +420,80 @@ class TaskServiceImplTest {
         assertThatThrownBy(() -> taskService.findById(1L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("任务不存在");
+    }
+
+    @Test
+    void myParticipatedTasks_whenNotLoggedIn_shouldThrowAuthenticationException() {
+        AuthTestUtil.clear();
+
+        assertThatThrownBy(() -> taskService.myParticipatedTasks())
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessageContaining("用户未登录");
+    }
+
+    @Test
+    void myParticipatedTasks_shouldReturnParticipatedTasks() {
+        AuthTestUtil.setCurrentUserId(1L);
+
+        TaskParticipant p1 = new TaskParticipant();
+        p1.setTaskId(10L);
+        p1.setUserId(1L);
+
+        TaskParticipant p2 = new TaskParticipant();
+        p2.setTaskId(20L);
+        p2.setUserId(1L);
+
+        when(taskParticipantRepository.findByUserId(1L)).thenReturn(List.of(p1, p2));
+
+        Task t1 = new Task();
+        t1.setId(10L);
+        t1.setTitle("Task 1");
+        t1.setPublisherId(2L);
+        t1.setCreatedAt(LocalDateTime.now());
+        t1.setDeadline(LocalDateTime.now().plusDays(1));
+
+        Task t2 = new Task();
+        t2.setId(20L);
+        t2.setTitle("Task 2");
+        t2.setPublisherId(3L);
+        t2.setCreatedAt(LocalDateTime.now());
+        t2.setDeadline(LocalDateTime.now().plusDays(2));
+
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(t1));
+        when(taskRepository.findById(20L)).thenReturn(Optional.of(t2));
+
+        User mockUser1 = new User();
+        mockUser1.setId(2L);
+        mockUser1.setUsername("publisher1");
+
+        User mockUser2 = new User();
+        mockUser2.setId(3L);
+        mockUser2.setUsername("publisher2");
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(mockUser1));
+        when(userRepository.findById(3L)).thenReturn(Optional.of(mockUser2));
+
+        List<TaskVO> vos = taskService.myParticipatedTasks();
+
+        assertThat(vos).hasSize(2);
+        assertThat(vos.get(0).getTaskId()).isEqualTo(10L);
+        assertThat(vos.get(1).getTaskId()).isEqualTo(20L);
+    }
+
+    @Test
+    void myParticipatedTasks_whenTaskNotFound_shouldFilterOut() {
+        AuthTestUtil.setCurrentUserId(1L);
+
+        TaskParticipant p = new TaskParticipant();
+        p.setTaskId(99L);
+        p.setUserId(1L);
+
+        when(taskParticipantRepository.findByUserId(1L)).thenReturn(List.of(p));
+        when(taskRepository.findById(99L)).thenReturn(Optional.empty());
+
+        List<TaskVO> vos = taskService.myParticipatedTasks();
+
+        assertThat(vos).isEmpty();
     }
 }
 

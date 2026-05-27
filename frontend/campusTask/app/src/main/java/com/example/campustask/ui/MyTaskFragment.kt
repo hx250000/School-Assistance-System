@@ -19,7 +19,8 @@ import com.example.campustask.repository.TaskRepository
 class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
     private lateinit var adapter: MyTaskAdapter
-    private var allList = mutableListOf<Task>()
+    private var myPublishedList = mutableListOf<Task>()
+    private var myJoinedList = mutableListOf<Task>()
 
     private val TAG = "MyTasksFragment"
 
@@ -51,9 +52,10 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = MyTaskAdapter(allList) { task ->
+        adapter = MyTaskAdapter(myPublishedList) { task ->
 
-            val fragment = MyTaskDetailFragment.newInstance(task)
+            val isJoinedTask = defaultStatus == "JOINED"
+            val fragment = MyTaskDetailFragment.newInstance(task, isJoinedTask)
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
@@ -96,29 +98,7 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         // 加载数据
         Log.d(TAG, "调用后端API")
 
-        TaskRepository().getMyTaskHistory(requireContext()) { success, tasks, error ->
-
-            if (success && tasks != null) {
-
-                allList.clear()
-                allList.addAll(tasks)
-
-                Log.d(TAG, "Tasks: $tasks")
-
-                updateStatistics(allList)
-
-                // 默认筛选
-                filter(defaultStatus)
-
-            } else {
-
-                Toast.makeText(
-                    requireContext(),
-                    error ?: "加载失败",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
+        loadTasks()
 
         // 默认选中 tab
         val tabJoined = view.findViewById<TextView>(R.id.tab_joined)
@@ -198,6 +178,47 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     /**
+     * 获取任务信息
+     */
+    private fun loadTasks(){
+        TaskRepository().getMyPublishedTaskHistory(requireContext()) { success, tasks, error ->
+
+            if (success && tasks != null) {
+
+                myPublishedList.clear()
+                myPublishedList.addAll(tasks)
+                Log.d(TAG, "PublishedTasks: $tasks")
+                updateStatistics(myPublishedList)
+                // 默认筛选
+                filter(defaultStatus)
+
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    error ?: "加载失败",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        TaskRepository().getMyJoinedTaskHistory(requireContext()) { success, tasks, error ->
+
+            if (success && tasks != null) {
+                myJoinedList.clear()
+                myJoinedList.addAll(tasks)
+                Log.d(TAG, "JoinedTasks: $tasks")
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    error ?: "加载失败",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+    }
+
+    /**
      * 根据状态筛选
      */
     private fun filter(status: String) {
@@ -206,32 +227,32 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
 
             // 我参与
             "JOINED" -> {
-                allList
+                myJoinedList
             }
 
             // 已发布
             "OPEN" -> {
-                allList.filter {
+                myPublishedList.filter {
                     it.status == "OPEN"
                 }
             }
 
             // 进行中
             "IN_PROGRESS" -> {
-                allList.filter {
+                myPublishedList.filter {
                     it.status == "IN_PROGRESS"
                 }
             }
 
             // 已完成
             "FINISHED" -> {
-                allList.filter {
+                myPublishedList.filter {
                     it.status == "FINISHED"
                 }
             }
 
             else -> {
-                allList
+                myPublishedList
             }
         }
 
@@ -287,7 +308,6 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         }
 
         view?.let { v ->
-
             v.findViewById<TextView>(R.id.published_count).text =
                 publishCount.toString()
 
@@ -303,6 +323,10 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
      * 搜索
      */
     private fun performSearch(view: View, keyword: String) {
+        val sourceList = when (defaultStatus) {
+            "JOINED" -> myJoinedList
+            else -> myPublishedList
+        }
 
         val tabs = listOf(
             view.findViewById<TextView>(R.id.tab_joined),
@@ -324,7 +348,7 @@ class MyTaskFragment : Fragment(R.layout.fragment_task) {
         }
 
         // 本地模糊搜索
-        val filteredList = allList.filter { task ->
+        val filteredList = sourceList.filter { task ->
 
             task.title.contains(keyword, ignoreCase = true)
                     || task.description.contains(keyword, ignoreCase = true)

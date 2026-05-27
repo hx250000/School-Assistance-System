@@ -33,6 +33,9 @@ interface TaskApi {
     @GET("task/history")
     fun getMyTaskHistory(@Header("Authorization") token: String): Call<BaseResponse<List<Task>>>
 
+    @GET("task/joined")
+    fun getMyJoinedTasks(@Header("Authorization") token: String): Call<BaseResponse<List<Task>>>
+
     @GET("task/search")
     fun searchTasks(@Header("Authorization") token: String, @Query("keyword") keywords: String): Call<BaseResponse<List<Task>>>
 

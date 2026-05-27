@@ -1,12 +1,17 @@
 package org.example.back.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.dto.request.ShopExchangeRequest;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.entity.ShopItem;
+import org.example.back.service.FileStorageService;
 import org.example.back.service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,6 +21,9 @@ public class ShopController {
 
     @Autowired
     private ShopService shopService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @GetMapping("/items")
     public ApiResponse<List<ShopItem>> items() {
@@ -30,6 +38,12 @@ public class ShopController {
     @PostMapping("/items")
     public ApiResponse<Long> addItem(@RequestBody NewShopItemRequest request) {
         return ApiResponse.success(shopService.addItem(request));
+    }
+
+    @Operation(summary = "上传商品图片")
+    @PostMapping(value = "/items/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<FileUploadResponse> uploadItemImage(@RequestPart("file") MultipartFile file) {
+        return ApiResponse.success(shopService.uploadShopitemImage(file));
     }
 
     @GetMapping("/exchange/count")

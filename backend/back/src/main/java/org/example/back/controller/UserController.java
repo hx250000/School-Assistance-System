@@ -3,6 +3,7 @@ package org.example.back.controller;
 import org.example.back.common.ApiResponse;
 import org.example.back.dto.request.LoginRequest;
 import org.example.back.dto.request.RegisterRequest;
+import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.dto.response.LoginResponse;
 import org.example.back.dto.response.RegisterResponse;
 import org.example.back.dto.response.UserInfoVO;
@@ -12,7 +13,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,8 +29,8 @@ public class UserController {
 
     @Operation(summary = "用户注册", description = "注册新用户账号")
     @PostMapping("/register")
-    public ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest RR) {
-        return ApiResponse.success(userService.register(RR));
+    public ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
+        return ApiResponse.success(userService.register(registerRequest));
     }
 
     @Operation(summary = "用户登录", description = "登录并返回 token")
@@ -46,5 +49,11 @@ public class UserController {
     @GetMapping("/all")
     public ApiResponse<List<UserInfoVO>> getAllUsersInfo() {
         return ApiResponse.success(userService.getAllUsersInfo());
+    }
+
+    @Operation(summary = "上传用户头像")
+    @PostMapping(value = "/info/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<FileUploadResponse> uploadAvatar(@RequestPart("file") MultipartFile file) {
+        return ApiResponse.success(userService.uploadAvatar(file));
     }
 }

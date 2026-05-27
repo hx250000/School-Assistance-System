@@ -20,6 +20,8 @@ public interface TaskService {
 
     List<TaskVO> myTaskHistory();
 
+    List<TaskVO> myParticipatedTasks();
+
     List<TaskVO> findByTitle(String keywords);
 
     TaskVO findById(Long id);
