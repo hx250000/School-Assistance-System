@@ -2,20 +2,33 @@ package com.example.campustask.ui
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.campustask.R
 import com.example.campustask.repository.UserRepository
 import com.example.campustask.utils.AuthTokenStore
+import com.example.campustask.utils.FileUrlResolver
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private val userRepo = UserRepository()
+
+    private val avatarPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            uploadAvatar(uri)
+        } else {
+            Toast.makeText(requireContext(), "未选择头像", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -30,6 +43,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
      */
     private fun initUserInfo(view: View) {
 
+        val imgAvatar = view.findViewById<ImageView>(R.id.img_avatar)
         val tvName = view.findViewById<TextView>(R.id.tv_name)
         val tvId = view.findViewById<TextView>(R.id.tv_id)
         val tvPoint = view.findViewById<TextView>(R.id.tv_point)
@@ -43,6 +57,14 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 tvId.text = "ID: ${userInfo.id}"
                 tvPoint.text = userInfo.points.toString()
                 tvCredit.text = userInfo.creditScore.toString()
+
+                val imageSource = FileUrlResolver.resolve(userInfo.avatarUrl, defaultType = "avatar")
+                Glide.with(this)
+                    .load(imageSource)
+                    .placeholder(R.drawable.ic_avatar)
+                    .error(R.drawable.ic_avatar)
+                    .circleCrop()
+                    .into(imgAvatar)
 
             } else {
 
@@ -98,6 +120,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             toggleDarkMode()
         }
 
+        val btnAvatarEdit = view.findViewById<ImageView>(R.id.btn_avatar_edit)
+        btnAvatarEdit.setOnClickListener {
+            avatarPicker.launch("image/*")
+        }
+
         /**
          * 退出登录
          */
@@ -125,6 +152,17 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             startActivity(intent)
 
             requireActivity().finish()
+        }
+    }
+
+    private fun uploadAvatar(uri: Uri) {
+        userRepo.uploadAvatar(requireContext(), uri) { success, response, error ->
+            if (success && response != null) {
+                Toast.makeText(requireContext(), "头像上传成功", Toast.LENGTH_SHORT).show()
+                initUserInfo(requireView())
+            } else {
+                Toast.makeText(requireContext(), error ?: "头像上传失败", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

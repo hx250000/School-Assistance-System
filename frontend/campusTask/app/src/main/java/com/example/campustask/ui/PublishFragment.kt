@@ -1,5 +1,6 @@
 package com.example.campustask.ui
 
+import android.R.attr.type
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
@@ -10,7 +11,9 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.campustask.R
+import com.example.campustask.model.request.AiGenerateRequest
 import com.example.campustask.model.request.TaskCreateRequest
+import com.example.campustask.repository.AiRepository
 import com.example.campustask.repository.TaskRepository
 import com.example.campustask.util.CategoryMapper
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -20,6 +23,7 @@ class PublishFragment : Fragment() {
 
     private var selectedType = "生活"
     private val taskRepository = TaskRepository()
+    private val aiRepository = AiRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,6 +36,7 @@ class PublishFragment : Fragment() {
         val title = view.findViewById<EditText>(R.id.et_title)
         val desc = view.findViewById<EditText>(R.id.et_desc)
         val btnPublish = view.findViewById<Button>(R.id.btn_publish)
+        val btnAiDesc = view.findViewById<TextView>(R.id.btn_ai_desc)
         val etScore = view.findViewById<EditText>(R.id.et_score)
         val etPeople = view.findViewById<EditText>(R.id.et_people)
         val etDeadline = view.findViewById<TextView>(R.id.et_deadline)
@@ -130,6 +135,21 @@ class PublishFragment : Fragment() {
                 } else {
                     Toast.makeText(context, "失败: $error", Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+
+        // AI
+        btnAiDesc.setOnClickListener {
+            val t = title.text.toString().trim()
+            val aiRequest= AiGenerateRequest(t,selectedType)
+            aiRepository.generateDesc(requireContext(),aiRequest){success, aiResponse, error ->
+                if (success) {
+                    Toast.makeText(context, "AI生成成功！", Toast.LENGTH_LONG).show()
+                    desc.setText(aiResponse?.description)
+                } else {
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                }
+
             }
         }
 

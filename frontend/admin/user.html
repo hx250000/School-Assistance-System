@@ -65,6 +65,7 @@
     <script>
 
         const BASE = "http://localhost:8080/api/user";
+        const FILE_BASE = "http://localhost:8080/";
 
 
         async function loadUsers() {
@@ -90,10 +91,11 @@
 <td>${u.points}</td>
 
 <td>
-<img src="${u.avatar}"
-width=50>
-</td>
-
+                    <img src="${u.avatar && u.avatar.trim() ? (u.avatar.startsWith('http') ? u.avatar : FILE_BASE + u.avatar) : ''}"
+                         width="50"
+                         alt="头像"
+                         onerror="this.src='https://via.placeholder.com/50?text=?'">
+                </td>
 </tr>
 
 `;

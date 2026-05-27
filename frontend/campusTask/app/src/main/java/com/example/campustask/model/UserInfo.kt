@@ -7,5 +7,6 @@ data class UserInfo(
     val points: Int,
     val creditScore: Int,
     val level: Int,
+    val avatarUrl: String,
     val createdAt: String // 先用 String 接收 JSON 序列化后的时间
 )
