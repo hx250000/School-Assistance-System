@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户管理</title>
+
+<style>
+body{
+    font-family: Arial;
+    padding:20px;
+}
+
+table{
+    width:100%;
+    border-collapse: collapse;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:10px;
+}
+
+button{
+    padding:6px 10px;
+}
+</style>
+
+</head>
+<body>
+
+<h2>用户管理</h2>
+
+<button onclick="loadUsers()">
+刷新用户
+</button>
+
+<table>
+
+<thead>
+<tr>
+
+<th>ID</th>
+<th>用户名</th>
+<th>积分</th>
+<th>头像</th>
+
+</tr>
+</thead>
+
+<tbody id="userTable"></tbody>
+
+</table>
+
+
+<h3>上传头像</h3>
+
+<input type="file" id="avatar">
+<button onclick="uploadAvatar()">
+上传
+</button>
+
+<script>
+
+const BASE="http://localhost:8080/api/user";
+
+
+async function loadUsers(){
+
+let res=
+await fetch(BASE+"/all");
+
+let data=
+await res.json();
+
+let html="";
+
+data.data.forEach(u=>{
+
+html+=`
+
+<tr>
+
+<td>${u.id}</td>
+
+<td>${u.username}</td>
+
+<td>${u.points}</td>
+
+<td>
+<img src="${u.avatar}"
+width=50>
+</td>
+
+</tr>
+
+`;
+
+})
+
+document.getElementById(
+"userTable"
+).innerHTML=html;
+
+}
+
+
+
+async function uploadAvatar(){
+
+let file=
+document.getElementById(
+"avatar"
+).files[0];
+
+let form=
+new FormData();
+
+form.append("file",file);
+
+let res=
+await fetch(
+BASE+"/info/avatar",
+
+{
+method:"POST",
+body:form
+});
+
+alert("上传成功");
+
+}
+
+
+loadUsers();
+
+</script>
+
+</body>
+</html>
