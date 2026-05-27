@@ -4,122 +4,120 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<title>商城管理</title>
+    <title>商城管理</title>
 
-<style>
+    <style>
+        table {
 
-table{
+            width: 100%;
+            border-collapse: collapse;
 
-width:100%;
-border-collapse: collapse;
+        }
 
-}
+        td,
+        th {
 
-td,th{
+            border: 1px solid #ccc;
+            padding: 10px;
 
-border:1px solid #ccc;
-padding:10px;
-
-}
-
-</style>
+        }
+    </style>
 
 </head>
 
 <body>
 
-<h2>商城管理</h2>
+    <h2>商城管理</h2>
 
 
-<h3>添加商品</h3>
+    <h3>添加商品</h3>
 
 
-名称:
+    名称:
 
-<input id="name">
+    <input id="name">
 
-积分:
+    积分:
 
-<input id="point">
+    <input id="point">
 
-库存:
+    库存:
 
-<input id="stock">
-
-
-<button onclick="add()">
-
-添加
-
-</button>
+    <input id="stock">
 
 
+    <button onclick="add()">
 
-<h3>商品列表</h3>
+        添加
 
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>ID</th>
-
-<th>名称</th>
-
-<th>价格</th>
-
-<th>库存</th>
-
-</tr>
-
-</thead>
-
-<tbody id="table"></tbody>
-
-</table>
+    </button>
 
 
 
-<h3>上传商品图片</h3>
+    <h3>商品列表</h3>
 
 
-<input type="file"
-id="img">
+    <table>
 
-<button onclick="upload()">
+        <thead>
 
-上传
+            <tr>
 
-</button>
+                <th>ID</th>
 
+                <th>名称</th>
 
+                <th>价格</th>
 
-<script>
+                <th>库存</th>
 
-const BASE=
-"http://localhost:8080/api/shop";
+            </tr>
 
+        </thead>
 
-async function load(){
+        <tbody id="table"></tbody>
 
-let res=
-await fetch(
-BASE+"/items"
-);
-
-let data=
-await res.json();
-
-let html="";
+    </table>
 
 
-data.data.forEach(i=>{
 
-html+=`
+    <h3>上传商品图片</h3>
+
+
+    <input type="file" id="img">
+
+    <button onclick="upload()">
+
+        上传
+
+    </button>
+
+
+
+    <script>
+
+        const BASE =
+            "http://localhost:8080/api/shop";
+
+
+        async function load() {
+
+            let res =
+                await fetch(
+                    BASE + "/items"
+                );
+
+            let data =
+                await res.json();
+
+            let html = "";
+
+
+            data.data.forEach(i => {
+
+                html += `
 
 <tr>
 
@@ -135,98 +133,98 @@ html+=`
 
 `;
 
-});
+            });
 
-document.getElementById(
-"table"
-).innerHTML=html;
+            document.getElementById(
+                "table"
+            ).innerHTML = html;
 
-}
-
-
-
-async function add(){
-
-let body={
-
-name:
-document.getElementById(
-"name"
-).value,
-
-point:
-document.getElementById(
-"point"
-).value,
-
-stock:
-document.getElementById(
-"stock"
-).value
-
-};
-
-
-await fetch(
-
-BASE+"/items",
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:
-JSON.stringify(body)
-
-});
-
-load();
-
-}
+        }
 
 
 
-async function upload(){
+        async function add() {
 
-let file=
-document.getElementById(
-"img"
-).files[0];
+            let body = {
 
-let form=
-new FormData();
+                name:
+                    document.getElementById(
+                        "name"
+                    ).value,
 
-form.append(
-"file",
-file
-);
+                point:
+                    document.getElementById(
+                        "point"
+                    ).value,
 
-await fetch(
+                stock:
+                    document.getElementById(
+                        "stock"
+                    ).value
 
-BASE+
-"/items/image",
-
-{
-
-method:"POST",
-
-body:form
-
-});
-
-alert("上传成功");
-
-}
+            };
 
 
-load();
+            await fetch(
 
-</script>
+                BASE + "/items",
+
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(body)
+
+                });
+
+            load();
+
+        }
+
+
+
+        async function upload() {
+
+            let file =
+                document.getElementById(
+                    "img"
+                ).files[0];
+
+            let form =
+                new FormData();
+
+            form.append(
+                "file",
+                file
+            );
+
+            await fetch(
+
+                BASE +
+                "/items/image",
+
+                {
+
+                    method: "POST",
+
+                    body: form
+
+                });
+
+            alert("上传成功");
+
+        }
+
+
+        load();
+
+    </script>
 
 </body>
 
