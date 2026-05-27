@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>校园任务后台管理</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    display:flex;
+    height:100vh;
+}
+
+/* 左侧菜单 */
+
+.sidebar{
+
+    width:220px;
+    background:#222;
+    color:white;
+    padding:20px;
+}
+
+.sidebar h2{
+    margin-bottom:30px;
+}
+
+.menu-btn{
+
+    display:block;
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    background:none;
+
+    color:white;
+
+    text-align:left;
+
+    cursor:pointer;
+
+    margin-bottom:10px;
+}
+
+.menu-btn:hover{
+
+    background:#444;
+}
+
+
+/* 右边 */
+
+.content{
+
+    flex:1;
+
+    padding:30px;
+
+    overflow:auto;
+}
+
+
+.page{
+
+display:none;
+
+}
+
+.active{
+
+display:block;
+
+}
+
+
+table{
+
+width:100%;
+
+border-collapse: collapse;
+
+margin-top:20px;
+}
+
+table td,
+table th{
+
+border:1px solid #ccc;
+
+padding:10px;
+
+}
+
+
+button{
+
+padding:8px 12px;
+
+cursor:pointer;
+
+margin:5px;
+}
+
+input{
+
+padding:8px;
+margin:5px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="sidebar">
+
+<h2>后台管理</h2>
+
+<button
+class="menu-btn"
+onclick="showPage('user')">
+
+用户管理
+
+</button>
+
+
+<button
+class="menu-btn"
+onclick="showPage('task')">
+
+任务管理
+
+</button>
+
+
+<button
+class="menu-btn"
+onclick="showPage('shop')">
+
+商城管理
+
+</button>
+
+
+</div>
+
+
+
+<div class="content">
+
+
+<!-- 用户 -->
+
+<div
+id="user"
+class="page active">
+
+<h2>用户管理</h2>
+
+<button onclick="loadUsers()">
+
+刷新用户
+
+</button>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>用户名</th>
+<th>积分</th>
+
+</tr>
+
+</thead>
+
+<tbody id="userTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+
+<!-- 任务 -->
+
+<div
+id="task"
+class="page">
+
+<h2>任务管理</h2>
+
+
+搜索：
+
+<input id="keyword">
+
+<button onclick="searchTask()">
+
+搜索
+
+</button>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>标题</th>
+
+<th>状态</th>
+
+<th>操作</th>
+
+</tr>
+
+</thead>
+
+<tbody id="taskTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+
+
+<!-- 商城 -->
+
+<div
+id="shop"
+class="page">
+
+
+<h2>商城管理</h2>
+
+
+名称:
+
+<input id="name">
+
+
+积分:
+
+<input id="point">
+
+
+库存:
+
+<input id="stock">
+
+
+<button onclick="addItem()">
+
+添加商品
+
+</button>
+
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>商品</th>
+
+<th>积分</th>
+
+<th>库存</th>
+
+</tr>
+
+</thead>
+
+<tbody id="shopTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+
+</div>
+
+
+
+<script>
+
+const USER=
+"http://localhost:8080/api/user";
+
+const TASK=
+"http://localhost:8080/api/task";
+
+const SHOP=
+"http://localhost:8080/api/shop";
+
+
+
+function showPage(id){
+
+document
+.querySelectorAll(".page")
+
+.forEach(
+
+p=>p.style.display="none"
+
+);
+
+document.getElementById(
+id
+).style.display="block";
+
+}
+
+
+
+/**************
+用户
+**************/
+
+
+async function loadUsers(){
+
+let res=
+await fetch(USER+"/all");
+
+let data=
+await res.json();
+
+let html="";
+
+data.data.forEach(u=>{
+
+html+=`
+
+<tr>
+
+<td>${u.id}</td>
+
+<td>${u.username}</td>
+
+<td>${u.points}</td>
+
+</tr>
+
+`;
+
+});
+
+
+userTable.innerHTML=
+html;
+
+}
+
+
+
+/**************
+任务
+**************/
+
+
+async function loadTask(){
+
+let res=
+await fetch(
+
+TASK+
+"/list?page=1&size=50"
+
+);
+
+let data=
+await res.json();
+
+renderTask(data.data);
+
+}
+
+
+
+function renderTask(tasks){
+
+let html="";
+
+tasks.forEach(t=>{
+
+html+=`
+
+<tr>
+
+<td>${t.id}</td>
+
+<td>${t.title}</td>
+
+<td>${t.status}</td>
+
+
+<td>
+
+<button
+onclick="finishTask(${t.id})">
+
+完成
+
+</button>
+
+
+<button
+onclick="cancelTask(${t.id})">
+
+取消
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+taskTable.innerHTML=
+html;
+
+}
+
+
+
+async function finishTask(id){
+
+await fetch(
+
+TASK+
+"/"+id+
+"/finish",
+
+{
+
+method:"POST"
+
+});
+
+loadTask();
+
+}
+
+
+
+async function cancelTask(id){
+
+await fetch(
+
+TASK+
+"/"+id+
+"/cancel",
+
+{
+
+method:"POST"
+
+});
+
+loadTask();
+
+}
+
+
+
+async function searchTask(){
+
+let keyword=
+document.getElementById(
+"keyword"
+).value;
+
+
+let res=
+await fetch(
+
+TASK+
+"/search?keyword="
++keyword
+
+);
+
+let data=
+await res.json();
+
+renderTask(
+data.data
+);
+
+}
+
+
+
+/**************
+商城
+**************/
+
+
+async function loadShop(){
+
+let res=
+await fetch(
+
+SHOP+
+"/items"
+
+);
+
+let data=
+await res.json();
+
+let html="";
+
+data.data.forEach(
+
+i=>{
+
+html+=`
+
+<tr>
+
+<td>${i.id}</td>
+
+<td>${i.name}</td>
+
+<td>${i.point}</td>
+
+<td>${i.stock}</td>
+
+</tr>
+
+`;
+
+});
+
+shopTable.innerHTML=
+html;
+
+}
+
+
+
+async function addItem(){
+
+let body={
+
+name:
+name.value,
+
+point:
+point.value,
+
+stock:
+stock.value
+
+};
+
+
+await fetch(
+
+SHOP+
+"/items",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+body:
+JSON.stringify(
+body
+)
+
+});
+
+
+loadShop();
+
+}
+
+
+
+/* 初始化 */
+
+loadUsers();
+
+loadTask();
+
+loadShop();
+
+
+</script>
+
+
+</body>
+</html>

@@ -139,7 +139,7 @@
                     android:text="+"/>
             </LinearLayout>
 
-            <!-- ⭐ 截止时间（已修复版本） -->
+            <!-- 截止时间 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -191,7 +191,7 @@
                     android:inputType="number"/>
             </LinearLayout>
 
-            <!-- 描述 -->
+            <!-- ================= 任务描述（已优化AI按钮） ================= -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -199,15 +199,34 @@
                 android:text="任务描述"
                 android:textStyle="bold"/>
 
-            <EditText
-                android:id="@+id/et_desc"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="110dp"
-                android:background="@drawable/bg_input"
-                android:hint="详细描述任务"
-                android:padding="12dp"
-                android:gravity="top"
-                android:layout_marginTop="6dp"/>
+                android:layout_marginTop="6dp">
+
+                <EditText
+                    android:id="@+id/et_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_input"
+                    android:hint="详细描述任务"
+                    android:padding="12dp"
+                    android:gravity="top"/>
+
+                <!-- ⭐ 小AI按钮 -->
+                <TextView
+                    android:id="@+id/btn_ai_desc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_gravity="end|top"
+                    android:layout_margin="8dp"
+                    android:paddingHorizontal="10dp"
+                    android:gravity="center"
+                    android:text="AI"
+                    android:textSize="11sp"
+                    android:textColor="@android:color/white"
+                    android:background="@drawable/bg_btn_gradient"/>
+            </FrameLayout>
 
             <!-- 发布按钮 -->
             <Button

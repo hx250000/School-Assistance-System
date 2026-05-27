@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>任务管理</title>
+
+<style>
+
+table{
+
+width:100%;
+border-collapse: collapse;
+
+}
+
+td,th{
+
+border:1px solid #ccc;
+padding:8px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<h2>任务管理</h2>
+
+
+搜索：
+
+<input id="keyword">
+
+<button onclick="search()">
+
+搜索
+
+</button>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>标题</th>
+<th>奖励</th>
+<th>状态</th>
+<th>操作</th>
+
+</tr>
+
+</thead>
+
+<tbody id="table"></tbody>
+
+</table>
+
+
+
+<script>
+
+const BASE=
+"http://localhost:8080/api/task";
+
+
+async function load(){
+
+let res=
+await fetch(
+BASE+"/list?page=1&size=50"
+);
+
+let data=
+await res.json();
+
+show(data.data);
+
+}
+
+
+function show(tasks){
+
+let html="";
+
+tasks.forEach(t=>{
+
+html+=`
+
+<tr>
+
+<td>${t.id}</td>
+
+<td>${t.title}</td>
+
+<td>${t.reward}</td>
+
+<td>${t.status}</td>
+
+<td>
+
+<button
+onclick="finish(${t.id})">
+
+完成
+
+</button>
+
+
+<button
+onclick="cancel(${t.id})">
+
+取消
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById(
+"table"
+).innerHTML=html;
+
+}
+
+
+
+async function finish(id){
+
+await fetch(
+
+BASE+"/"+id+"/finish",
+
+{method:"POST"}
+
+);
+
+load();
+
+}
+
+
+
+async function cancel(id){
+
+await fetch(
+
+BASE+"/"+id+"/cancel",
+
+{method:"POST"}
+
+);
+
+load();
+
+}
+
+
+
+async function search(){
+
+let keyword=
+document.getElementById(
+"keyword"
+).value;
+
+
+let res=
+await fetch(
+
+BASE+
+"/search?keyword="
++keyword
+
+);
+
+let data=
+await res.json();
+
+show(data.data);
+
+}
+
+
+load();
+
+</script>
+
+
+</body>
+</html>
