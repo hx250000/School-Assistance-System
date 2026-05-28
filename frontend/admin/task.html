@@ -64,7 +64,6 @@
     </table>
 
 
-
     <script>
 
         const BASE =
@@ -75,7 +74,7 @@
 
             let res =
                 await fetch(
-                    BASE + "/list?page=1&size=50"
+                    BASE + "/list?page=0&size=50"
                 );
 
             let data =
@@ -96,11 +95,11 @@
 
 <tr>
 
-<td>${t.id}</td>
+<td>${t.taskId}</td>
 
 <td>${t.title}</td>
 
-<td>${t.reward}</td>
+<td>${t.rewardPoints}</td>
 
 <td>${t.status}</td>
 
