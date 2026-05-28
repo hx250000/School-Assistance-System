@@ -97,13 +97,14 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public Long addItem(NewShopItemRequest request) {
+        validateShopitem(request);
         ShopItem newItem = new ShopItem();
         newItem.setName(request.getName());
         newItem.setPrice(request.getPrice());
         newItem.setStock(request.getStock());
         newItem.setDescription(request.getDescription());
         newItem.setImageRes(request.getImageRes());
-
+        log.info("add item= "+newItem);
         ShopItem save=shopItemRepository.save(newItem);
         return save.getId();
     }
@@ -130,5 +131,23 @@ public class ShopServiceImpl implements ShopService {
         response.setType("shopitem");
         response.setFileUrl(url);
         return response;
+    }
+
+    public void validateShopitem(NewShopItemRequest request) {
+        if (request.getName()==null||request.getName().isBlank()){
+            throw new IllegalArgumentException("商品名不能为空！");
+        }
+        if (request.getDescription()==null){
+            request.setDescription("");
+        }
+        if (request.getPrice()==null||request.getPrice()<=0){
+            throw new IllegalArgumentException("商品价格不能为空或小于0！");
+        }
+        if (request.getStock()==null||request.getStock()<0){
+            throw new IllegalArgumentException("商品库存不能为空或小于0！");
+        }
+        if (request.getImageRes()==null){
+            request.setImageRes("");
+        }
     }
 }

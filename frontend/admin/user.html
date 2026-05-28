@@ -44,8 +44,10 @@
 
                 <th>ID</th>
                 <th>用户名</th>
+                <th>电话号码</th>
                 <th>积分</th>
                 <th>头像</th>
+                <th>创建时间</th>
 
             </tr>
         </thead>
@@ -67,7 +69,6 @@
         const BASE = "http://localhost:8080/api/user";
         const FILE_BASE = "http://localhost:8080/";
 
-
         async function loadUsers() {
 
             let res =
@@ -82,23 +83,23 @@
 
                 html += `
 
-<tr>
+                        <tr>
 
-<td>${u.id}</td>
+                        <td>${u.id}</td>
 
-<td>${u.username}</td>
+                        <td>${u.username}</td>
 
-<td>${u.points}</td>
+                        <td>${u.phone}</td>
 
-<td>
-                    <img src="${u.avatar && u.avatar.trim() ? (u.avatar.startsWith('http') ? u.avatar : FILE_BASE + u.avatar) : ''}"
-                         width="50"
-                         alt="头像"
-                         onerror="this.src='https://via.placeholder.com/50?text=?'">
-                </td>
-</tr>
+                        <td>${u.points}</td>
 
-`;
+                        <td>${u.avatarUrl}</td>
+
+                        <td>${u.createdAt}</td>
+
+                        </tr>
+
+                        `;
 
             })
 
@@ -107,8 +108,6 @@
             ).innerHTML = html;
 
         }
-
-
 
         async function uploadAvatar() {
 
@@ -134,7 +133,6 @@
             alert("上传成功");
 
         }
-
 
         loadUsers();
 
