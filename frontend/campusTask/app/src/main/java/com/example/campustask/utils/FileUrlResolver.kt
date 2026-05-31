@@ -6,7 +6,6 @@ import com.example.campustask.network.RetrofitClient
 object FileUrlResolver {
 
     // 统一管理后端的 Base URL。与 RetrofitClient 使用相同基础地址。
-    // 如果你在真机上运行，请将 RetrofitClient.BASE_URL 改成你电脑的局域网地址，例如 http://192.168.1.100:8080/api/
     private val BASE_URL = RetrofitClient.BASE_URL.removeSuffix("api/")
 
     /**
@@ -16,7 +15,7 @@ object FileUrlResolver {
      * @return 完整的 URL 或者是本地本地 Drawable 资源 ID 包装成的 Any
      */
     fun resolve(relativePath: String?, defaultType: String = "shop"): Any {
-        // 防御性处理：如果路径为 null 或者为空字符串，直接返回对应类型的本地默认图
+        // 如果路径为 null 或者为空字符串，直接返回对应类型的本地默认图
         if (relativePath.isNullOrBlank()) {
             return getDefaultDrawable(defaultType)
         }
