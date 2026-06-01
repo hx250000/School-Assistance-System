@@ -26,6 +26,10 @@ management:
     prometheus:
       enabled: true
 
+server:
+  port: 8080
+  forward-headers-strategy: framework
+
 campus:
   jwt:
     secret: yourverylongsecretkeyshouldbeatleast512bytes
