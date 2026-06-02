@@ -64,10 +64,12 @@
         上传
     </button>
 
-    <script>
+    <script src="config.js"></script>
 
-        const BASE = "https://school-assistance-system-production.up.railway.app/api/user";
-        const FILE_BASE = "https://school-assistance-system-production.up.railway.app/";
+    <script>
+        console.log('user.html script running');
+        const BASE = API.user;
+        const FILE_BASE = API.file;
 
         async function loadUsers() {
 
@@ -137,7 +139,6 @@
         loadUsers();
 
     </script>
-
 </body>
 
 </html>

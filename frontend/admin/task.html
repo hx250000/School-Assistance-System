@@ -26,11 +26,9 @@
 
 </head>
 
-
 <body>
 
     <h2>任务管理</h2>
-
 
     搜索：
 
@@ -41,7 +39,6 @@
         搜索
 
     </button>
-
 
     <table>
 
@@ -64,137 +61,55 @@
     </table>
 
 
+    <script src="config.js"></script>
+
     <script>
-
-        const BASE =
-            "https://school-assistance-system-production.up.railway.app/api/task";
-
+        console.log('task.html script running');
+        const BASE = API.task;
 
         async function load() {
-
-            let res =
-                await fetch(
-                    BASE + "/list?page=0&size=50"
-                );
-
-            let data =
-                await res.json();
-
+            let res = await fetch(BASE + "/list?page=0&size=50");
+            let data = await res.json();
             show(data.data);
-
         }
-
 
         function show(tasks) {
-
             let html = "";
-
             tasks.forEach(t => {
-
                 html += `
-
-<tr>
-
-<td>${t.taskId}</td>
-
-<td>${t.title}</td>
-
-<td>${t.rewardPoints}</td>
-
-<td>${t.status}</td>
-
-<td>
-
-<button
-onclick="finish(${t.id})">
-
-完成
-
-</button>
-
-
-<button
-onclick="cancel(${t.id})">
-
-取消
-
-</button>
-
-</td>
-
-</tr>
-
-`;
-
+                        <tr>
+                            <td>${t.taskId}</td>
+                            <td>${t.title}</td>
+                            <td>${t.rewardPoints}</td>
+                            <td>${t.status}</td>
+                        <td>
+                        <button onclick="finish(${t.id})">完成</button>
+                        <button onclick="cancel(${t.id})">取消</button>
+                        </td>
+                        </tr>
+                        `;
             });
-
-            document.getElementById(
-                "table"
-            ).innerHTML = html;
-
+            document.getElementById("table").innerHTML = html;
         }
-
-
 
         async function finish(id) {
-
-            await fetch(
-
-                BASE + "/" + id + "/finish",
-
-                { method: "POST" }
-
-            );
-
+            await fetch(BASE + "/" + id + "/finish", { method: "POST" });
             load();
-
         }
-
-
 
         async function cancel(id) {
-
-            await fetch(
-
-                BASE + "/" + id + "/cancel",
-
-                { method: "POST" }
-
-            );
-
+            await fetch(BASE + "/" + id + "/cancel", { method: "POST" });
             load();
-
         }
-
-
 
         async function search() {
-
-            let keyword =
-                document.getElementById(
-                    "keyword"
-                ).value;
-
-
-            let res =
-                await fetch(
-
-                    BASE +
-                    "/search?keyword="
-                    + keyword
-
-                );
-
-            let data =
-                await res.json();
-
+            let keyword = document.getElementById("keyword").value;
+            let res = await fetch(BASE + "/search?keyword=" + keyword);
+            let data = await res.json();
             show(data.data);
-
         }
 
-
         load();
-
     </script>
 
 

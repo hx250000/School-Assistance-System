@@ -34,6 +34,7 @@ class UserRepository {
                 if (response.isSuccessful && response.body()?.code == 200) {
                     callback(true, response.body()?.data?.token) // 返回 token
                 } else {
+                    Log.d(TAG,response.body()?.message?:"network error")
                     callback(false, response.body()?.message)
                 }
             }
