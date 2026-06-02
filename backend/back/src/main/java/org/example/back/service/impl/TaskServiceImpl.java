@@ -6,6 +6,7 @@ import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
+import org.example.back.dto.response.UserInfoVO;
 import org.example.back.entity.*;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceConflictException;
@@ -67,12 +68,12 @@ public class TaskServiceImpl implements TaskService {
 
     // ================= list =================
     @Override
-    public List<TaskVO> list(int page, int size) {
-        log.info("list tasks, page={}, size={}",page,size);
+    public List<TaskVO> list(int page, int size, String status) {
+        log.info("list tasks, page={}, size={}, status={}",page,size,status);
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 传入状态过滤条件
-        List<TaskVO> resp=taskRepository.findAllByStatus("OPEN", pageable)
+        List<TaskVO> resp=taskRepository.findAllByStatus(status, pageable)
                 .getContent()
                 .stream()
                 .map(this::toVO)
@@ -314,6 +315,34 @@ public class TaskServiceImpl implements TaskService {
         r.setInProgress(open);
 
         return r;
+    }
+
+    // ================= participants =================
+    @Override
+    public List<UserInfoVO> participants(Long taskId) {
+
+        // ensure task exists
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("任务不存在"));
+
+        List<TaskParticipant> parts = taskParticipantRepository.findByTaskId(taskId);
+
+        return parts.stream()
+                .map(p -> userRepository.findById(p.getUserId()).orElse(null))
+                .filter(u -> u != null)
+                .map(u -> {
+                    UserInfoVO vo = new UserInfoVO();
+                    vo.setId(u.getId());
+                    vo.setUsername(u.getUsername());
+                    vo.setPhone(u.getPhone());
+                    vo.setAvatarUrl(u.getAvatarUrl());
+                    vo.setPoints(u.getPoints());
+                    vo.setCreditScore(u.getCreditScore());
+                    vo.setLevel(u.getLevel());
+                    vo.setCreatedAt(u.getCreatedAt());
+                    return vo;
+                })
+                .collect(Collectors.toList());
     }
 
     // ================= VO =================

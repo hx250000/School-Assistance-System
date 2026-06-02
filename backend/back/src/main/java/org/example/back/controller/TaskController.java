@@ -5,6 +5,7 @@ import org.example.back.dto.request.GrabTaskRequest;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
+import org.example.back.dto.response.UserInfoVO;
 import org.example.back.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +24,34 @@ public class TaskController {
         return ApiResponse.success(taskService.createTask(request));
     }
 
+    /**
+     * 分页查询任务记录
+     * @param page 分页
+     * @param size 页面大小
+     * @return OPEN状态TaskVO
+     */
     @GetMapping("/list")
     public ApiResponse<List<TaskVO>> list(@RequestParam int page,
                                           @RequestParam int size) {
 //        AllTaskListResponse taskListResponse=new AllTaskListResponse();
-        return ApiResponse.success(taskService.list(page, size));
+        return ApiResponse.success(taskService.list(page, size,"OPEN"));
+    }
+
+    /**
+     * 管理员查询任务记录
+     * @param page 分页
+     * @param size 页面大小
+     * @param status Task状态
+     * @return status状态TaskVO
+     */
+    @GetMapping("/admin/list")
+    public ApiResponse<List<TaskVO>> adminList(@RequestParam int page, @RequestParam int size, @RequestParam String status){
+        return ApiResponse.success(taskService.list(page, size, status));
+    }
+
+    @GetMapping("/{taskId}/parcitipants")
+    public ApiResponse<List<UserInfoVO>> parcitipants(@PathVariable long taskId) {
+        return ApiResponse.success(taskService.participants(taskId));
     }
 
     @PostMapping("/grab")
