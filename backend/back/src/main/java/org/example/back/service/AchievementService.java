@@ -16,6 +16,8 @@ public interface AchievementService {
      * 获取当前用户的成就信息
      */
     UserAchievementOverview getMyAchievement();
+
+    UserAchievementOverview getSomeonesAchievement(long userId);
     
     /**
      * 初始化用户成就记录（幂等操作）

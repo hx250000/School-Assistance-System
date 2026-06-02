@@ -12,6 +12,9 @@ public interface PointsService {
 
     void addPoints(Long userId, Integer points,String title,String desc);
 
-    //添加积分记录查询功能
+    //用户积分记录查询功能
     PointsHistoryResponse getMyPointsHistory();
+
+    //管理积分记录查询功能
+    PointsHistoryResponse getSomeonesPointsHistory(long UserId);
 }

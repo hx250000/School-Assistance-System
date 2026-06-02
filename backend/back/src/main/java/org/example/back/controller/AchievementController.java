@@ -54,9 +54,15 @@ public class AchievementController {
         return ApiResponse.success(achievementService.addAchievement(achievement));
     }
 
-    @GetMapping("/admin/list")
+    @GetMapping("/admin/list/achievements")
     public ApiResponse<List<Achievement>> listAchievements() {
         // TODO: 添加权限验证，确保只有管理员可以调用
         return ApiResponse.success(achievementService.listAll());
+    }
+
+    @GetMapping("/admin/list/userachievements")
+    public ApiResponse<List<UserAchievement>> listUserAchievements(long userId) {
+        // TODO: 添加权限验证，确保只有管理员可以调用
+
     }
 }

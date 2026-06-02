@@ -193,6 +193,15 @@ public class AchievementServiceImpl implements AchievementService {
             throw new AuthenticationException("用户未登录");
         }
 
+        return getUserAchievement(userId);
+    }
+
+    @Override
+    public UserAchievementOverview getSomeonesAchievement(long userId) {
+        return getUserAchievement(userId);
+    }
+
+    public UserAchievementOverview getUserAchievement(Long userId) {
         // 重新计算当前用户成就进度，保证新增成就项也能同步历史记录
         recalculateUserAchievements(userId);
 

@@ -6,6 +6,7 @@ import org.example.back.dto.request.NewShopItemRequest;
 import org.example.back.dto.request.ShopExchangeRequest;
 import org.example.back.dto.response.FileUploadResponse;
 import org.example.back.entity.ShopItem;
+import org.example.back.entity.ShopOrder;
 import org.example.back.service.FileStorageService;
 import org.example.back.service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,5 +50,10 @@ public class ShopController {
     @GetMapping("/exchange/count")
     public ApiResponse<Long> count() {
         return ApiResponse.success(shopService.exchangeCount());
+    }
+
+    @GetMapping("/orders")
+    public ApiResponse<List<ShopOrder>> listShopOrders() {
+        return ApiResponse.success(shopService.listShopOrders());
     }
 }
