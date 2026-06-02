@@ -61,8 +61,7 @@ public class AchievementController {
     }
 
     @GetMapping("/admin/list/userachievements")
-    public ApiResponse<List<UserAchievement>> listUserAchievements(long userId) {
-        // TODO: 添加权限验证，确保只有管理员可以调用
-
+    public ApiResponse<UserAchievementOverview> listUserAchievements(long userId) {
+        return ApiResponse.success(achievementService.getSomeonesAchievement(userId));
     }
 }

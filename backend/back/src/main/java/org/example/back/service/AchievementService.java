@@ -43,4 +43,9 @@ public interface AchievementService {
      */
     void recalculateAllUsersAchievements();
 
+    /**
+     * 获取指定用户的成就记录列表
+     */
+    List<UserAchievement> getUserAchievements(Long userId);
+
 }

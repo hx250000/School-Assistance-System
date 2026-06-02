@@ -121,7 +121,7 @@ class TaskServiceImplTest {
         mockUser.setId(1L);
         when(userRepository.findById(any())).thenReturn(Optional.of(mockUser));
 
-        List<TaskVO> vos = taskService.list(0, 10);
+        List<TaskVO> vos = taskService.list(0, 10, "OPEN");
         assertThat(vos).hasSize(1);
         assertThat(vos.get(0).getTaskId()).isEqualTo(1L);
         assertThat(vos.get(0).getTitle()).isEqualTo("a");
