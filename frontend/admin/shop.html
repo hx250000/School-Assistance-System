@@ -97,10 +97,11 @@
 
     </table>
 
-    <script>
+    <script src="config.js"></script>
 
-        const BASE =
-            "https://school-assistance-system-production.up.railway.app/api/shop";
+    <script>
+        console.log('shop.html script running');
+        const BASE = API.shop;
 
         let imageUrl = "";
 
@@ -258,6 +259,7 @@
 
         }
 
+        // 加载数据
         load();
 
     </script>

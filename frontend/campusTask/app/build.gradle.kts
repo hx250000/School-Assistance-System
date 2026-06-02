@@ -6,6 +6,10 @@ android {
     namespace = "com.example.campustask"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.campustask"
         minSdk = 24
@@ -17,8 +21,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            // 模拟器访问本机
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/api/\"")
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://school-assistance-system.up.railway.app/api/\""
+            )
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

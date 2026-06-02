@@ -214,7 +214,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceConflictException("用户信息不能为空！");
         }
 
-        log.info("user resister: "+userRegister.getPhone());
+        log.info(String.format("user resister: {phone=%s ,name=%s}",userRegister.getPhone(),userRegister.getUsername()));
 
         // 1. 用户名校验
         String username = userRegister.getUsername();

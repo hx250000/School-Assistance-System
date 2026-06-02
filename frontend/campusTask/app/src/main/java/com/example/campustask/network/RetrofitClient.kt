@@ -2,11 +2,13 @@ package com.example.campustask.network
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.campustask.BuildConfig
 
 object RetrofitClient {
 
-    // 连接本机后端，真机运行时请改成你的真实局域网 IP
-    const val BASE_URL = "https://school-assistance-system.up.railway.app/api/"
+    //const val BASE_URL = "http://10.0.2.2:8080/api/"
+    //const val BASE_URL = "https://school-assistance-system.up.railway.app/api/"
+    const val BASE_URL=BuildConfig.BASE_URL
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
