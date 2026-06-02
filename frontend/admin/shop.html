@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
@@ -9,106 +8,193 @@
     <title>商城管理</title>
 
     <style>
-        table {
 
-            width: 100%;
-            border-collapse: collapse;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
 
+        body{
+            background:#f5f5f5;
+        }
+
+        /* 导航栏 */
+        .nav{
+            background:#333;
+            padding:15px 30px;
+        }
+
+        .nav a{
+            color:white;
+            text-decoration:none;
+            margin-right:20px;
+            font-weight:bold;
+        }
+
+        .nav a:hover{
+            color:#ffd04b;
+        }
+
+        .container{
+            width:1200px;
+            margin:20px auto;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0 2px 10px rgba(0,0,0,.1);
+        }
+
+        h2{
+            margin-bottom:20px;
+        }
+
+        h3{
+            margin:20px 0 10px;
+        }
+
+        input{
+            padding:8px;
+            margin-right:10px;
+            margin-bottom:10px;
+        }
+
+        button{
+            padding:8px 16px;
+            border:none;
+            background:#409eff;
+            color:white;
+            cursor:pointer;
+            border-radius:4px;
+        }
+
+        button:hover{
+            background:#66b1ff;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
         }
 
         td,
-        th {
-
-            border: 1px solid #ccc;
-            padding: 10px;
-
+        th{
+            border:1px solid #ddd;
+            padding:10px;
+            text-align:center;
         }
+
+        th{
+            background:#f2f2f2;
+        }
+
+        img{
+            width:80px;
+            height:80px;
+            object-fit:cover;
+            border-radius:5px;
+        }
+
+        #preview{
+            width:120px;
+            margin-top:10px;
+            display:none;
+        }
+
     </style>
 
 </head>
 
 <body>
 
-    <h2>商城管理</h2>
+    <!-- 导航栏 -->
+    <div class="nav">
 
+        <a href="index.html">首页</a>
 
-    <h3>添加商品</h3>
+        <a href="user.html">用户管理</a>
 
-    名称:
+        <a href="task.html">任务管理</a>
 
-    <input id="name">
+        <a href="shop.html">商城管理</a>
 
-    商品描述：
+    </div>
 
-    <input id="description">
+    <div class="container">
 
-    价格（积分）:
+        <h2>商城管理</h2>
 
-    <input id="price">
+        <h3>添加商品</h3>
 
-    库存:
+        名称：
+        <input id="name">
 
-    <input id="stock">
+        商品描述：
+        <input id="description">
 
-    <button onclick="add()">
+        价格（积分）：
+        <input id="price">
 
-        添加商品
+        库存：
+        <input id="stock">
 
-    </button>
-
-    <br />
-
-    <p>上传商品图片：
-
-        <input type="file" id="img">
-
-        <button onclick="upload()">
-
-            上传
-
+        <button onclick="add()">
+            添加商品
         </button>
-    </p>
 
-    <h3>商品列表</h3>
+        <br><br>
 
-    <table>
+        <p>
+            上传商品图片：
+            <input type="file" id="img" onchange="previewImage()">
 
-        <thead>
+            <button onclick="upload()">
+                上传
+            </button>
+        </p>
 
-            <tr>
+        <img id="preview">
 
-                <th>ID</th>
+        <h3>商品列表</h3>
 
-                <th>名称</th>
+        <table>
 
-                <th>商品描述</th>
+            <thead>
 
-                <th>价格</th>
+                <tr>
 
-                <th>库存</th>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>商品描述</th>
+                    <th>价格</th>
+                    <th>库存</th>
+                    <th>商品图片</th>
 
-                <th>商品图片</th>
+                </tr>
 
-            </tr>
+            </thead>
 
-        </thead>
+            <tbody id="table"></tbody>
 
-        <tbody id="table"></tbody>
+        </table>
 
-    </table>
+    </div>
 
     <script src="config.js"></script>
 
     <script>
+
         console.log('shop.html script running');
+
         const BASE = API.shop;
 
         let imageUrl = "";
 
-        function handleResponse(data) {
+        function handleResponse(data){
 
-            // 后端业务异常
-            if (data.code !== 200) {
+            if(data.code !== 200){
 
                 alert(data.message || "操作失败");
 
@@ -118,15 +204,42 @@
             return true;
         }
 
-        async function load() {
+        function previewImage(){
 
-            try {
+            let file = document.getElementById("img").files[0];
 
-                let res = await fetch(BASE + "/items");
+            if(!file){
+                return;
+            }
 
-                let data = await res.json();
+            let reader = new FileReader();
 
-                if (!handleResponse(data)) {
+            reader.onload = function(e){
+
+                let preview =
+                    document.getElementById("preview");
+
+                preview.src =
+                    e.target.result;
+
+                preview.style.display =
+                    "block";
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+        async function load(){
+
+            try{
+
+                let res =
+                    await fetch(BASE + "/items");
+
+                let data =
+                    await res.json();
+
+                if(!handleResponse(data)){
                     return;
                 }
 
@@ -135,131 +248,157 @@
                 data.data.forEach(i => {
 
                     html += `
-                            <tr>
-                                <td>${i.id}</td>
-                                <td>${i.name}</td>
-                                <td>${i.description || ""}</td>
-                                <td>${i.price}</td>
-                                <td>${i.stock}</td>
-                                <td>${i.imageRes}</td>
-                            </tr>
-                            `;
+                    <tr>
+                        <td>${i.id}</td>
+                        <td>${i.name}</td>
+                        <td>${i.description || ""}</td>
+                        <td>${i.price}</td>
+                        <td>${i.stock}</td>
+                        <td>
+                            ${
+                                i.imageRes
+                                ?
+                                `<img src="${i.imageRes}" alt="商品图片">`
+                                :
+                                "无图片"
+                            }
+                        </td>
+                    </tr>
+                    `;
 
                 });
 
-                document.getElementById("table").innerHTML = html;
+                document.getElementById("table")
+                    .innerHTML = html;
 
-            } catch (e) {
+            }
+            catch(e){
 
                 console.error(e);
 
                 alert("加载商品失败");
-
             }
 
         }
-        async function add() {
 
-            try {
+        async function add(){
+
+            try{
 
                 let body = {
 
-                    name: document.getElementById("name").value,
+                    name:
+                        document.getElementById("name").value,
 
-                    description: document.getElementById("description").value,
+                    description:
+                        document.getElementById("description").value,
 
-                    price: document.getElementById("price").value,
+                    price:
+                        document.getElementById("price").value,
 
-                    stock: document.getElementById("stock").value,
+                    stock:
+                        document.getElementById("stock").value,
 
-                    imageRes: imageUrl
+                    imageRes:
+                        imageUrl
 
                 };
 
-                let res = await fetch(
+                let res =
+                    await fetch(
+                        BASE + "/items",
+                        {
+                            method:"POST",
 
-                    BASE + "/items",
+                            headers:{
+                                "Content-Type":"application/json"
+                            },
 
-                    {
-                        method: "POST",
+                            body:JSON.stringify(body)
+                        }
+                    );
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                let data =
+                    await res.json();
 
-                        body: JSON.stringify(body)
-                    }
-                );
-
-                let data = await res.json();
-
-                // 原样显示后端错误
-                if (!handleResponse(data)) {
+                if(!handleResponse(data)){
                     return;
                 }
 
                 alert("添加成功");
 
+                document.getElementById("name").value = "";
+                document.getElementById("description").value = "";
+                document.getElementById("price").value = "";
+                document.getElementById("stock").value = "";
+
+                document.getElementById("preview").style.display =
+                    "none";
+
+                imageUrl = "";
+
                 load();
 
-            } catch (e) {
+            }
+            catch(e){
 
                 console.error(e);
 
-                // 只有真正网络异常才自己提示
                 alert("网络异常，请检查服务器是否启动");
-
             }
 
         }
 
-        async function upload() {
+        async function upload(){
 
-            try {
+            try{
 
-                let file = document.getElementById("img").files[0];
+                let file =
+                    document.getElementById("img").files[0];
 
-                if (!file) {
-                    alert("未选择图片");
+                if(!file){
+
+                    alert("请选择图片");
+
                     return;
                 }
 
-                let form = new FormData();
+                let form =
+                    new FormData();
 
-                form.append("file", file);
+                form.append("file",file);
 
-                let res = await fetch(
+                let res =
+                    await fetch(
+                        BASE + "/items/image",
+                        {
+                            method:"POST",
+                            body:form
+                        }
+                    );
 
-                    BASE + "/items/image",
+                let data =
+                    await res.json();
 
-                    {
-                        method: "POST",
-                        body: form
-                    }
-                );
-
-                let data = await res.json();
-
-                // 后端报错原样显示
-                if (!handleResponse(data)) {
+                if(!handleResponse(data)){
                     return;
                 }
 
-                imageUrl = data.data.fileUrl;
+                imageUrl =
+                    data.data.fileUrl;
 
-                alert("上传成功");
+                alert("图片上传成功");
 
-            } catch (e) {
+            }
+            catch(e){
 
                 console.error(e);
 
                 alert("网络异常，请检查服务器");
-
             }
 
         }
 
-        // 加载数据
         load();
 
     </script>
