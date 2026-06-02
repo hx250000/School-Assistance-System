@@ -5,6 +5,9 @@ import org.example.back.dto.response.PointsHistoryResponse;
 import org.example.back.dto.response.UserPointsHistory;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.PointsService;
+import org.example.back.testutil.AuthTestUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -30,11 +33,21 @@ class PointsControllerWebMvcTest {
     @MockBean
     private PointsService pointsService;
 
+    @BeforeEach
+    void setUp() {
+        AuthTestUtil.setCurrentUserId(1L);
+    }
+
+    @AfterEach
+    void tearDown() {
+        AuthTestUtil.clear();
+    }
+
     @Test
     void info_shouldReturnPoints() throws Exception {
         when(pointsService.getUserPoints()).thenReturn(123);
 
-        mockMvc.perform(get("/api/points/mypoints"))
+        mockMvc.perform(get("/api/points/my/points"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(123));
@@ -53,7 +66,7 @@ class PointsControllerWebMvcTest {
         when(pointsService.getMyPointsHistory()).thenReturn(response);
 
         // 3. 执行请求并验证
-        mockMvc.perform(get("/api/points/history"))
+        mockMvc.perform(get("/api/points/my/history"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 // 注意：现在的 $.data 是一个对象，包含 pointsHistoryList 数组

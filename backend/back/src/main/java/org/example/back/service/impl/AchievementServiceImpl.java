@@ -193,6 +193,15 @@ public class AchievementServiceImpl implements AchievementService {
             throw new AuthenticationException("用户未登录");
         }
 
+        return getUserAchievement(userId);
+    }
+
+    @Override
+    public UserAchievementOverview getSomeonesAchievement(long userId) {
+        return getUserAchievement(userId);
+    }
+
+    public UserAchievementOverview getUserAchievement(Long userId) {
         // 重新计算当前用户成就进度，保证新增成就项也能同步历史记录
         recalculateUserAchievements(userId);
 
@@ -297,13 +306,18 @@ public class AchievementServiceImpl implements AchievementService {
     private void ensureUserAchievementsExist(Long userId) {
         // 检查用户是否有任何成就记录
         List<UserAchievement> userAchievements = userAchievementRepository.findByUserId(userId);
-        
+
         // 获取所有活跃成就数量
         List<Achievement> activeAchievements = achievementRepository.findByIsActiveTrue();
-        
+
         // 如果成就记录数少于活跃成就数，则进行初始化
         if (userAchievements.size() < activeAchievements.size()) {
             initializeUserAchievements(userId);
         }
+    }
+
+    @Override
+    public List<UserAchievement> getUserAchievements(Long userId) {
+        return userAchievementRepository.findByUserId(userId);
     }
 }

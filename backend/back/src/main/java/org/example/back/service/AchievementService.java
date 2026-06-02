@@ -16,6 +16,8 @@ public interface AchievementService {
      * 获取当前用户的成就信息
      */
     UserAchievementOverview getMyAchievement();
+
+    UserAchievementOverview getSomeonesAchievement(long userId);
     
     /**
      * 初始化用户成就记录（幂等操作）
@@ -40,5 +42,10 @@ public interface AchievementService {
      * 重新计算所有用户的成就数据，用于管理员统一同步历史进度
      */
     void recalculateAllUsersAchievements();
+
+    /**
+     * 获取指定用户的成就记录列表
+     */
+    List<UserAchievement> getUserAchievements(Long userId);
 
 }

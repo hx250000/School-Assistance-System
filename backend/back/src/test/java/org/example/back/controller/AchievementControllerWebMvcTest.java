@@ -121,12 +121,30 @@ class AchievementControllerWebMvcTest {
 
         when(achievementService.listAll()).thenReturn(List.of(a1, a2));
 
-        mockMvc.perform(get("/api/achievements/admin/list"))
+        mockMvc.perform(get("/api/achievements/admin/list/achievements"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
                 .andExpect(jsonPath("$.data[0].title").value("Achievement 1"));
+    }
+
+    @Test
+    void listUserAchievements_shouldReturnUserAchievements() throws Exception {
+        UserAchievementOverview overview = new UserAchievementOverview();
+        overview.setTotalCount(5);
+        overview.setUnlockedCount(3);
+        overview.setCompletionRate(0.6);
+
+        when(achievementService.getSomeonesAchievement(1L)).thenReturn(overview);
+
+        mockMvc.perform(get("/api/achievements/admin/list/userachievements")
+                        .param("userId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.totalCount").value(5))
+                .andExpect(jsonPath("$.data.unlockedCount").value(3))
+                .andExpect(jsonPath("$.data.completionRate").value(0.6));
     }
 }
 

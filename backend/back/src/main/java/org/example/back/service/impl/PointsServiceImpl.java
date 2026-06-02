@@ -90,6 +90,16 @@ public class PointsServiceImpl implements PointsService {
             throw new AuthenticationException("用户未登录");
         }
 
+        return getUserPointsHistory(userId);
+    }
+
+    // 管理用
+    @Override
+    public PointsHistoryResponse getSomeonesPointsHistory(long userId) {
+        return getUserPointsHistory(userId);
+    }
+
+    public PointsHistoryResponse getUserPointsHistory(long userId){
         List<PointsLog> logs =
                 pointsLogRepository.findByUserIdOrderByCreatedAtDesc(userId);
 

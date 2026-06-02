@@ -10,10 +10,7 @@ import org.example.back.entity.User;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceConflictException;
 import org.example.back.exception.ResourceNotFoundException;
-import org.example.back.repository.PointsLogRepository;
-import org.example.back.repository.ShopItemRepository;
-import org.example.back.repository.ShopRepository;
-import org.example.back.repository.UserRepository;
+import org.example.back.repository.*;
 import org.example.back.service.FileStorageService;
 import org.example.back.service.ShopService;
 import org.slf4j.Logger;
@@ -43,6 +40,9 @@ public class ShopServiceImpl implements ShopService {
 
     @Autowired
     private ShopRepository shopRepository;
+
+    @Autowired
+    private ShopOrderRepository shopOrderRepository;
 
     @Override
     public List<ShopItem> listItems() {
@@ -121,6 +121,13 @@ public class ShopServiceImpl implements ShopService {
         long count=pointsLogRepository.countByUserIdAndTitle(userId,title);
         log.info("exchangeCount: user={}, count={}", user.getId(), count);
         return count;
+    }
+
+    @Override
+    public List<ShopOrder> listShopOrders() {
+        List<ShopOrder> list=shopOrderRepository.findAll();
+        log.info("listShopOrders= "+list);
+        return list;
     }
 
     // 复用文件存储服务，把图片存入 uploads/shop/ 目录下
