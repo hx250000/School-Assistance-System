@@ -14,8 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="260dp"
             android:background="@drawable/bg_gradient"
-            android:padding="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -26,7 +26,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/bg_circle"
-                    android:src="@android:drawable/ic_media_previous"/>
+                    android:src="@android:drawable/ic_media_previous" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -37,13 +37,13 @@
                         android:id="@+id/btn_edit"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:src="@android:drawable/ic_menu_edit"/>
+                        android:src="@android:drawable/ic_menu_edit" />
 
                     <ImageView
                         android:id="@+id/btn_delete"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:src="@android:drawable/ic_menu_delete"/>
+                        android:src="@android:drawable/ic_menu_delete" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -51,24 +51,24 @@
                 android:id="@+id/tv_task_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:text="📚 学习任务"
-                android:textColor="@color/text_on_primary"
-                android:layout_marginTop="20dp"/>
+                android:textColor="@color/text_on_primary" />
 
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="22sp"
-                android:textStyle="bold"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/text_on_primary"
-                android:layout_marginTop="10dp"/>
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_task_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_secondary_on_primary"/>
+                android:textColor="@color/text_secondary_on_primary" />
         </LinearLayout>
 
         <!-- ===== 进度 ===== -->
@@ -76,33 +76,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:padding="14dp"
             android:background="@color/bg_card_small"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="参与进度"
-                android:textStyle="bold"
-                android:textColor="@color/text_body"/>
+                android:textColor="@color/text_body"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/color_progress"
-                android:layout_gravity="end"/>
+                android:layout_gravity="end"
+                android:textColor="@color/color_progress" />
 
             <ProgressBar
                 android:id="@+id/progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
-                android:progress="66"/>
+                android:progress="66" />
         </LinearLayout>
 
-        <!-- ===== 信息卡片 ===== -->
+        <!-- ===== 任务信息 ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -113,36 +113,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="任务信息"
-                android:textStyle="bold"
-                android:textColor="@color/text_body"/>
+                android:textColor="@color/text_body"
+                android:textStyle="bold" />
 
-            <!-- 行1 -->
+            <!-- 第一行 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:padding="12dp"
                     android:background="@color/bg_card_small"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="人数"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
 
                     <TextView
                         android:id="@+id/tv_people"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -150,52 +150,52 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:padding="12dp"
                     android:background="@color/bg_card_small"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="积分"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
 
                     <TextView
                         android:id="@+id/tv_score"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 行2 -->
+            <!-- 第二行 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:padding="12dp"
                     android:background="@color/bg_card_small"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="发布时间"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
 
                     <TextView
                         android:id="@+id/tv_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -203,24 +203,86 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:padding="12dp"
                     android:background="@color/bg_card_small"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="截止时间"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body" />
 
                     <TextView
                         android:id="@+id/tv_deadline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_body"/>
+                        android:textColor="@color/text_body"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== 任务描述 ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/bg_card_small"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="任务描述"
+                android:textColor="@color/text_body"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/text_body"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- ===== 参与用户 ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="参与用户"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/text_body"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvParticipants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="false"/>
+
+            <TextView
+                android:id="@+id/tvEmptyParticipant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="20dp"
+                android:text="暂无参与用户"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <!-- ===== 底部按钮 ===== -->
@@ -235,20 +297,21 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
+                android:backgroundTint="@color/btn_finish_bg"
                 android:text="完成任务"
-                android:textColor="@color/text_on_button"
-                android:backgroundTint="@color/btn_finish_bg"/>
+                android:textColor="@color/text_on_button" />
 
             <Button
                 android:id="@+id/btn_cancel"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="取消任务"
                 android:layout_marginStart="10dp"
-                android:textColor="@color/text_on_button"
-                android:backgroundTint="@color/btn_cancel_bg"/>
+                android:backgroundTint="@color/btn_cancel_bg"
+                android:text="取消任务"
+                android:textColor="@color/text_on_button" />
         </LinearLayout>
 
     </LinearLayout>
+
 </ScrollView>

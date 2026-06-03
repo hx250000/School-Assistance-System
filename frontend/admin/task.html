@@ -7,121 +7,12 @@
 
     <title>任务管理</title>
 
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial;
-        }
-
-        body{
-            background:#f5f5f5;
-        }
-
-        /* 导航栏 */
-        .nav{
-            background:#333;
-            padding:15px 30px;
-        }
-
-        .nav a{
-            color:white;
-            text-decoration:none;
-            margin-right:20px;
-            font-weight:bold;
-        }
-
-        .nav a:hover{
-            color:#ffd04b;
-        }
-
-        .container{
-            width:1200px;
-            margin:20px auto;
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0 2px 10px rgba(0,0,0,.1);
-        }
-
-        h2{
-            margin-bottom:20px;
-        }
-
-        .search-box{
-            margin-bottom:20px;
-        }
-
-        input{
-            padding:8px;
-            width:250px;
-        }
-
-        button{
-            padding:8px 15px;
-            border:none;
-            border-radius:4px;
-            cursor:pointer;
-            color:white;
-        }
-
-        .search-btn{
-            background:#409eff;
-        }
-
-        .finish-btn{
-            background:#67c23a;
-            margin-right:5px;
-        }
-
-        .cancel-btn{
-            background:#f56c6c;
-        }
-
-        button:hover{
-            opacity:0.9;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
-
-        th,
-        td{
-            border:1px solid #ddd;
-            padding:10px;
-            text-align:center;
-        }
-
-        th{
-            background:#f2f2f2;
-        }
-
-        .status-finished{
-            color:#67c23a;
-            font-weight:bold;
-        }
-
-        .status-cancel{
-            color:#f56c6c;
-            font-weight:bold;
-        }
-
-        .status-pending{
-            color:#e6a23c;
-            font-weight:bold;
-        }
-
-    </style>
+    <link rel="stylesheet" href="task.css">
 
 </head>
 
 <body>
 
-    <!-- 导航栏 -->
     <div class="nav">
 
         <a href="index.html">首页</a>
@@ -146,7 +37,7 @@
 
             <button
                 class="search-btn"
-                onclick="search()">
+                onclick="searchTask()">
 
                 搜索
 
@@ -154,13 +45,15 @@
 
             <button
                 class="search-btn"
-                onclick="load()">
+                onclick="loadAllTasks()">
 
                 刷新
 
             </button>
 
         </div>
+
+        <h3>搜索结果</h3>
 
         <table>
 
@@ -178,7 +71,95 @@
 
             </thead>
 
-            <tbody id="table"></tbody>
+            <tbody id="searchTable"></tbody>
+
+        </table>
+
+        <h3>OPEN（待接取）</h3>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>奖励积分</th>
+                    <th>状态</th>
+                    <th>操作</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="openTable"></tbody>
+
+        </table>
+
+        <h3>IN_PROGRESS（进行中）</h3>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>奖励积分</th>
+                    <th>状态</th>
+                    <th>操作</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="progressTable"></tbody>
+
+        </table>
+
+        <h3>FINISHED（已完成）</h3>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>奖励积分</th>
+                    <th>状态</th>
+                    <th>操作</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="finishedTable"></tbody>
+
+        </table>
+
+        <h3>CANCELLED（已取消）</h3>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>奖励积分</th>
+                    <th>状态</th>
+                    <th>操作</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="cancelledTable"></tbody>
 
         </table>
 
@@ -186,230 +167,7 @@
 
     <script src="config.js"></script>
 
-    <script>
-
-        console.log("task.html script running");
-
-        const BASE = API.task;
-
-        async function load(){
-
-            try{
-
-                let res =
-                    await fetch(
-                        BASE +
-                        "/list?page=0&size=50"
-                    );
-
-                let data =
-                    await res.json();
-
-                show(data.data);
-
-            }
-            catch(e){
-
-                console.error(e);
-
-                alert("加载任务失败");
-            }
-
-        }
-
-        function getStatusClass(status){
-
-            if(!status){
-                return "";
-            }
-
-            let s =
-                status.toString().toLowerCase();
-
-            if(
-                s.includes("finish") ||
-                s.includes("completed") ||
-                s.includes("完成")
-            ){
-                return "status-finished";
-            }
-
-            if(
-                s.includes("cancel") ||
-                s.includes("取消")
-            ){
-                return "status-cancel";
-            }
-
-            return "status-pending";
-        }
-
-        function show(tasks){
-
-            let html = "";
-
-            if(!tasks || tasks.length === 0){
-
-                html =
-                    `
-                    <tr>
-                        <td colspan="5">
-                            暂无任务数据
-                        </td>
-                    </tr>
-                    `;
-
-                document
-                    .getElementById("table")
-                    .innerHTML = html;
-
-                return;
-            }
-
-            tasks.forEach(t => {
-
-                html +=
-                `
-                <tr>
-
-                    <td>${t.taskId}</td>
-
-                    <td>${t.title}</td>
-
-                    <td>${t.rewardPoints}</td>
-
-                    <td class="${getStatusClass(t.status)}">
-                        ${t.status}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="finish-btn"
-                            onclick="finish(${t.taskId})">
-
-                            完成
-
-                        </button>
-
-                        <button
-                            class="cancel-btn"
-                            onclick="cancel(${t.taskId})">
-
-                            取消
-
-                        </button>
-
-                    </td>
-
-                </tr>
-                `;
-            });
-
-            document
-                .getElementById("table")
-                .innerHTML = html;
-        }
-
-        async function finish(id){
-
-            try{
-
-                let res =
-                    await fetch(
-                        BASE + "/" + id + "/finish",
-                        {
-                            method:"POST"
-                        }
-                    );
-
-                if(res.ok){
-
-                    alert("任务已完成");
-
-                    load();
-                }
-
-            }
-            catch(e){
-
-                console.error(e);
-
-                alert("操作失败");
-            }
-
-        }
-
-        async function cancel(id){
-
-            try{
-
-                let res =
-                    await fetch(
-                        BASE + "/" + id + "/cancel",
-                        {
-                            method:"POST"
-                        }
-                    );
-
-                if(res.ok){
-
-                    alert("任务已取消");
-
-                    load();
-                }
-
-            }
-            catch(e){
-
-                console.error(e);
-
-                alert("操作失败");
-            }
-
-        }
-
-        async function search(){
-
-            try{
-
-                let keyword =
-                    document
-                    .getElementById("keyword")
-                    .value;
-
-                if(!keyword){
-
-                    load();
-
-                    return;
-                }
-
-                let res =
-                    await fetch(
-                        BASE +
-                        "/search?keyword=" +
-                        encodeURIComponent(keyword)
-                    );
-
-                let data =
-                    await res.json();
-
-                show(data.data);
-
-            }
-            catch(e){
-
-                console.error(e);
-
-                alert("搜索失败");
-            }
-
-        }
-
-        load();
-
-    </script>
+    <script src="task.js"></script>
 
 </body>
 
