@@ -56,4 +56,10 @@ public class UserController {
     public ApiResponse<FileUploadResponse> uploadAvatar(@RequestPart("file") MultipartFile file) {
         return ApiResponse.success(userService.uploadAvatar(file));
     }
+
+    @Operation(summary = "管理登录", description = "登录并返回 token")
+    @PostMapping("/admin/login")
+    public ApiResponse<LoginResponse> adminLogin(@RequestBody LoginRequest request) {
+        return ApiResponse.success(userService.adminLogin(request));
+    }
 }

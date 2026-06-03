@@ -56,6 +56,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
+        return userRegister(registerRequest,false);
+    }
+
+    @Override
+    @Transactional
+    public RegisterResponse adminRegister(RegisterRequest registerRequest){
+        return userRegister(registerRequest,true);
+    }
+
+    public RegisterResponse userRegister(RegisterRequest registerRequest,boolean isAdmin) {
         checkInformation(registerRequest);
         User user = new User();
         boolean exists=userRepository.existsByUsernameOrPhone(
@@ -68,6 +78,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(registerRequest.getUsername());
         user.setPassword(password);
         user.setPhone(registerRequest.getPhone());
+        user.setAdmin(isAdmin);
         // 初始化积分和信用分和头像
         user.setPoints(0);
         user.setCreditScore(100);
@@ -76,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
         // 保存到数据库（自动生成ID）
         User savedUser = userRepository.save(user);
-        
+
         // 初始化用户成就记录
         achievementService.initializeUserAchievements(savedUser.getId());
 
@@ -91,13 +102,35 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public LoginResponse login(LoginRequest request) {
+        return userLogin(request);
+    }
+
+    @Override
+    public LoginResponse adminLogin(LoginRequest request) {
+        User user=userRepository.findByPhone(request.getPhone());
+        log.info("user login: " + request.getPhone());
+
+        if (user == null) {
+            throw new AuthenticationException("用户名或密码错误!");
+        }
+        if (user.getAdmin()==null||!user.getAdmin()){
+            throw new AuthenticationException("仅管理员可登录！");
+        }
+        return userLogin(request);
+    }
+
+    public LoginResponse userLogin(LoginRequest request) {
         // 改成根据手机号或用户名都可以登录
 //        User user = userRepository.findByUsernameOrPhone(request.getPhone(), request.getUsername());
         User user=userRepository.findByPhone(request.getPhone());
         log.info("user login: " + request.getPhone());
 
-        if (user == null ) {
+        if (user == null) {
             throw new AuthenticationException("用户名或密码错误!");
+        }
+
+        if (user.getAdmin()==null){
+            user.setAdmin(false);
         }
 
         if (user.getPswencp()!=null&&user.getPswencp().equals("bcrypt")){

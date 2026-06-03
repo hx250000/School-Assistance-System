@@ -14,7 +14,11 @@ public interface UserService {
 
     RegisterResponse register(RegisterRequest registerRequest);
 
+    RegisterResponse adminRegister(RegisterRequest registerRequest);
+
     LoginResponse login(LoginRequest request);
+
+    LoginResponse adminLogin(LoginRequest request);
 
     UserInfoVO getCurrentUser();
 
