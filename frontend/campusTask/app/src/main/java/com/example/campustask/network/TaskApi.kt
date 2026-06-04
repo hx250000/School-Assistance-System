@@ -1,6 +1,8 @@
 package com.example.campustask.network
 
 import com.example.campustask.model.Task
+import com.example.campustask.model.User
+import com.example.campustask.model.UserInfo
 import com.example.campustask.model.request.GrabTaskRequest
 import com.example.campustask.model.request.TaskCreateRequest
 import com.example.campustask.model.response.BaseResponse
@@ -44,4 +46,7 @@ interface TaskApi {
 
     @GET("task/stats")
     fun stats(): Call<BaseResponse<HomeStatResp>>
+
+    @GET("task/{taskId}/participants")
+    fun participants(@Header("Authorization") token: String, @Path("taskId") taskId: Long): Call<BaseResponse<List<UserInfo>>>
 }

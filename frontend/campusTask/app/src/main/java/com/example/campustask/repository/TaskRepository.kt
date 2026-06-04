@@ -69,7 +69,7 @@ class TaskRepository {
         })
     }
 
-    // 获取任务列表（分页）
+    // 获取任务列表（分页）(User)
     fun getAllTasks(context: Context, page: Int = 0, size: Int = 20, callback: (Boolean, List<Task>?, String?) -> Unit) {
         val header = AuthTokenStore.authorizationHeader(context)
         if (header == null) {
@@ -124,6 +124,40 @@ class TaskRepository {
                 callback(false, null, error)
             }
         }
+    }
+
+    // 根据任务获取参与者
+    fun getTaskParticipants(context: Context, taskId: Long, callback: (Boolean, List<UserInfo>?, String?) -> Unit) {
+        val header = AuthTokenStore.authorizationHeader(context)
+        if (header == null) {
+            callback(false, null, "用户未登录")
+            return
+        }
+
+        taskApi.participants(header, taskId).enqueue(object : Callback<BaseResponse<List<UserInfo>>> {
+            override fun onResponse(call: Call<BaseResponse<List<UserInfo>>>, response: Response<BaseResponse<List<UserInfo>>>) {
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (ResponseHandler.isUnauthorized(body.code)) {
+                        ResponseHandler.handleUnauthorized(context)
+                        return
+                    }
+                    if (body.code == 200) {
+                        Log.d(TAG,"participants.response: "+response.toString())
+                        callback(true, body.data, null)
+                    } else {
+                        Log.d(TAG, body.message ?: "获取参与者列表失败")
+                        callback(false, null, body.message ?: "获取参与者列表失败")
+                    }
+                } else {
+                    callback(false, null, body?.message ?: "获取参与者列表失败")
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse<List<UserInfo>>>, t: Throwable) {
+                callback(false, null, t.message)
+            }
+        })
     }
 
     // 抢任务
@@ -367,6 +401,4 @@ class TaskRepository {
             }
         })
     }
-
-
 }

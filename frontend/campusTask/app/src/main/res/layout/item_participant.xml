@@ -40,14 +40,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Lv.3"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/color_primary" />
 
         <TextView
             android:id="@+id/tv_points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="积分: 120"
-            android:textColor="@color/text_secondary" />
+            android:text="联系方式: —"
+            android:textColor="@color/color_primary" />
     </LinearLayout>
 
     <!-- 信用分 -->
@@ -61,14 +61,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="信用"
-            android:textColor="@color/text_secondary"
+            android:textColor="#00CC00"
             android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_credit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="100"
+            android:text=" - "
             android:textColor="@android:color/holo_green_dark"
             android:textSize="16sp"
             android:textStyle="bold" />

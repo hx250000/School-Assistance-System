@@ -9,7 +9,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.campustask.R
+import com.example.campustask.adapter.ParticipantAdapter
 import com.example.campustask.data.FakeTaskDatabase
 import com.example.campustask.model.Task
 import com.example.campustask.repository.TaskRepository
@@ -18,7 +21,10 @@ import java.util.*
 
 class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
 
-    val TAG="MyTaskDetailFragment"
+    private val TAG = "MyTaskDetailFragment"
+    private val taskRepo = TaskRepository()
+
+    private lateinit var participantAdapter: ParticipantAdapter
 
     companion object {
         private const val ARG_TASK_ID = "task_id"
@@ -95,10 +101,35 @@ class MyTaskDetailFragment : Fragment(R.layout.fragment_my_task_detail) {
         // ===== 信息卡片 =====
         view.findViewById<TextView>(R.id.tv_people)?.text = progressText
         view.findViewById<TextView>(R.id.tv_score)?.text = "+${task.rewardPoints}积分"
+        view.findViewById<TextView>(R.id.tv_description)?.text = "${task.description}"
 
+        // 发布时间
         view.findViewById<TextView>(R.id.tv_time)?.text = formatTime(task.createdAt)
-
+        // DDL
         view.findViewById<TextView>(R.id.tv_deadline)?.text = formatTime(task.deadline)
+
+        // ===== 参与用户 =====
+        val rvParticipants = view.findViewById<RecyclerView>(R.id.rvParticipants)
+        val tvEmptyParticipant = view.findViewById<TextView>(R.id.tvEmptyParticipant)
+        participantAdapter = ParticipantAdapter(emptyList())
+        rvParticipants?.layoutManager = LinearLayoutManager(requireContext())
+        rvParticipants?.adapter = participantAdapter
+        tvEmptyParticipant?.visibility = View.GONE
+
+        taskRepo.getTaskParticipants(requireContext(), task.taskId) { success, participants, error ->
+            if (!isAdded) return@getTaskParticipants
+            requireActivity().runOnUiThread {
+                val data = if (success && !participants.isNullOrEmpty()) participants else emptyList()
+                participantAdapter.updateData(data)
+                if (data.isEmpty()) {
+                    rvParticipants?.visibility = View.GONE
+                    tvEmptyParticipant?.visibility = View.VISIBLE
+                } else {
+                    rvParticipants?.visibility = View.VISIBLE
+                    tvEmptyParticipant?.visibility = View.GONE
+                }
+            }
+        }
 
         // ===== 按钮 =====
         view.findViewById<ImageView>(R.id.btn_back)?.setOnClickListener {

@@ -5,6 +5,7 @@ data class UserInfo(
     val username: String,
     val phone: String,
     val points: Int,
+    val admin: Boolean,
     val creditScore: Int,
     val level: Int,
     val avatarUrl: String,

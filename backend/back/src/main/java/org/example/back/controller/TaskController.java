@@ -49,8 +49,8 @@ public class TaskController {
         return ApiResponse.success(taskService.list(page, size, status));
     }
 
-    @GetMapping("/{taskId}/parcitipants")
-    public ApiResponse<List<UserInfoVO>> parcitipants(@PathVariable long taskId) {
+    @GetMapping("/{taskId}/participants")
+    public ApiResponse<List<UserInfoVO>> participants(@PathVariable long taskId) {
         return ApiResponse.success(taskService.participants(taskId));
     }
 

@@ -120,8 +120,6 @@ public class UserServiceImpl implements UserService {
     }
 
     public LoginResponse userLogin(LoginRequest request) {
-        // 改成根据手机号或用户名都可以登录
-//        User user = userRepository.findByUsernameOrPhone(request.getPhone(), request.getUsername());
         User user=userRepository.findByPhone(request.getPhone());
         log.info("user login: " + request.getPhone());
 
@@ -215,7 +213,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("用户 " + userId + " 不存在"));
 
-        // 保存文件到本地 uploads/avatars/ 目
+        // 保存文件到本地 uploads/avatars/ 目录
         String url=fileStorageService.storeFile(file,"avatars");
 
         user.setAvatarUrl(url);
