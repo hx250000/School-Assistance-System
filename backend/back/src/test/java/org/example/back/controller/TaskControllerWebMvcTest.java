@@ -133,7 +133,7 @@ class TaskControllerWebMvcTest {
         user.setUsername("testUser");
         when(taskService.participants(1L)).thenReturn(List.of(user));
 
-        mockMvc.perform(get("/api/task/1/parcitipants"))
+        mockMvc.perform(get("/api/task/1/participants"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].id").value(1))

@@ -13,5 +13,6 @@ public class UserInfoVO {
     private Integer points;
     private Integer creditScore;
     private Integer level;
+    private Boolean admin;
     private LocalDateTime createdAt;   // 可用 String 或 LocalDateTime，返回 JSON 时 Jackson 会自动序列化
 }

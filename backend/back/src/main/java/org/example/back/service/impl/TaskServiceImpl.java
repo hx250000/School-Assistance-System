@@ -11,7 +11,6 @@ import org.example.back.entity.*;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.ResourceConflictException;
 import org.example.back.repository.TaskParticipantRepository;
-import org.example.back.config.JwtAuthenticationInterceptor;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.*;
 import org.example.back.service.AchievementService;
@@ -193,12 +192,15 @@ public class TaskServiceImpl implements TaskService {
             throw new AuthenticationException("用户未登录");
         }
 
+        User user = userRepository.findById(userId).
+                orElseThrow(()-> new ResourceNotFoundException("用户不存在！"));
+
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("任务不存在: " + taskId));
 
         // 只有任务发起者可以取消
-        if (!userId.equals(task.getPublisherId())) {
-            throw new ResourceConflictException("仅发布者可取消该任务");
+        if (!(userId.equals(task.getPublisherId()) || user.getAdmin())) {
+            throw new ResourceConflictException("仅发布者或管理员可取消该任务");
         }
 
         if ("FINISHED".equals(task.getStatus())) {
@@ -327,6 +329,8 @@ public class TaskServiceImpl implements TaskService {
 
         List<TaskParticipant> parts = taskParticipantRepository.findByTaskId(taskId);
 
+        log.info("participants: {}",parts);
+
         return parts.stream()
                 .map(p -> userRepository.findById(p.getUserId()).orElse(null))
                 .filter(u -> u != null)
@@ -336,6 +340,7 @@ public class TaskServiceImpl implements TaskService {
                     vo.setUsername(u.getUsername());
                     vo.setPhone(u.getPhone());
                     vo.setAvatarUrl(u.getAvatarUrl());
+                    vo.setAdmin(u.getAdmin());
                     vo.setPoints(u.getPoints());
                     vo.setCreditScore(u.getCreditScore());
                     vo.setLevel(u.getLevel());

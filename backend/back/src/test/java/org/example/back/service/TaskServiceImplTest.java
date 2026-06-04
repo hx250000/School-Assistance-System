@@ -184,6 +184,10 @@ class TaskServiceImplTest {
         task.setPublisherId(1L);
         task.setStatus("FINISHED");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        
+        User user = new User();
+        user.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> taskService.cancelTask(1L))
                 .isInstanceOf(ResourceConflictException.class)
@@ -199,6 +203,10 @@ class TaskServiceImplTest {
         task.setPublisherId(1L);
         task.setStatus("CANCELLED");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        
+        User user = new User();
+        user.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> taskService.cancelTask(1L))
                 .isInstanceOf(ResourceConflictException.class)
@@ -214,6 +222,12 @@ class TaskServiceImplTest {
         task.setPublisherId(1L);
         task.setStatus("OPEN");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        
+        User user = new User();
+        user.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        
+        when(taskParticipantRepository.findByTaskId(1L)).thenReturn(List.of());
 
         taskService.cancelTask(1L);
         
@@ -398,10 +412,15 @@ class TaskServiceImplTest {
         task.setPublisherId(1L);
         task.setStatus("OPEN");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        
+        User user = new User();
+        user.setId(2L);
+        user.setAdmin(false);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> taskService.cancelTask(1L))
                 .isInstanceOf(ResourceConflictException.class)
-                .hasMessageContaining("仅发布者可取消");
+                .hasMessageContaining("仅发布者或管理员可取消该任务");
     }
 
     @Test

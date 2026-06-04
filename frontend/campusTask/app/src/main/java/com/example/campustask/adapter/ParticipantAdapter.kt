@@ -5,8 +5,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.campustask.R
 import com.example.campustask.model.UserInfo
+import com.example.campustask.utils.FileUrlResolver
 
 class ParticipantAdapter(
     private var list: List<UserInfo>
@@ -31,17 +33,16 @@ class ParticipantAdapter(
 
         holder.username.text = user.username
         holder.level.text = "Lv.${user.level}"
-        holder.points.text = "积分：${user.points}"
+        holder.points.text = "联系方式：${user.phone}"
         holder.credit.text = "${user.creditScore}"
 
-        // 简单头像处理（没有Glide也能用）
-        if (user.avatarUrl.isNotBlank()) {
-            // 如果你后面接 Glide，可以替换这里
-            // Glide.with(holder.avatar).load(user.avatarUrl).into(holder.avatar)
-            holder.avatar.setImageResource(R.mipmap.ic_launcher_round)
-        } else {
-            holder.avatar.setImageResource(R.mipmap.ic_launcher_round)
-        }
+        val imageSource = FileUrlResolver.resolve(user.avatarUrl, defaultType = "avatar")
+        Glide.with(holder.avatar.context)
+            .load(imageSource)
+            .placeholder(R.drawable.ic_avatar)
+            .error(R.drawable.ic_avatar)
+            .circleCrop()
+            .into(holder.avatar)
     }
 
     override fun getItemCount(): Int = list.size

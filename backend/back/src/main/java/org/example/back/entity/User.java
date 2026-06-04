@@ -49,6 +49,9 @@ public class User {
     @Column
     private String avatarUrl;
 
+    @Column
+    private Boolean admin;
+
     @Column(nullable = false)
     @Schema(description = "等级", example = "1")
     private Integer level;
@@ -61,6 +64,7 @@ public class User {
     public void prePersist() {
         // 新增用户时自动设置创建时间和默认值
         this.createdAt = LocalDateTime.now();
+        if (this.admin == null) this.admin = false;
         if (this.points == null) this.points = 0;
         if (this.creditScore == null) this.creditScore = 100;
         if (this.level == null) this.level = 1;
