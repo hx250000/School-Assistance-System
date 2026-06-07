@@ -2,6 +2,7 @@ package org.example.back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.back.config.SecurityConfig;
+import org.example.back.dto.request.ReviewCreateRequest;
 import org.example.back.entity.Review;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.exception.ResourceNotFoundException;
@@ -34,35 +35,61 @@ class ReviewControllerWebMvcTest {
     private ReviewService reviewService;
 
     @Test
-    void create_shouldReturnString() throws Exception {
-        when(reviewService.createReview(any(Review.class))).thenReturn("ok");
+    void create_shouldReturnReview() throws Exception {
+        ReviewCreateRequest request = new ReviewCreateRequest();
+        request.setTaskId(1L);
+        request.setFromUserId(1L);
+        request.setToUserId(2L);
+        request.setScore(5);
+        request.setContent("Great!");
 
-        Review r = new Review();
-        r.setToUserId(1L);
-        r.setScore(1);
+        Review response = new Review();
+        response.setId(1L);
+        response.setScore(5);
+        when(reviewService.createReview(any(ReviewCreateRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/review/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(r)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("ok"))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(jsonPath("$.data.score").value(5));
     }
 
     @Test
     void create_whenServiceThrowsNotFound_shouldMapTo404() throws Exception {
-        when(reviewService.createReview(any(Review.class))).thenThrow(new ResourceNotFoundException("用户不存在"));
+        ReviewCreateRequest request = new ReviewCreateRequest();
+        request.setToUserId(999L);
+        request.setScore(1);
 
-        Review r = new Review();
-        r.setToUserId(999L);
-        r.setScore(1);
+        when(reviewService.createReview(any(ReviewCreateRequest.class))).thenThrow(new ResourceNotFoundException("用户不存在"));
 
         mockMvc.perform(post("/api/review/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(r)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404));
     }
-}
 
+    @Test
+    void create_withNegativeScore_shouldReturnSuccess() throws Exception {
+        ReviewCreateRequest request = new ReviewCreateRequest();
+        request.setTaskId(1L);
+        request.setFromUserId(1L);
+        request.setToUserId(2L);
+        request.setScore(-2);
+        request.setContent("Not good");
+
+        Review response = new Review();
+        response.setId(1L);
+        response.setScore(-2);
+        when(reviewService.createReview(any(ReviewCreateRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/review/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.score").value(-2));
+    }
+}

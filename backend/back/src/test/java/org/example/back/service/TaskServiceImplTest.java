@@ -53,6 +53,9 @@ class TaskServiceImplTest {
     @Mock
     private AchievementService achievementService;
 
+    @Mock
+    private ReviewService reviewService;
+
     @InjectMocks
     private TaskServiceImpl taskService;
 
