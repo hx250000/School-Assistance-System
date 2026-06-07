@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="zh-CN">
 
 <head>
 
 ```
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>用户管理</title>
 
@@ -51,11 +52,6 @@
         margin-bottom:20px;
     }
 
-    h3{
-        margin-top:30px;
-        margin-bottom:15px;
-    }
-
     button{
         padding:8px 16px;
         border:none;
@@ -86,14 +82,14 @@
         background:#f2f2f2;
     }
 
-    input[type=file]{
-        margin-right:10px;
+    .admin-tag{
+        color:#67C23A;
+        font-weight:bold;
     }
 
-    #preview{
-        max-width:200px;
-        margin-top:15px;
-        display:none;
+    .user-tag{
+        color:#909399;
+        font-weight:bold;
     }
 
 </style>
@@ -103,69 +99,59 @@
 
 <body>
 
-```
 <div class="nav">
 
-    <a href="index.html">首页</a>
+```
+<a href="index.html">首页</a>
 
-    <a href="user.html">用户管理</a>
+<a href="user.html">用户管理</a>
 
-    <a href="task.html">任务管理</a>
+<a href="task.html">任务管理</a>
 
-    <a href="shop.html">商城管理</a>
+<a href="shop.html">商城管理</a>
+```
 
 </div>
 
 <div class="container">
 
-    <h2>用户管理</h2>
+```
+<h2>用户管理</h2>
 
-    <button onclick="loadUsers()">
-        刷新用户
-    </button>
+<button onclick="loadUsers()">
+    刷新用户
+</button>
 
-    <table>
+<table>
 
-        <thead>
+    <thead>
 
-            <tr>
+    <tr>
 
-                <th>ID</th>
+        <th>ID</th>
 
-                <th>用户名</th>
+        <th>用户名</th>
 
-                <th>电话号码</th>
+        <th>电话号码</th>
 
-                <th>积分</th>
+        <th>是否管理员</th>
 
-                <th>信用分</th>
+        <th>积分</th>
 
-                <th>头像URL</th>
+        <th>信用分</th>
 
-                <th>创建时间</th>
+        <th>等级</th>
 
-            </tr>
+        <th>创建时间</th>
 
-        </thead>
+    </tr>
 
-        <tbody id="userTable"></tbody>
+    </thead>
 
-    </table>
+    <tbody id="userTable"></tbody>
 
-    <h3>上传头像</h3>
-
-    <input
-        type="file"
-        id="avatar"
-        onchange="previewAvatar()">
-
-    <button onclick="uploadAvatar()">
-        上传
-    </button>
-
-    <br>
-
-    <img id="preview">
+</table>
+```
 
 </div>
 
@@ -226,7 +212,7 @@
 
                 html = `
                 <tr>
-                    <td colspan="7">
+                    <td colspan="8">
                         暂无用户数据
                     </td>
                 </tr>
@@ -250,11 +236,19 @@
 
                     <td>${u.phone || ""}</td>
 
+                    <td>
+                        ${
+                            u.admin
+                            ? '<span class="admin-tag">管理员</span>'
+                            : '<span class="user-tag">普通用户</span>'
+                        }
+                    </td>
+
                     <td>${u.points || 0}</td>
 
                     <td>${u.creditScore || 0}</td>
 
-                    <td>${u.avatarUrl || ""}</td>
+                    <td>${u.level || 1}</td>
 
                     <td>${formatTime(u.createdAt)}</td>
 
@@ -277,89 +271,9 @@
 
     }
 
-    function previewAvatar(){
-
-        let file =
-            document
-            .getElementById("avatar")
-            .files[0];
-
-        if(!file){
-            return;
-        }
-
-        let reader =
-            new FileReader();
-
-        reader.onload = function(e){
-
-            let preview =
-                document
-                .getElementById("preview");
-
-            preview.src =
-                e.target.result;
-
-            preview.style.display =
-                "block";
-        }
-
-        reader.readAsDataURL(file);
-    }
-
-    async function uploadAvatar(){
-
-        try{
-
-            let file =
-                document
-                .getElementById("avatar")
-                .files[0];
-
-            if(!file){
-
-                alert("请选择头像");
-
-                return;
-            }
-
-            let form =
-                new FormData();
-
-            form.append("file",file);
-
-            let res =
-                await fetch(
-                    BASE + "/info/avatar",
-                    {
-                        method:"POST",
-                        body:form
-                    }
-                );
-
-            if(!res.ok){
-
-                alert("上传失败");
-
-                return;
-            }
-
-            alert("头像上传成功");
-
-        }
-        catch(e){
-
-            console.error(e);
-
-            alert("网络异常");
-        }
-
-    }
-
     loadUsers();
 
 </script>
-```
 
 </body>
 

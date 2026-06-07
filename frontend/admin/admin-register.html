@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+```
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>管理员注册</title>
+
+<style>
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:Arial;
+    }
+
+    body{
+        background:#f5f5f5;
+    }
+
+    .header{
+        background:#333;
+        color:white;
+        padding:20px;
+        text-align:center;
+    }
+
+    .register-box{
+        width:450px;
+        margin:60px auto;
+        background:white;
+        border-radius:10px;
+        box-shadow:0 2px 10px rgba(0,0,0,.1);
+        padding:40px;
+    }
+
+    .register-box h2{
+        text-align:center;
+        margin-bottom:30px;
+    }
+
+    .form-group{
+        margin-bottom:20px;
+    }
+
+    .form-group label{
+        display:block;
+        margin-bottom:8px;
+        color:#666;
+    }
+
+    .form-group input{
+        width:100%;
+        height:40px;
+        padding:0 10px;
+        border:1px solid #ddd;
+        border-radius:5px;
+    }
+
+    .btn{
+        width:100%;
+        height:45px;
+        border:none;
+        border-radius:5px;
+        background:#409eff;
+        color:white;
+        cursor:pointer;
+        font-size:16px;
+    }
+
+    .btn:hover{
+        background:#66b1ff;
+    }
+
+    .link{
+        text-align:center;
+        margin-top:20px;
+    }
+
+    .link a{
+        color:#409eff;
+        text-decoration:none;
+    }
+
+    .msg{
+        margin-top:15px;
+        text-align:center;
+        color:red;
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="header">
+    <h1>校园任务后台管理系统</h1>
+</div>
+
+<div class="register-box">
+
+```
+<h2>管理员注册</h2>
+
+<div class="form-group">
+    <label for="username">用户名</label>
+    <input
+            type="text"
+            id="username"
+            placeholder="请输入用户名"
+            autocomplete="username">
+</div>
+
+<div class="form-group">
+    <label for="phone">手机号</label>
+    <input
+            type="text"
+            id="phone"
+            placeholder="请输入手机号"
+            autocomplete="tel">
+</div>
+
+<div class="form-group">
+    <label for="password">密码</label>
+    <input
+            type="password"
+            id="password"
+            placeholder="请输入密码"
+            autocomplete="new-password">
+</div>
+
+<button class="btn" onclick="registerAdmin()">
+    注册
+</button>
+
+<div class="link">
+    已有账号？
+    <a href="admin-login.html">返回登录</a>
+</div>
+
+<div id="msg" class="msg"></div>
+```
+
+</div>
+
+<script src="config.js"></script>
+
+<script>
+
+    const BASE = API.user;
+
+    async function registerAdmin(){
+
+        try{
+
+            const username =
+                document.getElementById("username").value.trim();
+
+            const phone =
+                document.getElementById("phone").value.trim();
+
+            const password =
+                document.getElementById("password").value.trim();
+
+            if(!username || !phone || !password){
+
+                document.getElementById("msg").innerText =
+                    "请填写完整信息";
+
+                return;
+            }
+
+            const res = await fetch(
+                BASE + "/admin/register",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        username:username,
+                        phone:phone,
+                        password:password
+                    })
+                }
+            );
+
+            const result = await res.json();
+
+            if(result.code === 200){
+
+                alert("管理员注册成功");
+
+                location.href =
+                    "admin-login.html";
+
+            }else{
+
+                document.getElementById("msg").innerText =
+                    result.message || "注册失败";
+            }
+
+        }catch(e){
+
+            console.error(e);
+
+            document.getElementById("msg").innerText =
+                "服务器连接失败";
+        }
+    }
+
+</script>
+
+</body>
+</html>

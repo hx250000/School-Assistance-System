@@ -62,4 +62,11 @@ public class UserController {
     public ApiResponse<LoginResponse> adminLogin(@RequestBody LoginRequest request) {
         return ApiResponse.success(userService.adminLogin(request));
     }
+
+    @Operation(summary = "管理员注册", description = "注册管理员账号")
+    @PostMapping("/admin/register")
+    public ApiResponse<RegisterResponse> adminRegister(
+            @RequestBody RegisterRequest registerRequest) {
+        return ApiResponse.success(userService.adminRegister(registerRequest));
+    }
 }

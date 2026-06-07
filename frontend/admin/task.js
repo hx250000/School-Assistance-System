@@ -10,16 +10,11 @@ function getStatusClass(status){
 
     let s = status.toLowerCase();
 
-    if(
-        s.includes("finish") ||
-        s.includes("completed")
-    ){
+    if(s.includes("finish")){
         return "status-finished";
     }
 
-    if(
-        s.includes("cancel")
-    ){
+    if(s.includes("cancel")){
         return "status-cancel";
     }
 
@@ -28,81 +23,42 @@ function getStatusClass(status){
 
 async function loadAllTasks(){
 
-    await loadStatus(
-        "OPEN",
-        "openTable"
-    );
-
-    await loadStatus(
-        "IN_PROGRESS",
-        "progressTable"
-    );
-
-    await loadStatus(
-        "FINISHED",
-        "finishedTable"
-    );
-
-    await loadStatus(
-        "CANCELLED",
-        "cancelledTable"
-    );
+    await loadStatus("OPEN", "openTable");
+    await loadStatus("IN_PROGRESS", "progressTable");
+    await loadStatus("FINISHED", "finishedTable");
+    await loadStatus("CANCELLED", "cancelledTable");
 }
 
-async function loadStatus(
-    status,
-    tableId
-){
+async function loadStatus(status, tableId){
 
     try{
 
-        let res =
-            await fetch(
-                BASE +
-                "/admin/list?page=0&size=100&status=" +
-                status
-            );
-
-        let data =
-            await res.json();
-
-        renderTable(
-            tableId,
-            data.data
+        let res = await fetch(
+            BASE + "/admin/list?page=0&size=100&status=" + status
         );
 
-    }
-    catch(e){
+        let data = await res.json();
 
+        renderTable(tableId, data.data);
+
+    }catch(e){
         console.error(e);
-
     }
 }
 
-function renderTable(
-    tableId,
-    tasks
-){
+function renderTable(tableId, tasks){
 
     let html = "";
 
-    if(
-        !tasks ||
-        tasks.length === 0
-    ){
+    if(!tasks || tasks.length === 0){
 
         html = `
         <tr>
-            <td colspan="5">
-                暂无数据
-            </td>
+            <td colspan="4">暂无数据</td>
         </tr>
         `;
 
-        document
-            .getElementById(tableId)
-            .innerHTML = html;
-
+        document.getElementById(tableId).innerHTML = html;
         return;
     }
 
@@ -112,146 +68,41 @@ function renderTable(
         <tr>
 
             <td>${t.taskId}</td>
-
             <td>${t.title}</td>
-
             <td>${t.rewardPoints}</td>
 
             <td class="${getStatusClass(t.status)}">
-
                 ${t.status}
-
-            </td>
-
-            <td>
-
-                <button
-                    class="finish-btn"
-                    onclick="finishTask(${t.taskId})">
-
-                    完成
-
-                </button>
-
-                <button
-                    class="cancel-btn"
-                    onclick="cancelTask(${t.taskId})">
-
-                    取消
-
-                </button>
-
             </td>
 
         </tr>
         `;
     });
 
-    document
-        .getElementById(tableId)
-        .innerHTML = html;
-}
-
-async function finishTask(id){
-
-    try{
-
-        let res =
-            await fetch(
-                BASE +
-                "/" +
-                id +
-                "/finish",
-                {
-                    method:"POST"
-                }
-            );
-
-        if(res.ok){
-
-            alert("任务已完成");
-
-            loadAllTasks();
-        }
-
-    }
-    catch(e){
-
-        console.error(e);
-
-        alert("操作失败");
-    }
-}
-
-async function cancelTask(id){
-
-    try{
-
-        let res =
-            await fetch(
-                BASE +
-                "/" +
-                id +
-                "/cancel",
-                {
-                    method:"POST"
-                }
-            );
-
-        if(res.ok){
-
-            alert("任务已取消");
-
-            loadAllTasks();
-        }
-
-    }
-    catch(e){
-
-        console.error(e);
-
-        alert("操作失败");
-    }
+    document.getElementById(tableId).innerHTML = html;
 }
 
 async function searchTask(){
 
     try{
 
-        let keyword =
-            document
-            .getElementById("keyword")
-            .value;
+        let keyword = document.getElementById("keyword").value;
 
         if(!keyword){
-
-            document
-                .getElementById("searchTable")
-                .innerHTML = "";
-
+            document.getElementById("searchTable").innerHTML = "";
             return;
         }
 
-        let res =
-            await fetch(
-                BASE +
-                "/search?keyword=" +
-                encodeURIComponent(keyword)
-            );
-
-        let data =
-            await res.json();
-
-        renderTable(
-            "searchTable",
-            data.data
+        let res = await fetch(
+            BASE + "/search?keyword=" + encodeURIComponent(keyword)
         );
 
-    }
-    catch(e){
+        let data = await res.json();
 
+        renderTable("searchTable", data.data);
+
+    }catch(e){
         console.error(e);
-
         alert("搜索失败");
     }
 }
