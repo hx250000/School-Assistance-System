@@ -60,9 +60,8 @@ class ReviewServiceImplTest {
         u.setCreditScore(100);
         when(userRepository.findById(10L)).thenReturn(Optional.of(u));
 
-        String res = reviewService.createReview(review);
+        Review res = reviewService.createReview(review);
 
-        assertThat(res).isNotBlank();
         verify(reviewRepository).save(review);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);

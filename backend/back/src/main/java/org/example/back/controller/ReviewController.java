@@ -1,6 +1,7 @@
 package org.example.back.controller;
 
 import org.example.back.common.ApiResponse;
+import org.example.back.dto.request.ReviewCreateRequest;
 import org.example.back.entity.Review;
 import org.example.back.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create")
-    public ApiResponse<String> create(@RequestBody Review review) {
+    public ApiResponse<Review> create(@RequestBody ReviewCreateRequest review) {
 
         return ApiResponse.success(reviewService.createReview(review));
     }

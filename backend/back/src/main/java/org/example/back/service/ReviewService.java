@@ -1,8 +1,9 @@
 package org.example.back.service;
 
+import org.example.back.dto.request.ReviewCreateRequest;
 import org.example.back.entity.Review;
 
 public interface ReviewService {
 
-    String createReview(Review review);
+    Review createReview(ReviewCreateRequest review);
 }

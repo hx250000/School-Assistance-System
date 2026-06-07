@@ -3,6 +3,7 @@ package org.example.back.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.back.config.JwtAuthenticationInterceptor;
+import org.example.back.dto.request.ReviewCreateRequest;
 import org.example.back.dto.request.TaskCreateRequest;
 import org.example.back.dto.response.HomeStatResp;
 import org.example.back.dto.response.TaskVO;
@@ -13,10 +14,7 @@ import org.example.back.exception.ResourceConflictException;
 import org.example.back.repository.TaskParticipantRepository;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.repository.*;
-import org.example.back.service.AchievementService;
-import org.example.back.service.PointsService;
-import org.example.back.service.TaskService;
-import org.example.back.service.UserService;
+import org.example.back.service.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,6 +37,7 @@ public class TaskServiceImpl implements TaskService {
     @Autowired private AchievementService achievementService;
     @Autowired private UserRepository userRepository;
     @Autowired private UserService userService;
+    @Autowired private ReviewService reviewService;
 
     private static final int PENALTY_POINTS = 5;
 
@@ -176,6 +175,15 @@ public class TaskServiceImpl implements TaskService {
                     "完成任务",
                     "完成任务 " + task.getTitle()
             );
+
+            // 添加评价和信誉分
+            ReviewCreateRequest review=new ReviewCreateRequest();
+            review.setScore(5);
+            review.setTaskId(taskId);
+            review.setFromUserId(userId);
+            review.setToUserId(p.getUserId());
+            review.setContent("完成任务"+task.getId());
+            reviewService.createReview(review);
 
             achievementService.recalculateUserAchievements(p.getUserId());
         }

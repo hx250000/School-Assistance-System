@@ -1,5 +1,6 @@
 package org.example.back.service.impl;
 
+import org.example.back.dto.request.ReviewCreateRequest;
 import org.example.back.entity.Review;
 import org.example.back.entity.User;
 import org.example.back.exception.ResourceNotFoundException;
@@ -25,9 +26,16 @@ public class ReviewServiceImpl implements ReviewService {
     private AchievementService achievementService;
 
     @Override
-    public String createReview(Review review) {
+    public Review createReview(ReviewCreateRequest review) {
 
-        reviewRepository.save(review);
+        Review reviewEntity = new Review();
+        reviewEntity.setContent(review.getContent());
+        reviewEntity.setScore(review.getScore());
+        reviewEntity.setFromUserId(review.getFromUserId());
+        reviewEntity.setToUserId(review.getToUserId());
+        reviewEntity.setTaskId(review.getTaskId());
+
+        reviewRepository.save(reviewEntity);
 
         // 更新被评价用户信用分
         //User user = userMapper.selectById(review.getToUserId());
@@ -44,6 +52,6 @@ public class ReviewServiceImpl implements ReviewService {
         // 重新计算被评价用户的成就进度
         achievementService.recalculateUserAchievements(review.getToUserId());
 
-        return review.toString();
+        return reviewEntity;
     }
 }
