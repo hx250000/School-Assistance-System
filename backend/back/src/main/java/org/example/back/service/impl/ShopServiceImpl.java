@@ -125,7 +125,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public List<ShopOrder> listShopOrders() {
-        List<ShopOrder> list=shopOrderRepository.findAll();
+        List<ShopOrder> list=shopOrderRepository.findAllByOrderByCreatedAtDesc();
         log.info("listShopOrders= "+list);
         return list;
     }
