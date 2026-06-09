@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>积分管理</title>
+
+    <link rel="stylesheet" href="points.css">
+
+</head>
+
+<body>
+
+<div class="nav">
+
+    <a href="index.html">首页</a>
+
+    <a href="user.html">用户管理</a>
+
+    <a href="task.html">任务管理</a>
+
+    <a href="shop.html">商城管理</a>
+
+    <a href="achievement.html">成就管理</a>
+
+    <a href="points.html">积分管理</a>
+
+</div>
+
+<div class="container">
+
+    <h2>积分管理</h2>
+
+    <div class="search-box">
+
+        <input
+                id="userId"
+                placeholder="请输入用户ID">
+
+        <button onclick="searchUserPoints()">
+            查询积分记录
+        </button>
+
+    </div>
+
+    <div class="user-info">
+
+        <h3>
+            当前积分：
+            <span id="currentPoints">0</span>
+        </h3>
+
+    </div>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>ID</th>
+
+            <th>积分变化</th>
+
+            <th>标题</th>
+
+            <th>描述</th>
+
+            <th>时间</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody id="pointsTable">
+
+            <tr>
+
+                <td colspan="5">
+                    请输入用户ID查询
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script src="config.js"></script>
+<script src="points.js"></script>
+
+</body>
+
+</html>

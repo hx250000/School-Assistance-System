@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>成就管理</title>
+
+    <link rel="stylesheet" href="achievement.css">
+
+</head>
+
+<body>
+
+    <div class="nav">
+
+        <a href="index.html">首页</a>
+
+        <a href="user.html">用户管理</a>
+
+        <a href="task.html">任务管理</a>
+
+        <a href="shop.html">商城管理</a>
+
+        <a href="achievement.html">成就管理</a>
+
+    </div>
+
+    <div class="container">
+
+        <h2>成就管理</h2>
+
+        <div class="toolbar">
+
+            <button onclick="initAchievements()">
+                初始化成就记录
+            </button>
+
+            <button onclick="recalculateAchievements()">
+                刷新成就记录
+            </button>
+
+            <button onclick="loadAchievements()">
+                刷新成就列表
+            </button>
+
+        </div>
+
+        <h3>新增成就</h3>
+
+        <div class="add-box">
+
+            <input id="title" placeholder="标题">
+
+            <input id="description" placeholder="描述">
+
+            <select id="type">
+
+                <option value="TASK_COMPLETED">
+                    TASK_COMPLETED（完成任务数）
+                </option>
+
+                <option value="POINTS_EARNED">
+                    POINTS_EARNED（获得积分）
+                </option>
+
+                <option value="CONSECUTIVE_DAYS">
+                    CONSECUTIVE_DAYS（连续登录）
+                </option>
+
+                <option value="HELP_OTHERS">
+                    HELP_OTHERS（帮助他人）
+                </option>
+
+                <option value="TASK_PUBLISHED">
+                    TASK_PUBLISHED（发布任务）
+                </option>
+
+                <option value="HIGH_RATING">
+                    HIGH_RATING（高评价）
+                </option>
+
+            </select>
+
+            <input id="conditionValue" placeholder="条件值">
+
+            <input id="rewardPoints" placeholder="奖励积分">
+
+            <input id="iconUrl" placeholder="图标URL">
+
+            <button onclick="addAchievement()">
+                新增
+            </button>
+
+        </div>
+
+        <h3>成就列表</h3>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>描述</th>
+                    <th>类型</th>
+                    <th>条件值</th>
+                    <th>奖励积分</th>
+                    <th>图标</th>
+                    <th>启用</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="achievementTable"></tbody>
+
+        </table>
+
+        <h3>用户成就记录</h3>
+
+        <div class="search-user">
+
+            <input id="userId" placeholder="输入用户ID">
+
+            <button onclick="loadUserAchievements()">
+                查询
+            </button>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>成就名称</th>
+                    <th>当前进度</th>
+                    <th>是否解锁</th>
+                    <th>解锁时间</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="userAchievementTable"></tbody>
+
+        </table>
+
+    </div>
+
+    <script src="config.js"></script>
+    <script src="achievement.js"></script>
+
+</body>
+
+</html>

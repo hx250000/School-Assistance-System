@@ -12,5 +12,7 @@ const API = {
   user: BASE_URL + "/api/user",
   task: BASE_URL + "/api/task",
   shop: BASE_URL + "/api/shop",
+  achievement: BASE_URL + "/api/achievements",
+  points: BASE_URL + "/api/points",
   file: BASE_URL + "/"   // 头像等静态资源
 };
