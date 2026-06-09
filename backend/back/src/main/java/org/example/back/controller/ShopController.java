@@ -56,4 +56,9 @@ public class ShopController {
     public ApiResponse<List<ShopOrder>> listShopOrders() {
         return ApiResponse.success(shopService.listShopOrders());
     }
+
+    @PostMapping("/orders/finish")
+    public ApiResponse<ShopOrder> finishOrder(@RequestParam Long orderId){
+        return ApiResponse.success(shopService.finishOrder(orderId));
+    }
 }

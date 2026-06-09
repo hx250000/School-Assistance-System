@@ -10,4 +10,6 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Integer> {
 
     List<ShopOrder> findAllByOrderByCreatedAtDesc();
 
+    ShopOrder findById(Long orderId);
+
 }
