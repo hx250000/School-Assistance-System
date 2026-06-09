@@ -125,9 +125,23 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public List<ShopOrder> listShopOrders() {
-        List<ShopOrder> list=shopOrderRepository.findAll();
+        List<ShopOrder> list=shopOrderRepository.findAllByOrderByCreatedAtDesc();
         log.info("listShopOrders= "+list);
         return list;
+    }
+
+    @Override
+    @Transactional
+    public ShopOrder finishOrder(Long orderId){
+        ShopOrder order=shopOrderRepository.findById(orderId);
+        if(order==null){
+            throw new ResourceNotFoundException("订单不存在！");
+        }
+        if(order.getStatus().equals("PAID")){
+            order.setStatus("FINISHED");
+            shopOrderRepository.save(order);
+        }
+        return order;
     }
 
     // 复用文件存储服务，把图片存入 uploads/shop/ 目录下
