@@ -38,6 +38,8 @@ async function searchUserPoints(){
 
         if(result.code !== 200){
 
+            console.log(result);
+
             alert(result.message);
 
             return;
@@ -45,13 +47,16 @@ async function searchUserPoints(){
 
         const data = result.data;
 
+        console.log(data);
+
         document
             .getElementById("currentPoints")
             .innerText =
             data.currentPoints || 0;
 
         renderTable(
-            data.logs || []
+            userId,
+            data.pointsHistoryList || []
         );
 
     }
@@ -63,7 +68,7 @@ async function searchUserPoints(){
     }
 }
 
-function renderTable(logs){
+function renderTable(userId,logs){
 
     let html = "";
 
@@ -89,15 +94,15 @@ function renderTable(logs){
         html += `
         <tr>
 
-            <td>${log.id}</td>
+            <td>${userId}</td>
 
-            <td>${log.changeAmount}</td>
+            <td>${log.changeAmount>0 ? '+' + log.changeAmount : log.changeAmount}</td>
 
             <td>${log.title || ""}</td>
 
             <td>${log.description || ""}</td>
 
-            <td>${formatTime(log.createdAt)}</td>
+            <td>${formatTime(log.time)}</td>
 
         </tr>
         `;
