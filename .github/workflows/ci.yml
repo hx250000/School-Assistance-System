@@ -48,11 +48,36 @@ jobs:
           cd frontend/campusTask
           ./gradlew assembleDebug
 
+      - name: Find Jacoco files
+        run: |
+          cd frontend/campusTask
+          find . -name "*.exec"
+          find . -name "*.ec"
+          find . -name "*.xml"
+
+      - name: Generate coverage report
+        run: |
+          cd frontend/campusTask
+          ./gradlew jacocoTestReport
+
+      - name: Debug coverage outputs
+        run: |
+          cd frontend/campusTask
+          find app/build -type f | grep -E "jacoco|xml|exec|html"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: campusTask-debug-apk
           path: frontend/campusTask/app/build/outputs/apk/debug/*.apk
+
+      - name: Upload Android coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./frontend/campusTask/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          flags: android
+          fail_ci_if_error: false
 
   Backend-build:
     runs-on: ubuntu-latest
@@ -90,3 +115,35 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/back/target/site/jacoco/jacoco.xml
           flags: backend
+
+  Frontend-Admin-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/admin/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd frontend/admin
+          npm install
+
+      - name: Run tests with coverage
+        run: |
+          cd frontend/admin
+          npm run test:coverage
+
+      - name: Upload frontend coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./frontend/admin/coverage/coverage-final.json
+          flags: frontend-admin
+          fail_ci_if_error: false
