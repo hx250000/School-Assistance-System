@@ -16,3 +16,5 @@ const API = {
   points: BASE_URL + "/api/points",
   file: BASE_URL + "/"   // 头像等静态资源
 };
+
+export { API, BASE_URL };

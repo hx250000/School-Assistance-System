@@ -1,0 +1,15 @@
+{
+  "name": "school-assistance-admin",
+  "version": "1.0.0",
+  "description": "School Assistance System Admin Panel",
+  "main": "index.html",
+  "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "vitest": "^1.0.0"
+  }
+}
