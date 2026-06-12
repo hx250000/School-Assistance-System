@@ -17,7 +17,7 @@ Backend Coverage:
 [![Backend Coverage](https://codecov.io/gh/hx250000/School-Assistance-System/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/hx250000/School-Assistance-System)
 
 Frontend Coverage:
-[![Frontend Coverage](https://codecov.io/gh/hx250000/School-Assistance-System/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/hx250000/School-Assistance-System)
+[![Frontend Coverage](https://codecov.io/gh/hx250000/School-Assistance-System/branch/main/graph/badge.svg?flag=android)](https://codecov.io/gh/hx250000/School-Assistance-System)
 
 ---
 
@@ -28,28 +28,25 @@ Frontend Coverage:
 - 设计积分奖励系统
 - 提供积分商城兑换功能
 - 建立用户信用评价体系
-- 支持用户之间的实时交流（可扩展）
 
 ---
 
 ## 技术架构
-Android App
 
-│
+```mermaid
+flowchart TD
+    A[Android App] -->|HTTP/Retrofit| B[SpringBoot 后端]
+    B --> C[(MySQL 数据库)]
+    B --> D[(Redis 缓存)]
+    B --> E[AI 服务]
+```
 
-│ HTTP / Retrofit
-
-▼
-
-SpringBoot 后端
-
-│
-
-├── MySQL 数据库
-
-├── Redis（缓存 / 并发控制）
-
-└── WebSocket（实时聊天）
+**架构说明：**
+- **前端**：Android 客户端，使用 Kotlin + MVVM 架构
+- **后端**：SpringBoot 服务，提供 RESTful API
+- **数据库**：MySQL 存储业务数据
+- **缓存**：Redis 用于并发控制和缓存
+- **AI**：集成 AI 服务生成任务描述
 
 
 ---
@@ -69,7 +66,7 @@ SpringBoot 后端
 ### 后端（SpringBoot）
 
 - SpringBoot
-- MyBatis / MyBatis Plus
+- Spring Data JPA
 - MySQL
 - Redis
 - JWT 登录认证
@@ -83,16 +80,17 @@ SpringBoot 后端
 
 ### 1. 用户系统
 
-- 用户注册 / 登录
-- 用户信息管理
-- 查看积分
-- 查看信用评分
+- **用户注册/登录** - 支持普通用户和管理员账号
+- **用户信息管理** - 查看个人信息
+- **头像上传** - 支持用户自定义头像
+- **积分查询** - 实时查看当前积分余额
+- **信用评分** - 用户信用体系管理
 
 ---
 
 ### 2. 任务发布系统
 
-用户可以发布校园任务，例如：
+用户可以发布校园任务，支持多种类型：
 
 - 带饭
 - 代拿快递
@@ -105,7 +103,6 @@ SpringBoot 后端
 - 任务描述
 - 任务类型
 - 需要人数
-- 是否需要报酬
 - 积分奖励
 - 截止时间
 
@@ -133,13 +130,20 @@ SpringBoot 后端
 
 ### 4. 任务状态管理
 
-任务具有不同状态：
-待接取
-进行中
-已完成
-已取消
-已过期
+任务支持多种状态流转：
 
+| 状态 | 说明 |
+|------|------|
+| OPEN | 待接取 |
+| IN_PROGRESS | 进行中 |
+| COMPLETED | 已完成 |
+| CANCELLED | 已取消 |
+| EXPIRED | 已过期 |
+
+**功能：**
+- 完成任务
+- 取消任务
+- 任务过期自动处理（定时任务）
 
 ---
 
@@ -147,27 +151,36 @@ SpringBoot 后端
 
 用户完成任务后可以获得积分奖励。
 
-积分来源：
+**积分来源：**
 
-- 完成任务
+- 完成任务（主要来源）
 - 发布任务
-- 每日签到（可扩展）
+- 完成成就
 
-积分用途：
+**积分用途：**
 
 - 兑换商城商品
-- 参与排行榜
+
+**积分管理：**
+- 积分明细记录
+- 积分变更历史查询
 
 ---
 
 ### 6. 积分商城
 
-用户可以使用积分兑换商品，例如：
+用户可以使用积分兑换商品：
 
 - 平台徽章
 - 虚拟称号
 - 头像框
-- 校园优惠券（模拟）
+- 校园优惠券
+
+**功能：**
+- 商品列表展示
+- 积分兑换
+- 订单管理
+- 商品图片上传
 
 ---
 
@@ -175,96 +188,261 @@ SpringBoot 后端
 
 任务完成后，用户可以互相评价。
 
-评价内容包括：
-
+**评价内容：**
 - 完成情况
 - 是否准时
 - 服务态度
 
-系统根据评价计算用户信用值。
-
-示例：
+**信用计算：**
+```
 信用值 = 好评数 × 2 - 差评数 × 3
+```
 
-
-信用较低的用户可能会受到限制，例如：
-
-- 无法发布任务
-- 抢任务优先级降低
+**信用影响：**
+- 低信用用户可能被限制发布任务
+- 抢任务优先级调整
 
 ---
 
-### 8. 聊天系统（可扩展）
+### 8. 成就系统
 
-任务参与者之间可以进行实时聊天。
+用户完成特定行为可获得成就奖励。
 
-技术实现：
+**成就类型：**
+- 任务相关成就
+- 活跃成就
+- 特殊成就
 
-- WebSocket
+**功能：**
+- 成就展示
+- 成就进度追踪
+- 成就解锁记录
 
-支持功能：
+---
 
-- 私聊
-- 任务群聊
+### 9. AI 辅助功能
+
+- **任务描述生成** - AI 自动生成任务描述文案
+
+---
+
+### 10. 管理后台
+
+**管理员功能：**
+- 任务管理（查看所有状态任务）
+- 用户管理（查看所有用户）
+- 积分管理（查看用户积分历史）
+- 成就管理（添加/初始化成就）
+- 商城管理（添加商品、处理订单）
 
 ---
 
 ## 数据库设计（核心表）
 
 ### 用户表（user）
-id
-username
-password
-points
-credit_score
-create_time
-
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 用户ID（主键） |
+| username | VARCHAR | 用户名 |
+| password | VARCHAR | 密码（加密存储） |
+| points | INT | 当前积分 |
+| credit_score | INT | 信用评分 |
+| avatar_url | VARCHAR | 头像URL |
+| role | VARCHAR | 用户角色（USER/ADMIN） |
+| create_time | DATETIME | 创建时间 |
+| update_time | DATETIME | 更新时间 |
 
 ### 任务表（task）
-id
-title
-description
-type
-publisher_id
-max_people
-current_people
-reward_points
-status
-deadline
-create_time
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 任务ID（主键） |
+| title | VARCHAR | 任务标题 |
+| description | TEXT | 任务描述 |
+| type | VARCHAR | 任务类型 |
+| publisher_id | BIGINT | 发布者ID |
+| max_people | INT | 最大参与人数 |
+| current_people | INT | 当前参与人数 |
+| reward_points | INT | 奖励积分 |
+| status | VARCHAR | 任务状态 |
+| deadline | DATETIME | 截止时间 |
+| create_time | DATETIME | 创建时间 |
 
-
-### 任务参与表（task_user）
-id
-task_id
-user_id
-status
+### 任务参与表（task_participant）
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 记录ID（主键） |
+| task_id | BIGINT | 任务ID |
+| user_id | BIGINT | 用户ID |
+| status | VARCHAR | 参与状态 |
 
 ### 积分记录表（points_log）
-id
-user_id
-change_amount
-reason
-create_time
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 记录ID（主键） |
+| user_id | BIGINT | 用户ID |
+| change_amount | INT | 积分变更量 |
+| reason | VARCHAR | 变更原因 |
+| create_time | DATETIME | 创建时间 |
 
+### 商品表（shop_item）
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 商品ID（主键） |
+| name | VARCHAR | 商品名称 |
+| description | TEXT | 商品描述 |
+| points_cost | INT | 积分消耗 |
+| stock | INT | 库存数量 |
+| image_url | VARCHAR | 商品图片URL |
+| create_time | DATETIME | 创建时间 |
 
-### 商品表（product）
-id
-name
-points_cost
-stock
+### 订单表（shop_order）
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 订单ID（主键） |
+| user_id | BIGINT | 用户ID |
+| item_id | BIGINT | 商品ID |
+| status | VARCHAR | 订单状态 |
+| create_time | DATETIME | 创建时间 |
 
+### 成就表（achievement）
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 成就ID（主键） |
+| name | VARCHAR | 成就名称 |
+| description | TEXT | 成就描述 |
+| type | VARCHAR | 成就类型 |
+| required_count | INT | 达成条件数量 |
+
+### 用户成就表（user_achievement）
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 记录ID（主键） |
+| user_id | BIGINT | 用户ID |
+| achievement_id | BIGINT | 成就ID |
+| current_count | INT | 当前完成数量 |
+| unlocked | BOOLEAN | 是否已解锁 |
+
+### 评价表（review）
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 评价ID（主键） |
+| task_id | BIGINT | 任务ID |
+| reviewer_id | BIGINT | 评价者ID |
+| reviewee_id | BIGINT | 被评价者ID |
+| rating | INT | 评分（1-5星） |
+| content | TEXT | 评价内容 |
+| create_time | DATETIME | 创建时间 |
 
 ---
 
 ## 系统特色
 
-- 校园生活场景设计
-- 即时任务撮合机制
-- 积分奖励系统
-- 用户信用评价体系
-- 可扩展聊天系统
-- 前后端分离架构
+- **校园生活场景设计** - 贴近大学生日常需求
+- **即时任务撮合机制** - Redis 并发控制确保数据一致性
+- **积分奖励系统** - 完善的积分获取和消费体系
+- **用户信用评价体系** - 建立良好的社区氛围
+- **成就系统** - 激励用户积极参与
+- **AI 辅助功能** - 智能生成任务描述
+- **前后端分离架构** - 便于开发和维护
+- **Docker 容器化部署** - 一键部署上线
+
+---
+
+## 项目结构
+
+```
+SchoolAssistanceSystem/
+├── backend/                 # 后端 SpringBoot 项目
+│   └── back/
+│       ├── src/main/java/org/example/back/
+│       │   ├── controller/  # REST 控制器
+│       │   ├── service/     # 业务逻辑层
+│       │   ├── repository/  # 数据访问层
+│       │   ├── entity/      # 实体类
+│       │   ├── dto/         # 数据传输对象
+│       │   ├── config/      # 配置类
+│       │   ├── exception/   # 异常处理
+│       │   ├── scheduler/   # 定时任务
+│       │   └── util/        # 工具类
+│       ├── src/main/resources/
+│       │   └── application.yml
+│       └── pom.xml
+├── frontend/                # 前端项目
+│   ├── campusTask/         # Android 客户端
+│   └── admin/              # 管理后台
+├── docs/                   # 项目文档
+└── README.md
+```
+
+---
+
+## 快速开始
+
+### 环境要求
+
+- JDK 21+
+- MySQL 8.0+
+- Redis 7.0+
+- Maven 3.8+
+
+### 本地运行
+
+1. **克隆项目**
+```bash
+git clone https://github.com/hx250000/School-Assistance-System.git
+cd School-Assistance-System
+```
+
+2. **配置数据库**
+- 创建 MySQL 数据库：`campus_task`
+- 创建 Redis 连接（默认配置）
+
+3. **配置文件**
+- 复制 `backend/back/src/main/resources/application-local.example.yml` 为 `application-local.yml`
+- 修改数据库连接配置
+
+4. **启动后端**
+```bash
+cd backend/back
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+5. **访问 API 文档**
+- Swagger UI：http://localhost:8080/swagger-ui.html
+
+### Docker 部署
+
+```bash
+cd backend/back
+docker-compose up -d
+```
+
+---
+
+## API 接口
+
+完整的 API 文档请查看：
+- Swagger UI：http://localhost:8080/swagger-ui.html
+- OpenAPI JSON：`docs/api-docs.json`
+- API 文档：`docs/api.md`
+
+### 主要接口列表
+
+| 模块 | 接口 | 方法 | 说明 |
+|------|------|------|------|
+| 用户 | `/api/user/register` | POST | 用户注册 |
+| 用户 | `/api/user/login` | POST | 用户登录 |
+| 用户 | `/api/user/info` | GET | 获取用户信息 |
+| 任务 | `/api/task/create` | POST | 创建任务 |
+| 任务 | `/api/task/list` | GET | 任务列表 |
+| 任务 | `/api/task/grab` | POST | 抢任务 |
+| 任务 | `/api/task/{taskId}/finish` | POST | 完成任务 |
+| 积分 | `/api/points/my/points` | GET | 获取积分 |
+| 积分 | `/api/points/my/history` | GET | 积分历史 |
+| 商城 | `/api/shop/items` | GET | 商品列表 |
+| 商城 | `/api/shop/exchange` | POST | 积分兑换 |
+| 成就 | `/api/achievements/my` | GET | 我的成就 |
+| AI | `/api/ai/description` | POST | 生成任务描述 |
 
 ---
 
@@ -275,9 +453,9 @@ stock
 - 地图定位任务
 - 任务推荐算法
 - 用户排行榜
-- 成就系统
+- 实时聊天系统（WebSocket）
 - 数据统计分析
-- AI任务推荐
+- 移动端推送通知
 
 ---
 
