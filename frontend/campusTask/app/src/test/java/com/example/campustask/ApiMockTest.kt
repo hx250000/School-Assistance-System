@@ -13,7 +13,7 @@ class ApiMockTest {
     }
 
     @Test
-    fun `模拟接口调用成功`() {
+    fun `æ¨¡ææ¥å£è°ç¨æå`() {
         val api = mockk<ApiService>()
 
         every { api.login(any(), any()) } returns true
@@ -24,7 +24,7 @@ class ApiMockTest {
     }
 
     @Test
-    fun `模拟登录失败`() {
+    fun `æ¨¡æç»å½å¤±è´¥`() {
         val api = mockk<ApiService>()
 
         every { api.login(any(), any()) } returns false
@@ -35,7 +35,7 @@ class ApiMockTest {
     }
 
     @Test
-    fun `验证方法被调用一次`() {
+    fun `éªè¯æ¹æ³è¢«è°ç¨ä¸æ¬¡`() {
         val api = mockk<ApiService>(relaxed = true)
 
         api.login("user", "123456")
@@ -44,7 +44,7 @@ class ApiMockTest {
     }
 
     @Test
-    fun `空参数不会影响mock行为`() {
+    fun `ç©ºåæ°ä¸ä¼å½±åmockè¡ä¸º`() {
         val api = mockk<ApiService>(relaxed = true)
 
         every { api.login("", "") } returns false
@@ -54,3 +54,4 @@ class ApiMockTest {
         assertFalse(result)
     }
 }
+

@@ -1,97 +1,66 @@
 package com.example.campustask
 
-import org.junit.Test
+import com.example.campustask.model.Task
 import org.junit.Assert.*
-import java.text.SimpleDateFormat
-import java.util.*
+import org.junit.Before
+import org.junit.Test
 
 class MyTaskDetailFragmentTest {
 
-    data class Task(
-        val id: Long,
-        val title: String,
-        val currentPeople: Int,
-        val needPeople: Int,
-        val rewardPoints: Int,
-        val deadline: Long
-    )
+    private lateinit var mockTask: Task
 
-    @Test
-    fun taskIdNull_shouldNotCrash() {
-        val taskId: Long? = null
-        assertNull(taskId)
-    }
-
-    @Test
-    fun progressPercent_shouldHandleZeroSafely() {
-        val current = 1
-        val need = 1
-
-        val percent = current * 100 / need
-
-        assertTrue(percent >= 0)
-    }
-
-    @Test
-    fun progressText_correctFormat() {
-        val text = "${2}/${5}"
-        assertEquals("2/5", text)
-    }
-
-    @Test
-    fun taskNotFound_shouldReturnNull() {
-        val task = findTaskById(9999L)
-        assertNull(task)
-    }
-
-    @Test
-    fun timeFormat_shouldNotCrash() {
-        val time = -123456789L
-        val result = formatTime(time)
-        assertNotNull(result)
-    }
-
-    @Test
-    fun taskTitle_shouldNotBeEmpty() {
-        val task = mockTask()
-        assertFalse(task.title.isEmpty())
-    }
-
-    @Test
-    fun rewardText_shouldContainPoints() {
-        val text = "+10积分"
-        assertTrue(text.contains("积分"))
-    }
-
-    @Test
-    fun backButton_shouldWork() {
-        assertTrue(true)
-    }
-
-    @Test
-    fun progress_over_100_should_be_detected() {
-        val current = 10
-        val need = 5
-        val percent = current * 100 / need
-
-        assertTrue(percent > 100)
-    }
-
-    // ===== mock logic =====
-
-    private fun findTaskById(id: Long): Task? {
-        val list = listOf(
-            Task(1, "代取快递", 2, 5, 10, System.currentTimeMillis())
+    @Before
+    fun setup() {
+        mockTask = Task(
+            taskId = 1L,
+            title = "测试任务",
+            description = "这是一个测试任务",
+            type = "STUDY",
+            publisherId = 1L,
+            publisherName = "测试用户",
+            needPeople = 3,
+            currentPeople = 1,
+            rewardPoints = 50,
+            status = "OPEN",
+            deadline = System.currentTimeMillis() + 3600000,
+            createdAt = System.currentTimeMillis()
         )
-        return list.find { it.id == id }
     }
 
-    private fun mockTask(): Task {
-        return Task(1, "测试任务", 1, 2, 5, System.currentTimeMillis())
+    // ===== Task数据验证 =====
+
+    @Test
+    fun `Task should have correct data`() {
+        assertEquals(1L, mockTask.taskId)
+        assertEquals("测试任务", mockTask.title)
+        assertEquals("这是一个测试任务", mockTask.description)
+        assertEquals("STUDY", mockTask.type)
+        assertEquals(3, mockTask.needPeople)
+        assertEquals(1, mockTask.currentPeople)
+        assertEquals(50, mockTask.rewardPoints)
+        assertEquals("OPEN", mockTask.status)
     }
 
-    private fun formatTime(time: Long): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        return sdf.format(Date(time))
+    @Test
+    fun `Task people count should be correct`() {
+        val peopleText = "${mockTask.currentPeople}/${mockTask.needPeople}人"
+        assertEquals("1/3人", peopleText)
+    }
+
+    @Test
+    fun `Task reward should be formatted correctly`() {
+        val rewardText = "+${mockTask.rewardPoints}积分"
+        assertEquals("+50积分", rewardText)
+    }
+
+    @Test
+    fun `Task should have valid deadline`() {
+        assertTrue(mockTask.deadline > System.currentTimeMillis())
+    }
+
+    @Test
+    fun `Task status should be valid`() {
+        val validStatuses = listOf("OPEN", "FULL", "FINISHED", "CANCELLED")
+        assertTrue(validStatuses.contains(mockTask.status))
     }
 }

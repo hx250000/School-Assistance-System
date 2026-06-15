@@ -6,71 +6,71 @@ import org.junit.Assert.*
 class LoginActivityTest {
 
     @Test
-    fun `初始状态为登录模式`() {
+    fun `åå§ç¶æä¸ºç»å½æ¨¡å¼`() {
         val isLogin = true
         assertTrue(isLogin)
     }
 
     @Test
-    fun `切换到注册模式`() {
+    fun `åæ¢å°æ³¨åæ¨¡å¼`() {
         var isLogin = true
         isLogin = false
         assertFalse(isLogin)
     }
 
     @Test
-    fun `注册模式显示用户名`() {
+    fun `æ³¨åæ¨¡å¼æ¾ç¤ºç¨æ·å`() {
         val isLoginMode = false
         val visible = !isLoginMode
         assertTrue(visible)
     }
 
     @Test
-    fun `登录模式隐藏用户名`() {
+    fun `ç»å½æ¨¡å¼éèç¨æ·å`() {
         val isLoginMode = true
         val visible = !isLoginMode
         assertFalse(visible)
     }
 
     @Test
-    fun `手机号为空登录失败`() {
+    fun `ææºå·ä¸ºç©ºç»å½å¤±è´¥`() {
         val phone = ""
         assertFalse(phone.isNotBlank())
     }
 
     @Test
-    fun `密码为空登录失败`() {
+    fun `å¯ç ä¸ºç©ºç»å½å¤±è´¥`() {
         val pwd = ""
         assertFalse(pwd.isNotBlank())
     }
 
     @Test
-    fun `完整信息可以登录`() {
+    fun `å®æ´ä¿¡æ¯å¯ä»¥ç»å½`() {
         val phone = "13800138000"
         val pwd = "123456"
         assertTrue(phone.isNotBlank() && pwd.isNotBlank())
     }
 
     @Test
-    fun `模拟登录成功`() {
+    fun `æ¨¡æç»å½æå`() {
         val result = mockLogin("13800138000", "123456")
         assertTrue(result.first)
     }
 
     @Test
-    fun `模拟登录失败`() {
+    fun `æ¨¡æç»å½å¤±è´¥`() {
         val result = mockLogin("13800138000", "wrong")
         assertFalse(result.first)
     }
 
     @Test
-    fun `模拟注册成功`() {
-        val result = mockRegister("张三", "13800138000", "123456")
+    fun `æ¨¡ææ³¨åæå`() {
+        val result = mockRegister("å¼ ä¸", "13800138000", "123456")
         assertTrue(result.first)
     }
 
     @Test
-    fun `模拟注册失败`() {
+    fun `æ¨¡ææ³¨åå¤±è´¥`() {
         val result = mockRegister("", "13800138000", "123456")
         assertFalse(result.first)
     }
@@ -93,3 +93,4 @@ class LoginActivityTest {
         }
     }
 }
+

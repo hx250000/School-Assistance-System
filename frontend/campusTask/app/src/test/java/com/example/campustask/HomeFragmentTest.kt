@@ -50,11 +50,8 @@ class HomeFragmentTest {
 
     @Test
     fun test_item_click_triggers_navigation() {
-        val canClick = true
-        assertTrue(canClick)
+        assertTrue(true)
     }
-
-    // ===== mock business logic =====
 
     private fun filterTest(category: String): List<String> {
         return when (category) {
