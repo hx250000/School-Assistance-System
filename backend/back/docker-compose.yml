@@ -57,6 +57,20 @@ services:
       retries: 3
     env_file:
       - .env
+  
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - campus-network
 
 networks:
   campus-network:
@@ -64,4 +78,6 @@ networks:
 
 volumes:
   mysql-data:
+    driver: local
+  prometheus-data:
     driver: local
