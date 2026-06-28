@@ -34,18 +34,25 @@ Frontend Coverage:
 ## 技术架构
 
 ```mermaid
-flowchart TD
-    A[Android App] -->|HTTP/Retrofit| B[SpringBoot 后端]
-    B --> C[(MySQL 数据库)]
-    B --> D[(Redis 缓存)]
-    B --> E[AI 服务]
+flowchart TB
+    A[Android 用户端]
+
+    B["Spring Boot 后端服务<br/>Controller<br/>Service<br/>Repository"]
+
+    C[MySQL 数据库]
+
+    D[Web 管理后台]
+
+    A -->|HTTP| B
+    B -->|Spring Data JPA| C
+    D -->|HTTP| B
 ```
 
 **架构说明：**
-- **前端**：Android 客户端，使用 Kotlin + MVVM 架构
+- **用户前端**：Android 客户端，使用 Kotlin + MVVM 架构
+- **管理后台**：原生HTML + CSS + JS
 - **后端**：SpringBoot 服务，提供 RESTful API
 - **数据库**：MySQL 存储业务数据
-- **缓存**：Redis 用于并发控制和缓存
 - **AI**：集成 AI 服务生成任务描述
 
 
@@ -68,7 +75,6 @@ flowchart TD
 - SpringBoot
 - Spring Data JPA
 - MySQL
-- Redis
 - JWT 登录认证
 - WebSocket
 - RESTful API
@@ -91,6 +97,12 @@ flowchart TD
 ### 2. 任务发布系统
 
 用户可以发布校园任务，支持多种类型：
+
+- 生活
+- 学习
+- 游戏
+
+例如：
 
 - 带饭
 - 代拿快递

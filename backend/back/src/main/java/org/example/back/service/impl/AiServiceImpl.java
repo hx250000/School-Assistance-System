@@ -78,13 +78,7 @@ public class AiServiceImpl implements AiService {
             default -> "其他";
         };
 
-        return String.format(/*"""
-            请帮我生成一个%s任务的详细描述，任务标题是："%s"
-            要求：
-            1. 内容具体，包含任务要求和注意事项
-            2. 语言简洁，适合校园场景
-            3. 字数控制在80字左右
-            """*/template, typeName, title);
+        return String.format(template, typeName, title);
     }
 
     /**
