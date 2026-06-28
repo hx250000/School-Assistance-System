@@ -1,36 +1,20 @@
-import { describe, it, expect } from 'vitest'
-import fs from 'fs'
-import path from 'path'
-import vm from 'vm'
+const API_ENV = "local"; // "local" | "railway"
 
-const configPath = path.resolve(__dirname, '../config.js')
+const ENV = {
+  local:   "http://localhost:8080",
+  railway: "https://school-assistance-system.up.railway.app"
+};
 
-describe('Config API URLs', () => {
-  const context = {}
-  vm.createContext(context)
+const BASE_URL = ENV[API_ENV] || ENV.railway;
 
-  const code = fs.readFileSync(configPath, 'utf8')
-  vm.runInContext(code + '\nthis.API = API;', context)
+// 各页面共用的 API 前缀
+const API = {
+  user: BASE_URL + "/api/user",
+  task: BASE_URL + "/api/task",
+  shop: BASE_URL + "/api/shop",
+  achievement: BASE_URL + "/api/achievements",
+  points: BASE_URL + "/api/points",
+  file: BASE_URL + "/"   // 头像等静态资源
+};
 
-  const API = context.API
-
-  it('should define base API URL', () => {
-    expect(API).toBeDefined()
-    expect(typeof API).toBe('object')
-  })
-
-  it('should have all required API endpoints', () => {
-    expect(API.user).toBeDefined()
-    expect(API.task).toBeDefined()
-    expect(API.shop).toBeDefined()
-    expect(API.achievement).toBeDefined()
-    expect(API.points).toBeDefined()
-    expect(API.file).toBeDefined()
-  })
-
-  it('should have correct base paths', () => {
-    expect(API.user).toContain('/api/user')
-    expect(API.task).toContain('/api/task')
-    expect(API.points).toContain('/api/points')
-  })
-})
+// export { API, BASE_URL };
