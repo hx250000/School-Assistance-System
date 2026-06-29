@@ -1,6 +1,7 @@
 package org.example.back.testutil;
 
 import org.example.back.config.JwtAuthenticationInterceptor;
+import org.example.back.util.JwtUtil;
 
 import java.lang.reflect.Field;
 
@@ -24,5 +25,9 @@ public final class AuthTestUtil {
 
     public static void clear() {
         currentUserIdThreadLocal().remove();
+    }
+
+    public static String createAuthorizationHeader(Long userId) {
+        return "Bearer " + JwtUtil.generateToken(userId);
     }
 }

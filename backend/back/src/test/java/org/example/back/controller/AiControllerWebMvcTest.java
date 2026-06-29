@@ -6,6 +6,7 @@ import org.example.back.dto.request.AiGenerateRequest;
 import org.example.back.dto.response.AiGenerateResponse;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.AiService;
+import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,6 +33,8 @@ class AiControllerWebMvcTest {
     @MockBean
     private AiService aiService;
 
+    private static final Long TEST_USER_ID = 1L;
+
     @Test
     void generateDescription_shouldReturnDescription() throws Exception {
         AiGenerateRequest request = new AiGenerateRequest();
@@ -43,6 +46,7 @@ class AiControllerWebMvcTest {
         when(aiService.generateTaskDescription(request)).thenReturn(response);
 
         mockMvc.perform(post("/api/ai/description")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

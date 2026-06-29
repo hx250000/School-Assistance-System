@@ -10,6 +10,7 @@ import org.example.back.dto.response.UserInfoVO;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.service.TaskService;
+import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,6 +43,8 @@ class TaskControllerWebMvcTest {
     @MockBean
     private TaskService taskService;
 
+    private static final Long TEST_USER_ID = 1L;
+
     @Test
     void create_shouldReturnId() throws Exception {
         when(taskService.createTask(any(TaskCreateRequest.class))).thenReturn(10L);
@@ -54,6 +57,7 @@ class TaskControllerWebMvcTest {
         req.setDeadline("2026-04-27 10:00");
 
         mockMvc.perform(post("/api/task/create")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
@@ -68,7 +72,8 @@ class TaskControllerWebMvcTest {
         vo.setTitle("a");
         when(taskService.list(0, 10, "OPEN")).thenReturn(List.of(vo));
 
-        mockMvc.perform(get("/api/task/list?page=0&size=10"))
+        mockMvc.perform(get("/api/task/list?page=0&size=10")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].taskId").value(1));
@@ -85,6 +90,7 @@ class TaskControllerWebMvcTest {
         req.setTaskId(1L);
 
         mockMvc.perform(post("/api/task/grab")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
@@ -96,7 +102,8 @@ class TaskControllerWebMvcTest {
     void finish_shouldReturnMessage() throws Exception {
         doNothing().when(taskService).finishTask(1L);
 
-        mockMvc.perform(post("/api/task/1/finish"))
+        mockMvc.perform(post("/api/task/1/finish")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("任务完成"));
@@ -106,7 +113,8 @@ class TaskControllerWebMvcTest {
     void getById_whenNotFound_shouldMapTo404() throws Exception {
         when(taskService.findById(eq(1L))).thenThrow(new ResourceNotFoundException("任务不存在！"));
 
-        mockMvc.perform(get("/api/task/task?taskId=1"))
+        mockMvc.perform(get("/api/task/task?taskId=1")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("任务不存在")));
@@ -119,7 +127,8 @@ class TaskControllerWebMvcTest {
         vo.setStatus("CLOSED");
         when(taskService.list(0, 10, "CLOSED")).thenReturn(List.of(vo));
 
-        mockMvc.perform(get("/api/task/admin/list?page=0&size=10&status=CLOSED"))
+        mockMvc.perform(get("/api/task/admin/list?page=0&size=10&status=CLOSED")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].taskId").value(1))
@@ -133,7 +142,8 @@ class TaskControllerWebMvcTest {
         user.setUsername("testUser");
         when(taskService.participants(1L)).thenReturn(List.of(user));
 
-        mockMvc.perform(get("/api/task/1/participants"))
+        mockMvc.perform(get("/api/task/1/participants")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].id").value(1))
@@ -144,7 +154,8 @@ class TaskControllerWebMvcTest {
     void cancel_shouldReturnMessage() throws Exception {
         doNothing().when(taskService).cancelTask(1L);
 
-        mockMvc.perform(post("/api/task/1/cancel"))
+        mockMvc.perform(post("/api/task/1/cancel")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("任务已取消"));
@@ -157,7 +168,8 @@ class TaskControllerWebMvcTest {
         vo.setTitle("已完成任务");
         when(taskService.myTaskHistory()).thenReturn(List.of(vo));
 
-        mockMvc.perform(get("/api/task/history"))
+        mockMvc.perform(get("/api/task/history")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].taskId").value(1))
@@ -171,7 +183,8 @@ class TaskControllerWebMvcTest {
         vo.setTitle("参与的任务");
         when(taskService.myParticipatedTasks()).thenReturn(List.of(vo));
 
-        mockMvc.perform(get("/api/task/joined"))
+        mockMvc.perform(get("/api/task/joined")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].taskId").value(1))
@@ -185,7 +198,8 @@ class TaskControllerWebMvcTest {
         vo.setTitle("学习任务");
         when(taskService.findByTitle("学习")).thenReturn(List.of(vo));
 
-        mockMvc.perform(get("/api/task/search?keyword=学习"))
+        mockMvc.perform(get("/api/task/search?keyword=学习")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].taskId").value(1))
@@ -200,7 +214,8 @@ class TaskControllerWebMvcTest {
         stats.setUsers(100);
         when(taskService.stats()).thenReturn(stats);
 
-        mockMvc.perform(get("/api/task/stats"))
+        mockMvc.perform(get("/api/task/stats")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.inProgress").value(5))

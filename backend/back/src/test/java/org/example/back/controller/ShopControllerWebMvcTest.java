@@ -7,6 +7,7 @@ import org.example.back.dto.request.ShopExchangeRequest;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.FileStorageService;
 import org.example.back.service.ShopService;
+import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,11 +41,14 @@ class ShopControllerWebMvcTest {
     @MockBean
     private FileStorageService fileStorageService;
 
+    private static final Long TEST_USER_ID = 1L;
+
     @Test
     void items_shouldReturnArray() throws Exception {
         when(shopService.listItems()).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/shop/items"))
+        mockMvc.perform(get("/api/shop/items")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").isArray());
@@ -57,8 +61,9 @@ class ShopControllerWebMvcTest {
         when(shopService.exchange(1L)).thenReturn(99L);
 
         mockMvc.perform(post("/api/shop/exchange")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(99));
@@ -75,6 +80,7 @@ class ShopControllerWebMvcTest {
         req.setDescription("d");
 
         mockMvc.perform(post("/api/shop/items")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())

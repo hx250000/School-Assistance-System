@@ -9,6 +9,7 @@ import org.example.back.dto.response.RegisterResponse;
 import org.example.back.exception.AuthenticationException;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.UserService;
+import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -36,6 +37,8 @@ class UserControllerWebMvcTest {
 
     @MockBean
     private UserService userService;
+
+    private static final Long TEST_USER_ID = 1L;
 
     @Test
     void register_shouldReturnSuccessEnvelope() throws Exception {
@@ -82,7 +85,8 @@ class UserControllerWebMvcTest {
     void info_whenServiceThrowsAuthException_shouldMapTo401() throws Exception {
         when(userService.getCurrentUser()).thenThrow(new AuthenticationException("用户未登录"));
 
-        mockMvc.perform(get("/api/user/info"))
+        mockMvc.perform(get("/api/user/info")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("用户未登录")));

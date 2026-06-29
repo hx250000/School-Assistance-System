@@ -5,9 +5,11 @@ import org.example.back.config.SecurityConfig;
 import org.example.back.dto.response.UserAchievementOverview;
 import org.example.back.entity.Achievement;
 import org.example.back.entity.AchievementTYPE;
+import org.example.back.entity.User;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.repository.UserRepository;
 import org.example.back.service.AchievementService;
+import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,6 +44,15 @@ class AchievementControllerWebMvcTest {
     @MockBean
     private UserRepository userRepository;
 
+    private static final Long TEST_USER_ID = 1L;
+
+    private User createAdminUser() {
+        User admin = new User();
+        admin.setId(TEST_USER_ID);
+        admin.setAdmin(true);
+        return admin;
+    }
+
     @Test
     void getMyAchievements_shouldReturnOverview() throws Exception {
         UserAchievementOverview ov = new UserAchievementOverview();
@@ -48,7 +61,8 @@ class AchievementControllerWebMvcTest {
         ov.setCompletionRate(0.5);
         when(achievementService.getMyAchievement()).thenReturn(ov);
 
-        mockMvc.perform(get("/api/achievements/my"))
+        mockMvc.perform(get("/api/achievements/my")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.totalCount").value(2))
@@ -57,9 +71,11 @@ class AchievementControllerWebMvcTest {
 
     @Test
     void initializeAllUsers_shouldCallServiceAndReturnUserCount() throws Exception {
-        when(userRepository.findAll()).thenReturn(List.of(new org.example.back.entity.User(), new org.example.back.entity.User()));
+        when(userRepository.findById(eq(TEST_USER_ID))).thenReturn(Optional.of(createAdminUser()));
+        when(userRepository.findAll()).thenReturn(List.of(new User(), new User()));
 
-        mockMvc.perform(post("/api/achievements/admin/init"))
+        mockMvc.perform(post("/api/achievements/admin/init")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(2));
@@ -69,9 +85,11 @@ class AchievementControllerWebMvcTest {
 
     @Test
     void recalculateAllUsers_shouldCallServiceAndReturnUserCount() throws Exception {
-        when(userRepository.findAll()).thenReturn(List.of(new org.example.back.entity.User(), new org.example.back.entity.User()));
+        when(userRepository.findById(eq(TEST_USER_ID))).thenReturn(Optional.of(createAdminUser()));
+        when(userRepository.findAll()).thenReturn(List.of(new User(), new User()));
 
-        mockMvc.perform(post("/api/achievements/admin/recalculate"))
+        mockMvc.perform(post("/api/achievements/admin/recalculate")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(2));
@@ -98,9 +116,11 @@ class AchievementControllerWebMvcTest {
         savedAchievement.setRewardPoints(100);
         savedAchievement.setIsActive(true);
 
+        when(userRepository.findById(eq(TEST_USER_ID))).thenReturn(Optional.of(createAdminUser()));
         when(achievementService.addAchievement(any(Achievement.class))).thenReturn(savedAchievement);
 
         mockMvc.perform(post("/api/achievements/admin/achievement")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(achievement)))
                 .andExpect(status().isOk())
@@ -119,9 +139,11 @@ class AchievementControllerWebMvcTest {
         a2.setId(2L);
         a2.setTitle("Achievement 2");
 
+        when(userRepository.findById(eq(TEST_USER_ID))).thenReturn(Optional.of(createAdminUser()));
         when(achievementService.listAll()).thenReturn(List.of(a1, a2));
 
-        mockMvc.perform(get("/api/achievements/admin/list/achievements"))
+        mockMvc.perform(get("/api/achievements/admin/list/achievements")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").isArray())
@@ -136,9 +158,11 @@ class AchievementControllerWebMvcTest {
         overview.setUnlockedCount(3);
         overview.setCompletionRate(0.6);
 
+        when(userRepository.findById(eq(TEST_USER_ID))).thenReturn(Optional.of(createAdminUser()));
         when(achievementService.getSomeonesAchievement(1L)).thenReturn(overview);
 
         mockMvc.perform(get("/api/achievements/admin/list/userachievements")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .param("userId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))

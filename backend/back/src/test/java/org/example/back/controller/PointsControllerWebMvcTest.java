@@ -6,8 +6,6 @@ import org.example.back.dto.response.UserPointsHistory;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.service.PointsService;
 import org.example.back.testutil.AuthTestUtil;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,21 +31,14 @@ class PointsControllerWebMvcTest {
     @MockBean
     private PointsService pointsService;
 
-    @BeforeEach
-    void setUp() {
-        AuthTestUtil.setCurrentUserId(1L);
-    }
-
-    @AfterEach
-    void tearDown() {
-        AuthTestUtil.clear();
-    }
+    private static final Long TEST_USER_ID = 1L;
 
     @Test
     void info_shouldReturnPoints() throws Exception {
         when(pointsService.getUserPoints()).thenReturn(123);
 
-        mockMvc.perform(get("/api/points/my/points"))
+        mockMvc.perform(get("/api/points/my/points")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value(123));
@@ -55,21 +46,18 @@ class PointsControllerWebMvcTest {
 
     @Test
     void history_shouldReturnHistoryResponse() throws Exception {
-        // 1. 准备 Mock 返回对象
         PointsHistoryResponse response = new PointsHistoryResponse();
         UserPointsHistory history = new UserPointsHistory(10, "签到", "说明", LocalDateTime.now());
         response.setPointsHistoryList(List.of(history));
         response.setIncreasePoints(10);
         response.setDecreasePoints(0);
 
-        // 2. 配置 Mock 行为
         when(pointsService.getMyPointsHistory()).thenReturn(response);
 
-        // 3. 执行请求并验证
-        mockMvc.perform(get("/api/points/my/history"))
+        mockMvc.perform(get("/api/points/my/history")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                // 注意：现在的 $.data 是一个对象，包含 pointsHistoryList 数组
                 .andExpect(jsonPath("$.data.pointsHistoryList").isArray())
                 .andExpect(jsonPath("$.data.increasePoints").value(10))
                 .andExpect(jsonPath("$.data.decreasePoints").value(0))

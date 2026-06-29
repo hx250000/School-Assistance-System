@@ -7,6 +7,7 @@ import org.example.back.entity.Review;
 import org.example.back.exception.GlobalExceptionHandler;
 import org.example.back.exception.ResourceNotFoundException;
 import org.example.back.service.ReviewService;
+import org.example.back.testutil.AuthTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +35,8 @@ class ReviewControllerWebMvcTest {
     @MockBean
     private ReviewService reviewService;
 
+    private static final Long TEST_USER_ID = 1L;
+
     @Test
     void create_shouldReturnReview() throws Exception {
         ReviewCreateRequest request = new ReviewCreateRequest();
@@ -49,6 +52,7 @@ class ReviewControllerWebMvcTest {
         when(reviewService.createReview(any(ReviewCreateRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/review/create")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -65,6 +69,7 @@ class ReviewControllerWebMvcTest {
         when(reviewService.createReview(any(ReviewCreateRequest.class))).thenThrow(new ResourceNotFoundException("用户不存在"));
 
         mockMvc.perform(post("/api/review/create")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -86,6 +91,7 @@ class ReviewControllerWebMvcTest {
         when(reviewService.createReview(any(ReviewCreateRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/review/create")
+                        .header("Authorization", AuthTestUtil.createAuthorizationHeader(TEST_USER_ID))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
