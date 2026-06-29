@@ -2,6 +2,7 @@ package org.example.back.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.back.exception.AuthenticationException;
 import org.example.back.util.JwtUtil;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -11,24 +12,27 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7); // Remove "Bearer " prefix
-
-            try {
-                Long userId = JwtUtil.getUserIdFromToken(token);
-                currentUserId.set(userId);
-            } catch (Exception e) {
-                // Token invalid, but we don't block the request here
-                // Service layer will handle authentication as needed
-                currentUserId.remove();
-            }
-        } else {
-            currentUserId.remove();
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
         }
 
-        return true; // Continue with the request
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AuthenticationException("未认证或缺少 Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+        try {
+            Long userId = JwtUtil.getUserIdFromToken(token);
+            if (userId == null) {
+                throw new AuthenticationException("Token 无效");
+            }
+            currentUserId.set(userId);
+            return true;
+        } catch (Exception e) {
+            currentUserId.remove();
+            throw new AuthenticationException("Token 无效或已过期");
+        }
     }
 
     @Override
